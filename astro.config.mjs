@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-import starlightThemeRapide from 'starlight-theme-rapide'
+import starlightThemeRapide from 'starlight-theme-rapide';
 
 // https://astro.build/config
 export default defineConfig({
@@ -9,7 +9,9 @@ export default defineConfig({
 		starlight({
 			plugins: [starlightThemeRapide()],
 			title: 'Securo',
-			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/securo-finance/securo' }],
+			social: [
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/securo-finance/securo' },
+			],
 			logo: {
 				src: './src/assets/logo.svg',
 			},
@@ -23,20 +25,14 @@ export default defineConfig({
 				},
 				{
 					label: 'Development',
-					items: [
-						{ label: 'Development Guide', slug: 'guides/development' },
-					],
+					items: [{ label: 'Development Guide', slug: 'guides/development' }],
 				},
 				{
 					label: 'Reference',
-					items: [
-						{ label: 'Tech Stack', slug: 'reference/tech-stack' },
-					],
+					items: [{ label: 'Tech Stack', slug: 'reference/tech-stack' }],
 				},
 			],
-			      customCss: [
-        './src/styles/custom.css',
-      ],
+			customCss: ['./src/styles/custom.css'],
 		}),
 	],
 });

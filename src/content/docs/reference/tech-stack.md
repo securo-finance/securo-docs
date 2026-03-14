@@ -5,13 +5,13 @@ description: An overview of the technologies used in Securo.
 
 ## Stack Overview
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | [FastAPI](https://fastapi.tiangolo.com/), [SQLAlchemy](https://www.sqlalchemy.org/), [Alembic](https://alembic.sqlalchemy.org/), [Celery](https://docs.celeryq.dev/) |
-| Frontend | [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/), [Tailwind CSS](https://tailwindcss.com/) |
-| Database | [PostgreSQL](https://www.postgresql.org/) |
-| Queue | [Redis](https://redis.io/) + Celery |
-| Docs | [Astro Starlight](https://starlight.astro.build/) |
+| Layer    | Technology                                                                                                                                                           |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Backend  | [FastAPI](https://fastapi.tiangolo.com/), [SQLAlchemy](https://www.sqlalchemy.org/), [Alembic](https://alembic.sqlalchemy.org/), [Celery](https://docs.celeryq.dev/) |
+| Frontend | [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/), [Tailwind CSS](https://tailwindcss.com/)                    |
+| Database | [PostgreSQL](https://www.postgresql.org/)                                                                                                                            |
+| Queue    | [Redis](https://redis.io/) + Celery                                                                                                                                  |
+| Docs     | [Astro Starlight](https://starlight.astro.build/)                                                                                                                    |
 
 ## Backend
 

@@ -27,12 +27,12 @@ docker compose exec backend pytest
 
 ## Project Structure
 
-| Directory | Purpose |
-|-----------|---------|
-| `backend/` | FastAPI application, Alembic migrations, Celery worker |
-| `frontend/` | React + Vite application |
-| `docs/` | This Starlight documentation site |
-| `scripts/` | Development helper scripts |
+| Directory   | Purpose                                                |
+| ----------- | ------------------------------------------------------ |
+| `backend/`  | FastAPI application, Alembic migrations, Celery worker |
+| `frontend/` | React + Vite application                               |
+| `docs/`     | This Starlight documentation site                      |
+| `scripts/`  | Development helper scripts                             |
 
 ## Contributing
 

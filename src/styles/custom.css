@@ -1,4 +1,3 @@
-
 /* Dark mode colors. */
 :root {
 	--sl-color-accent-low: #131e4f;
@@ -30,5 +29,5 @@
 }
 
 .site-title {
-    color: white
+	color: white;
 }
