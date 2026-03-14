@@ -1,29 +1,6 @@
-# Starlight Starter Kit: Basics
+# securo-docs
 
 [![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
-
-```
-pnpm create astro@latest -- --template starlight
-```
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro + Starlight project, you'll see the following folders and files:
-
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
-```
 
 Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
 
@@ -31,18 +8,28 @@ Images can be added to `src/assets/` and embedded in Markdown with a relative li
 
 Static assets, like favicons, can be placed in the `public/` directory.
 
-## 🧞 Commands
+- **Install dependencies:**
 
-All commands are run from the root of the project, from a terminal:
+  ```bash
+  pnpm i
+  ```
 
-| Command                | Action                                           |
-| :--------------------- | :----------------------------------------------- |
-| `pnpm install`         | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+- **Run the dev server:**
+
+  ```bash
+  pnpm dev
+  ```
+
+- **Format:**
+
+  ```bash
+  pnpm format
+  ```
+
+- **Workflow:**
+  - English content (root): add pages under `src/content/docs/` (e.g. `src/content/docs/guides/quick-start.md`).
+  - Localization: add translations under `src/content/docs/{{locale}}/` using the same filenames from root.
+  - UI translations: edit or add JSON files in `src/content/i18n/` (e.g. `en.json`, `pt-BR.json`).
 
 ## 👀 Want to learn more?
 
