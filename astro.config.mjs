@@ -9,6 +9,12 @@ export default defineConfig({
 		starlight({
 			plugins: [starlightThemeRapide()],
 			title: 'Securo',
+			defaultLocale: 'root',
+
+			locales: {
+				root: { label: 'English', lang: 'en' },
+				pt: { label: 'Português (Brasil)', lang: 'pt-BR' },
+			},
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/securo-finance/securo' },
 			],
