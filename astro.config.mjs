@@ -8,19 +8,30 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			plugins: [starlightThemeRapide()],
-			title: 'My Docs',
-			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }],
+			title: 'Securo',
+			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/securo-finance/securo' }],
+			logo: {
+				src: './src/assets/logo.svg',
+			},
 			sidebar: [
 				{
-					label: 'Guides',
+					label: 'Getting Started',
 					items: [
-						// Each item here is one entry in the navigation menu.
-						{ label: 'Example Guide', slug: 'guides/example' },
+						{ label: 'Quick Start', slug: 'guides/quick-start' },
+						{ label: 'Bank Sync', slug: 'guides/bank-sync' },
+					],
+				},
+				{
+					label: 'Development',
+					items: [
+						{ label: 'Development Guide', slug: 'guides/development' },
 					],
 				},
 				{
 					label: 'Reference',
-					autogenerate: { directory: 'reference' },
+					items: [
+						{ label: 'Tech Stack', slug: 'reference/tech-stack' },
+					],
 				},
 			],
 		}),

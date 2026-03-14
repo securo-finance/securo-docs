@@ -1,40 +1,32 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash # Remove or comment out this line to display the site sidebar on this page.
-hero:
-  tagline: Congrats on setting up a new Starlight project!
-  image:
-    file: ../../assets/houston.webp
-  actions:
-    - text: Example Guide
-      link: /guides/example/
-      icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
-      icon: external
-      variant: minimal
+title: Securo
+description: An open-source personal finance manager that runs on your own infrastructure. No data leaves your environment.
+template: doc
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
+We believe personal finance should actually be _personal_. No corporation should sit between you and your financial data. Securo runs on your own infrastructure, giving you full visibility into your accounts, spending, and habits — without surrendering a single byte to third parties.
+
+## Features
 
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
+	<Card title="Multi-Account Management" icon="laptop">
+		Track multiple accounts with real-time running balances.
 	</Card>
-	<Card title="Change page layout" icon="document">
-		Delete `template: splash` in `src/content/docs/index.mdx` to display a
-		sidebar on this page.
+	<Card title="Transaction Management" icon="list-format">
+		Search, filter, and export transactions to CSV.
 	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
+	<Card title="File Import" icon="document">
+		Import OFX, QIF, CAMT, and CSV files from your bank.
 	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
+	<Card title="Auto-Categorization" icon="puzzle">
+		Rules engine to automatically categorize transactions.
 	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
+	<Card title="Budgets & Recurring" icon="approve-check">
+		Set budgets and track recurring transactions.
+	</Card>
+	<Card title="Bank Sync" icon="external">
+		Sync with your bank via the Pluggy integration.
 	</Card>
 </CardGrid>
