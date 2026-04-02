@@ -1,0 +1,64 @@
+---
+title: Rules
+description: Automate transaction categorization with pattern-matching rules that sort your spending for you.
+---
+
+Rules are one of Securo's most powerful features. They automatically assign categories (and optionally payees) to transactions based on pattern matching. Instead of manually categorizing every transaction, you define rules once and Securo applies them going forward.
+
+![Rules](/screenshots/rules.png)
+
+## How Rules Work
+
+Each rule consists of:
+
+1. **A condition**: A pattern that matches transaction descriptions (e.g., "description starts with UBER")
+2. **An action**: What to do when the condition matches (e.g., "set category to Transportation")
+3. **A priority**: Rules with higher priority are checked first
+
+When a new transaction is added (manually, via import, or through bank sync), Securo evaluates it against your rules in priority order. The first matching rule is applied.
+
+## Condition Types
+
+Rules support several matching strategies:
+
+- **Contains**: Description contains a specific word (e.g., `description contains "STARBUCKS"`)
+- **Starts with**: Description begins with a pattern (e.g., `description starts with "UBER"`)
+- **Regex**: Full regular expression matching for complex patterns (e.g., `description regex "SALARY|PAYROLL|DIRECT DEPOSIT"`)
+- **OR conditions**: Combine multiple patterns with OR logic (e.g., `description starts with "NETFLIX" OR description starts with "SPOTIFY" OR description starts with "DISNEY"`)
+
+## Creating a Rule
+
+1. Navigate to **Rules** in the sidebar
+2. Click **+ Add**
+3. Define the condition (match type and pattern)
+4. Set the action (category assignment, payee assignment, or both)
+5. Set the priority (higher priority rules are evaluated first)
+6. Click **Save**
+
+## Rule Packs
+
+Click **Rule Packs** to browse and install pre-made rule sets. These are collections of rules for common transaction patterns that can save you time setting up categorization from scratch.
+
+## Re-applying Rules
+
+If you've created new rules and want to apply them to existing transactions, click **Re-apply All**. This runs all your rules against every uncategorized transaction, categorizing them in bulk.
+
+This is especially useful when you:
+- First set up Securo and import historical transactions
+- Add a new rule and want it to retroactively categorize past transactions
+
+## Priority System
+
+Rules are evaluated from highest to lowest priority. If a transaction matches multiple rules, only the highest-priority rule is applied.
+
+The rules page lets you sort by **Priority**, **Name**, or **Category** to organize your rule list.
+
+## Example Rules
+
+| Rule Name                        | Condition                                           | Action                |
+| -------------------------------- | --------------------------------------------------- | --------------------- |
+| Starbucks                        | Description contains "STARBUCKS"                    | Payee: Starbucks      |
+| Salary / Payroll                 | Regex: `SALARY\|PAYROLL\|DIRECT DEPOSIT`              | Category: Income      |
+| Uber                             | Description starts with "UBER"                      | Category: Transport   |
+| Apple / Google Subscriptions     | Contains "APPLE.COM/BILL" OR starts with "GOOGLE *" | Category: Subscriptions |
+| Streaming                        | Starts with "NETFLIX" OR "SPOTIFY" OR "DISNEY"      | Category: Subscriptions |

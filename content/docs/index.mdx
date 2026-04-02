@@ -1,0 +1,57 @@
+---
+title: Introduction
+description: Securo is an open-source personal finance manager built with FastAPI and React.
+---
+
+Securo is a self-hosted personal finance application that gives you full control over your financial data. Track multiple accounts in different currencies, categorize transactions automatically with rules, set budgets, and monitor your net worth, all from a clean, modern interface.
+
+![Securo Dashboard](/screenshots/dashboard.png)
+
+## Why Securo?
+
+Managing personal finances shouldn't require handing your data to a third party. Securo runs on your own infrastructure, so your financial information never leaves your server. It supports **multiple currencies** with automatic conversion, making it ideal for people who manage money across borders.
+
+Unlike spreadsheets or basic trackers, Securo provides a complete set of tools that work together:
+
+- **Transactions** flow into **categories** through **rules** you define
+- **Budgets** track your spending against category limits each month
+- **Recurring transactions** handle subscriptions and regular bills automatically
+- **Reports** and **net worth tracking** show the big picture over time
+
+## Where to Begin?
+
+If you're new to Securo, we recommend this path:
+
+1. Follow the [Installation](/docs/getting-started/installation) guide to get the app running
+2. Walk through the [Setup Wizard](/docs/getting-started/setup-wizard) to create your first account
+3. Read the [Dashboard](/docs/features/dashboard) overview to understand the home screen
+4. Set up [Categories](/docs/features/categories) and [Rules](/docs/features/rules) to automate transaction sorting
+
+## Tech Stack
+
+| Layer    | Technology        |
+| -------- | ----------------- |
+| Backend  | FastAPI (Python)  |
+| Frontend | React + Vite      |
+| Database | PostgreSQL        |
+| Deploy   | Docker Compose    |
+
+## Quick Links
+
+<Cards>
+  <Card
+    title="Installation"
+    description="Get Securo running locally in minutes."
+    href="/docs/getting-started/installation"
+  />
+  <Card
+    title="Dashboard"
+    description="Understand the main screen and its widgets."
+    href="/docs/features/dashboard"
+  />
+  <Card
+    title="Docker Deployment"
+    description="Deploy Securo with Docker Compose."
+    href="/docs/deployment/docker"
+  />
+</Cards>

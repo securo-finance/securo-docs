@@ -1,0 +1,46 @@
+---
+title: Import
+description: Import bank statements and transaction history from OFX, CSV, QIF, and CAMT files.
+---
+
+Securo's import feature lets you bring in transactions from bank statements and other financial software. This is the fastest way to populate your transaction history, especially when first setting up Securo or when you don't have bank sync enabled.
+
+![Import](/screenshots/import.png)
+
+## Supported Formats
+
+Securo accepts four file formats:
+
+| Format | Description                                              |
+| ------ | -------------------------------------------------------- |
+| **OFX** | Open Financial Exchange, the most common bank export format |
+| **CSV** | Comma-separated values, flexible and works with any spreadsheet |
+| **QIF** | Quicken Interchange Format, used by Quicken and other tools |
+| **CAMT** | ISO 20022 bank statement format, used by European banks |
+
+## How to Import
+
+1. Navigate to **Import** in the sidebar
+2. **Drag and drop** a file onto the upload area, or click to browse your files
+3. Securo will parse the file and show a preview of the transactions
+4. Review the imported transactions
+5. Confirm the import
+
+## CSV Template
+
+If your bank's CSV format doesn't match what Securo expects, you can download a **CSV template** from the import page. This template shows the expected column structure so you can reformat your data to match.
+
+## Import History
+
+Below the upload area, the **Import History** section shows all previous imports with their date, file name, and number of transactions imported. This helps you keep track of what you've already loaded.
+
+## Duplicate Handling
+
+Securo checks for duplicate transactions during import. If a transaction with the same date, amount, and description already exists in the target account, it will be flagged so you can decide whether to skip or keep it.
+
+## Tips for Importing
+
+- **Start with OFX** if your bank supports it, this format has the most reliable parsing and includes all necessary fields
+- **Use CSV** when you need to clean up or transform data before importing (e.g., combining columns, fixing dates)
+- **Import by account**: each import goes into a single account, so import files separately for each bank account
+- After importing, set up [rules](/docs/features/rules) to auto-categorize the imported transactions in bulk

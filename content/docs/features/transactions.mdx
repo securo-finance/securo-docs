@@ -1,0 +1,68 @@
+---
+title: Transactions
+description: Record, search, categorize, and manage all your financial transactions.
+---
+
+Transactions are the foundation of Securo. Every time money enters or leaves one of your accounts, it's recorded as a transaction. The transactions page provides a powerful interface for viewing, filtering, and managing all your financial activity.
+
+![Transactions](/screenshots/transactions.png)
+
+## Transaction List
+
+The main transactions view shows a table with:
+
+- **Checkbox**: For selecting multiple transactions for bulk actions
+- **Description**: The name or memo of the transaction (e.g., "STARBUCKS Latte")
+- **Date**: When the transaction occurred
+- **Category**: The assigned spending category
+- **Amount**: Positive amounts (green) for income, negative (red) for expenses
+
+Transactions tagged as **transfers** between your own accounts are marked with a special badge so you can distinguish them from regular income and expenses.
+
+## Adding a Transaction
+
+Click **+ Add Transaction** in the top right corner. Fill in:
+
+1. **Description**: What the transaction is for
+2. **Account**: Which account the money came from or went to
+3. **Amount**: The transaction value
+4. **Date**: When it happened (defaults to today)
+5. **Category**: The spending category
+6. **Payee** (optional): The merchant or person
+7. **Notes** (optional): Any additional context
+
+Transactions also support **file attachments**: you can attach receipts or invoices to any transaction for record keeping. Attached transactions show a paperclip icon in the list.
+
+## Transfers
+
+Clicking the **Transfer** button creates a special paired transaction between two of your accounts. For example, moving money from your checking to savings creates:
+
+- A debit in the source account
+- A matching credit in the destination account
+
+Transfer transactions are automatically linked and marked with a transfer badge. They don't count as income or expenses in your reports, they're just money moving between your own accounts.
+
+For **cross-currency transfers** (e.g., BRL to USD), Securo asks for both amounts so it can record the correct values in each currency.
+
+## Filtering and Search
+
+The filter bar at the top provides multiple ways to narrow down your transactions:
+
+- **Search**: Free-text search across transaction descriptions
+- **Account**: Filter by a specific account
+- **Category**: Filter by spending category
+- **Payee**: Filter by merchant or person
+- **Date range**: Set start and end dates with the date picker
+
+All filters can be combined to create precise queries like "all uncategorized transactions from my credit card this month."
+
+## Export
+
+Click **Export CSV** to download your transactions as a CSV file. The export respects your current filters, so you can export a specific subset of transactions.
+
+## Bulk Actions
+
+Select multiple transactions using the checkboxes, then use bulk actions to:
+
+- Assign a category to all selected transactions
+- Delete multiple transactions at once

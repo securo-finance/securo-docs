@@ -1,0 +1,129 @@
+---
+title: Bank Sync
+description: Automatically import transactions from your bank accounts using supported providers.
+---
+
+Bank Sync lets you connect your real bank accounts to Securo so transactions are imported and updated automatically. Instead of manually entering every expense, your bank data flows into Securo on a recurring schedule, gets categorized, and stays in sync.
+
+Securo's provider system is designed to support multiple bank sync integrations. Each provider covers a different region or set of financial institutions.
+
+## Supported Providers
+
+| Provider | Region | Status |
+|----------|--------|--------|
+| [Pluggy](https://pluggy.ai) | Brazil | Available |
+| EU provider | Europe | Coming soon |
+| US provider | United States | Coming soon |
+
+We are actively working on expanding coverage to European and US banks. For now, Pluggy covers Brazilian financial institutions.
+
+## How Bank Sync Works
+
+1. You set up credentials with a supported provider
+2. You configure those credentials in Securo
+3. On the **Accounts** page, click **Connect Bank** to link your bank
+4. Securo imports your accounts and full transaction history
+5. A background task keeps everything in sync automatically
+
+![Accounts](/screenshots/accounts.png)
+
+## Pluggy (Brazilian Banks)
+
+[Pluggy](https://pluggy.ai) is a Brazilian open finance platform that connects to major banks and financial institutions in Brazil. Securo uses Pluggy's Connect Widget, which opens directly inside the app and handles the entire bank authentication flow for you.
+
+### 1. Create API Credentials
+
+1. Go to [dashboard.pluggy.ai](https://dashboard.pluggy.ai) and create an account
+2. Create a new **Team** in the dashboard
+3. Create a new **Application** under your team
+4. Copy the **Client ID** and **Client Secret** that are generated
+
+Store these credentials securely. You will need them to configure Securo.
+
+### 2. Configure Securo
+
+Add your Pluggy credentials to the Securo `.env` file:
+
+```bash
+PLUGGY_CLIENT_ID=your-client-id-here
+PLUGGY_CLIENT_SECRET=your-client-secret-here
+```
+
+Restart the backend after updating the environment. Securo automatically detects configured providers on startup.
+
+### 3. Connect Your Bank
+
+1. Go to the **Accounts** page and click **Connect Bank**
+2. Select **Pluggy** from the provider list
+3. The Pluggy Connect Widget opens inside Securo
+4. Search for your bank and log in with your banking credentials
+5. Complete any MFA challenges if prompted by your bank
+6. Once authenticated, Securo automatically imports your accounts and transaction history
+
+The entire connection process happens inside the widget. You don't need to manually copy any IDs or leave the app. After connecting, your bank accounts appear alongside manual accounts on the Accounts page.
+
+### Reconnecting
+
+If a connection expires or encounters an error, click **Reconnect** on the affected connection. Securo will reopen the widget using your existing connection, so you just need to re-authenticate with your bank.
+
+## Sync Behavior
+
+### Automatic Sync
+
+A background task runs every hour and refreshes any connection that hasn't been synced in the last 4 hours. Your transactions stay up to date without manual intervention.
+
+### Manual Sync
+
+You can trigger an immediate sync from the Accounts page by clicking the sync icon next to a bank connection.
+
+### What Happens During Sync
+
+- Account balances are updated
+- New transactions since the last sync are imported
+- Pending transactions are included or excluded based on your settings
+- Duplicate transactions (already imported) are skipped
+- Manually entered transactions are matched against synced ones using fuzzy matching (same amount, similar date, similar description)
+- Categories are auto-mapped from the provider's categories to your Securo categories
+- Transfer pairs between accounts are detected automatically
+
+## Connection Settings
+
+Each bank connection has settings that control how transactions are imported.
+
+### Payee Source
+
+Controls how the payee name is extracted from bank data:
+
+| Option | Description |
+|--------|-------------|
+| **Auto** (default) | Tries merchant name first, then payment data, then falls back to none |
+| **Merchant** | Uses the merchant name from the transaction |
+| **Payment Data** | Uses payer/receiver information from payment details |
+| **Description** | Uses the raw bank transaction description |
+| **None** | Does not extract a payee |
+
+### Import Pending
+
+When enabled (default), pending transactions are imported alongside posted ones. Disable this if you prefer to only import finalized transactions.
+
+## Troubleshooting
+
+### Connection Shows Error Status
+
+If a connection enters an error state, the bank credentials may have expired or the provider encountered an issue. Click **Reconnect** to re-authenticate with your bank through the widget.
+
+### Duplicate Transactions
+
+Securo tracks each synced transaction by its external ID. If you see duplicates, it may be because you entered a transaction manually before it was synced. Securo attempts to match these automatically (within 3 days, same amount, 60%+ description similarity), but some edge cases may require manual cleanup.
+
+### Missing Transactions
+
+Some banks have delays in reporting transactions. If recent transactions are missing, try a manual sync after a few hours. Also check that **Import Pending** is enabled in your connection settings.
+
+### Sync Not Running
+
+Automatic sync requires Redis and Celery. Verify that:
+
+- `REDIS_URL` is configured in your environment
+- The Celery worker is running: `celery -A app.worker worker`
+- The Celery beat scheduler is running: `celery -A app.worker beat`

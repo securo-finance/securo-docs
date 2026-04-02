@@ -1,0 +1,19 @@
+{
+  "title": "Features",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "dashboard",
+    "accounts",
+    "transactions",
+    "categories",
+    "budgets",
+    "recurring",
+    "rules",
+    "payees",
+    "import",
+    "reports",
+    "net-worth",
+    "bank-sync"
+  ]
+}
