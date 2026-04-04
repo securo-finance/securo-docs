@@ -29,70 +29,65 @@ We are actively working on expanding coverage to European and US banks. For now,
 
 ## Pluggy (Brazilian Banks)
 
-[Pluggy](https://pluggy.ai) is a Brazilian open finance platform that connects to major banks and financial institutions in Brazil. Setting up Pluggy with Securo involves three steps: creating API credentials on the Pluggy dashboard, connecting your bank accounts through MeuPluggy, and then configuring Securo with your credentials.
+[Pluggy](https://pluggy.ai) is a Brazilian open finance platform that connects to major banks and financial institutions in Brazil. Securo embeds the Pluggy Connect Widget directly in the app, so the entire bank authentication flow happens without leaving Securo.
 
-### 1. Create API Credentials
+### 1. Create a Pluggy Account
 
 1. Go to [dashboard.pluggy.ai](https://dashboard.pluggy.ai) and create an account
 2. Create a new **Team** in the dashboard
 3. Create a new **Application** under your team
-4. Copy the **Client ID** and **Client Secret** that are generated
-
-Your API credentials can be found in the application settings:
+4. Copy the **Client ID** and **Client Secret** from your application
 
 ![Pluggy Credentials](/screenshots/pluggy-dashboard-credentials.png)
 
-You can also browse the **Connectors** section to see which banks and institutions are supported:
+You can browse the **Connectors** section to see which banks and institutions are supported:
 
 ![Pluggy Connectors](/screenshots/pluggy-dashboard-connectors.png)
 
-Store your credentials securely. You will need them for both MeuPluggy and Securo.
+<Callout type="warn">
+Pluggy offers a free trial with limited connections. Make sure your trial is active before attempting to connect bank accounts in Securo.
+</Callout>
 
-### 2. Connect Your Bank via MeuPluggy
+### 2. Test Your Credentials with MeuPluggy (Optional)
 
-[MeuPluggy](https://meu.pluggy.ai) is a free portal provided by Pluggy that lets you connect your bank accounts. This is where the actual bank authentication happens.
+[MeuPluggy](https://meu.pluggy.ai) is a free portal provided by Pluggy that lets you test your API credentials and verify that your bank connection works before configuring Securo.
 
-1. Go to [meu.pluggy.ai](https://meu.pluggy.ai) and sign in with your Pluggy account
-2. Enter the **Client ID** and **Client Secret** from your Pluggy application
-3. Click **Connect** and select your bank from the list
-4. Log in with your banking credentials and complete any MFA challenges
-5. Once connected, MeuPluggy generates an **Item ID** for each bank connection
+1. Go to [meu.pluggy.ai](https://meu.pluggy.ai) and sign in
+2. Enter the **Client ID** and **Client Secret** from your application
+3. Try connecting a bank account to confirm your credentials are valid
 
 ![MeuPluggy](/screenshots/pluggy-meu-intro.png)
 
-<Callout type="warn">
-You can only connect bank accounts through MeuPluggy while your Pluggy trial period is active. Make sure to complete this step before your trial expires.
-</Callout>
-
-The **Item ID** is a unique identifier that represents your authenticated bank connection. You may connect multiple banks — each one gets its own Item ID.
+This step is optional but recommended if you want to verify everything works on Pluggy's side before setting up Securo.
 
 ### 3. Configure Securo
 
-Add your Pluggy credentials and Item IDs to the Securo `.env` file:
+Add your Pluggy credentials to the Securo `.env` file:
 
 ```bash
 PLUGGY_CLIENT_ID=your-client-id-here
 PLUGGY_CLIENT_SECRET=your-client-secret-here
 ```
 
-Restart the backend after updating the environment. Securo automatically detects configured providers on startup.
+Restart the backend after updating the environment. Securo automatically detects configured providers on startup and makes Pluggy available as a connection option.
 
-### 4. Connect Your Bank in Securo
+### 4. Connect Your Bank
 
 1. Go to the **Accounts** page and click **Connect Bank**
-2. Select **Pluggy** from the provider list
-3. The Pluggy Connect Widget opens inside Securo
-4. Search for your bank and log in with your banking credentials
+2. A dialog shows all available providers — select **Pluggy**
+3. Securo requests a connect token from the backend and opens the Pluggy Connect Widget directly inside the app
+4. Search for your bank and log in with your online banking credentials
 5. Complete any MFA challenges if prompted by your bank
-6. Once authenticated, Securo automatically imports your accounts and transaction history
+6. Once authenticated, the widget returns the connection to Securo automatically
+7. Securo imports your accounts and full transaction history immediately
 
 ![Connect Bank](/screenshots/pluggy-connect-bank.png)
 
-After connecting, your bank accounts appear alongside manual accounts on the Accounts page.
+You don't need to copy any IDs or leave the app. The widget handles the entire authentication flow, and Securo stores the connection internally. After connecting, your bank accounts appear alongside manual accounts on the Accounts page.
 
 ### Reconnecting
 
-If a connection expires or encounters an error, click **Reconnect** on the affected connection. Securo will reopen the widget using your existing connection, so you just need to re-authenticate with your bank.
+If a connection expires or encounters an error, click **Reconnect** on the affected connection. Securo reopens the widget using your existing connection, so you just need to re-authenticate with your bank. No new connection is created — the existing one is updated.
 
 ## Sync Behavior
 
