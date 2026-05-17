@@ -1,0 +1,70 @@
+---
+title: Assets
+description: Track investments, property, and other valuables with live market prices, growth rules, or manual valuations.
+---
+
+The Assets page is where you track everything you own that isn't sitting in a bank account — stocks, ETFs, crypto, real estate, vehicles, and other valuables. Each asset's value feeds into your overall [Net Worth](/docs/features/net-worth).
+
+![Assets](/screenshots/assets.png)
+
+## Asset Types
+
+Securo supports a range of asset types, each with its own icon:
+
+| Type | Examples |
+|------|----------|
+| **Stock** | Individual company shares |
+| **ETF** | Exchange-traded funds |
+| **Crypto** | Bitcoin, Ethereum, and other tokens |
+| **Fund** | Mutual funds and managed funds |
+| **Real Estate** | Houses, apartments, land |
+| **Vehicle** | Cars, motorcycles, boats |
+| **Valuable** | Jewelry, art, collectibles |
+| **Investment** | Generic investments |
+| **Other** | Anything else |
+
+## Wallets
+
+Assets are organized into **wallets** — groups like "Retirement", "Trading", or "Crypto". Each wallet shows a combined total and can be expanded or collapsed. Assets that aren't assigned to a wallet appear in an **Ungrouped** section.
+
+To create a wallet, click **+ New Wallet**. You can also create one inline while adding an asset.
+
+## Adding an Asset
+
+Click **+ Add Asset** and fill in the asset's **name**, **type**, **currency**, and optionally a **wallet**. You can also record a **purchase date** and **purchase price** so Securo can calculate your gain or loss.
+
+The most important choice is the **valuation method**, which determines how the asset's value is kept up to date. It's locked once the asset is created.
+
+### Valuation Methods
+
+| Method | How it works |
+|--------|--------------|
+| **Manual** | You enter the value yourself and update it whenever you like. Best for property, vehicles, and valuables. |
+| **Growth Rule** | You set a growth rate (percentage or fixed amount) and frequency (daily, weekly, monthly, yearly), and Securo projects the value automatically from a start date. |
+| **Market Price** | You enter a **ticker** (e.g., `AAPL`, `BTC-USD`, `PETR4.SA`) and a **quantity**. Securo fetches the live price and keeps the value current. Best for stocks, ETFs, and crypto. |
+
+For market-price assets, Securo shows a live quote preview as you type the ticker, and refreshes prices automatically each day.
+
+## Value History
+
+Every asset keeps a **value history**. For manual assets, use the **+ Add Value** form to record a new value with a date. Each entry shows the change from the previous one, color-coded green for gains and red for losses. Once an asset has two or more values, a trend chart appears in its detail panel.
+
+Growth-rule and market-price assets build their history automatically.
+
+## Synced Assets
+
+If you connect a brokerage or investment account through [Bank Sync](/docs/features/bank-sync), your holdings are imported automatically as assets. Synced assets:
+
+- Are marked with a **Synced** badge and grouped into a wallet named after the institution
+- Update their values automatically on each sync
+- Are read-only — they're managed by the connection, so editing and deleting are disabled
+
+You can still rename a synced wallet and move synced assets between wallets.
+
+## Portfolio Value
+
+At the top of the page, the **Portfolio Value** chart shows your total asset value over time as a stacked area chart. Toggle between **By Wallet** and **By Asset** to change how the value is broken down.
+
+## Assets and Net Worth
+
+The combined value of all your assets is converted to your primary currency and added to your [Net Worth](/docs/features/net-worth), alongside your account balances. Selling an asset — by recording a **sell date** and **sell price** — moves it into a **Sold Assets** section while keeping its history for reporting.

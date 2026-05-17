@@ -1,6 +1,6 @@
 ---
 title: Transactions
-description: Record, search, categorize, and manage all your financial transactions.
+description: Record, search, categorize, split, and manage all your financial transactions.
 ---
 
 Transactions are the foundation of Securo. Every time money enters or leaves one of your accounts, it's recorded as a transaction. The transactions page provides a powerful interface for viewing, filtering, and managing all your financial activity.
@@ -9,15 +9,23 @@ Transactions are the foundation of Securo. Every time money enters or leaves one
 
 ## Transaction List
 
-The main transactions view shows a table with:
+The main transactions view shows a sortable table of your activity. Each row can display the description, date, category, account, amount, payee, and more.
 
-- **Checkbox**: For selecting multiple transactions for bulk actions
+- **Checkbox**: Select multiple transactions for bulk actions
 - **Description**: The name or memo of the transaction (e.g., "STARBUCKS Latte")
-- **Date**: When the transaction occurred
-- **Category**: The assigned spending category
 - **Amount**: Positive amounts (green) for income, negative (red) for expenses
 
-Transactions tagged as **transfers** between your own accounts are marked with a special badge so you can distinguish them from regular income and expenses.
+Transactions tagged as **transfers** between your own accounts are marked with a special badge so you can tell them apart from regular income and expenses. Synced transactions also show a **pending** or **posted** status, and purchases paid in installments display their installment number (e.g., 3/12).
+
+### Customizing the Table
+
+The transaction table adapts to how you work:
+
+- **Column picker**: Choose which columns are visible — date, description, category, account, amount, payee, notes, tags, attachments, type, and status
+- **Sorting**: Click a column header to sort by it; click again to reverse the direction
+- **Resizing**: Drag the edge of a column header to adjust its width
+
+Results are paginated 20 at a time, with navigation controls at the bottom of the list.
 
 ## Adding a Transaction
 
@@ -33,6 +41,10 @@ Click **+ Add Transaction** in the top right corner. Fill in:
 
 Transactions also support **file attachments**: you can attach receipts or invoices to any transaction for record keeping. Attached transactions show a paperclip icon in the list.
 
+### Duplicating a Transaction
+
+To quickly record a similar transaction, use **Duplicate** on an existing row. Securo copies the description, amount, account, category, and other details into a new transaction for you to adjust. Identity-specific data such as splits is not carried over.
+
 ## Transfers
 
 Clicking the **Transfer** button creates a special paired transaction between two of your accounts. For example, moving money from your checking to savings creates:
@@ -40,29 +52,45 @@ Clicking the **Transfer** button creates a special paired transaction between tw
 - A debit in the source account
 - A matching credit in the destination account
 
-Transfer transactions are automatically linked and marked with a transfer badge. They don't count as income or expenses in your reports, they're just money moving between your own accounts.
+Transfer transactions are automatically linked and marked with a transfer badge. They don't count as income or expenses in your reports — they're just money moving between your own accounts.
 
 For **cross-currency transfers** (e.g., BRL to USD), Securo asks for both amounts so it can record the correct values in each currency.
+
+### Linking and Unlinking Transfers
+
+If a transfer was imported or entered as two separate transactions, select both and **link them as a transfer pair**. Securo then treats them as a single transfer. You can **unlink** a pair at any time to turn them back into independent transactions.
+
+## Splitting Transactions
+
+When an expense is shared with other people — a dinner, a trip, a shared apartment — you can split it through a **group**. Splitting records each person's share so you can track who owes whom.
+
+You can split a transaction while adding or editing it, or select several transactions and add them to a group in bulk. See the [Groups](/docs/features/groups) guide for the full workflow.
 
 ## Filtering and Search
 
 The filter bar at the top provides multiple ways to narrow down your transactions:
 
-- **Search**: Free-text search across transaction descriptions
+- **Search**: Free-text search across descriptions and notes
 - **Account**: Filter by a specific account
-- **Category**: Filter by spending category
+- **Category**: Filter by one or more categories, or show only **uncategorized** transactions
 - **Payee**: Filter by merchant or person
+- **Type**: Show only income or only expenses
 - **Date range**: Set start and end dates with the date picker
+- **Tags**: Filter by hashtags used in transaction notes
+- **Group**: Show transactions split through a specific group
 
-All filters can be combined to create precise queries like "all uncategorized transactions from my credit card this month."
+All filters can be combined to create precise queries like "all uncategorized expenses from my credit card this month." Active filters are saved in the page URL, so you can reload, bookmark, or share a filtered view.
 
 ## Export
 
-Click **Export CSV** to download your transactions as a CSV file. The export respects your current filters, so you can export a specific subset of transactions.
+Click **Export CSV** to download your transactions as a CSV file. The export respects your current filters and selection, so you can export a specific subset of transactions.
 
 ## Bulk Actions
 
-Select multiple transactions using the checkboxes, then use bulk actions to:
+Select multiple transactions using the checkboxes to reveal the bulk action bar. From there you can:
 
-- Assign a category to all selected transactions
-- Delete multiple transactions at once
+- **Categorize** all selected transactions at once
+- **Add tags** to the selection
+- **Add to a group** with a split rule
+- **Link** two transactions as a transfer pair
+- **Delete** multiple transactions at once

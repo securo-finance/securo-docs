@@ -1,44 +1,56 @@
 ---
 title: Reports
-description: Analyze your finances with interactive charts for income vs expenses, spending trends, and category breakdowns.
+description: Analyze your finances with interactive reports for net worth, income vs expenses, and cash flow.
 ---
 
-The reports section provides visual analytics to help you understand your financial patterns over time.
+The reports section provides visual analytics to help you understand your financial patterns and where your money is heading.
 
 ![Reports](/screenshots/reports.png)
 
+Reports are organized into three tabs at the top of the page. Each one is read-only and updates automatically as you add and categorize transactions.
+
+## Net Worth
+
+The **Net Worth** report tracks your total financial position — accounts plus assets, minus liabilities — over time. An area chart shows how your net worth has evolved, and the summary at the top shows the change since the start of the selected period.
+
+For a more detailed breakdown of what makes up your net worth, see the [Net Worth](/docs/features/net-worth) page.
+
 ## Income vs Expenses
 
-The **Income vs Expenses** report shows a side-by-side comparison of money coming in versus money going out, broken down by month.
+The **Income vs Expenses** report compares money coming in versus money going out for each period. Income and expense bars sit side by side, with a line showing your **net income** on top.
 
-This report helps you answer the fundamental question: am I spending more than I earn? The visualization makes it easy to spot months where expenses exceeded income.
-
-## Time Range Controls
-
-All reports support flexible time ranges:
-
-- **6M**: Last 6 months
-- **1Y**: Last 1 year
-- **2Y**: Last 2 years
-
-You can also toggle between different granularity levels:
-
-- **D**: Daily
-- **S**: Weekly
-- **M**: Monthly
-- **A**: Yearly
+This report helps you answer the fundamental question: am I spending more than I earn? The visualization makes it easy to spot periods where expenses exceeded income.
 
 ## Cash Flow
 
-The **Cash Flow** report tracks the net money movement over time: income minus expenses per period. A positive cash flow means you're saving; a negative one means you're spending more than you earn.
+The **Cash Flow** report tracks your running balance forward in time, projecting inflows and outflows over the months ahead. The summary shows your starting balance, projected inflow, projected outflow, and projected ending balance.
 
-> This feature is marked as "coming soon" (em breve) in the current version.
+A positive trend means you're on track to save; a downward trend is an early warning that spending is outpacing income.
+
+## Composition
+
+Below the main chart, the **Composition** donut breaks the selected report down by category. The top categories are shown individually and the rest are grouped into **Other**. Use the toggle to switch between the summary, income-only, and expense-only views. Hover any slice to see its value and share of the total.
+
+## Category Trends
+
+Alongside the composition donut, the **Category Trends** panel shows a small sparkline for each category, so you can spot which categories are rising or falling. When there are more categories than fit on screen, use the arrows to page through them.
+
+## Time Range and Granularity
+
+Each report supports flexible controls in the top right:
+
+| Control | Net Worth & Income vs Expenses | Cash Flow |
+|---------|-------------------------------|-----------|
+| **Range** | 6M, 1Y, 2Y | 3M, 6M, 12M |
+| **Granularity** | Daily, Weekly, Monthly, Yearly | Daily, Weekly, Monthly |
+
+Net Worth and Income vs Expenses look backward over your historical data, while Cash Flow projects forward.
 
 ## How to Use Reports
 
 1. Navigate to **Reports** in the sidebar
-2. Select the report type using the tabs at the top
-3. Adjust the time range and granularity using the controls
+2. Select the report using the tabs at the top
+3. Adjust the range and granularity using the controls
 4. Hover over chart elements for detailed tooltips
 
-Reports are read-only and always reflect your current transaction data. There's nothing to configure, they update automatically as you add and categorize transactions.
+Reports are read-only and always reflect your current transaction data — there's nothing to configure.

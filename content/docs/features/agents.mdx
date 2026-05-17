@@ -1,0 +1,75 @@
+---
+title: Agents
+description: Build conversational AI assistants on top of your financial data, with their own knowledge base and tools.
+---
+
+Agents are conversational AI assistants built on top of your Securo data. You can ask an agent about your spending, have it categorize transactions, generate charts, or answer questions using documents you've given it. Each agent has its own model, knowledge base, and set of tools.
+
+![Agents](/screenshots/agents.png)
+
+## Enabling Agents
+
+Agents are an optional feature and are turned off by default. To use them, your Securo instance needs:
+
+- `AGENTS_ENABLED=true` set in the backend environment
+- The agents services running: `docker compose --profile agents up -d`
+
+Once enabled, an **Agents** entry appears in the sidebar.
+
+## LLM Connections
+
+An agent needs a **connection** to a language model provider. Open **Manage connections** and click **Add connection**. Securo supports:
+
+| Provider | What you need |
+|----------|---------------|
+| **Ollama** | A local [Ollama](https://ollama.com) server — optionally its base URL |
+| **OpenAI** | An API key |
+| **Anthropic** | An API key |
+| **OpenAI-compatible** | A base URL, for [LM Studio](https://lmstudio.ai), vLLM, Groq, Together, and similar |
+
+Each connection has a **name**, an optional **default model**, and a **Test** button to verify it works. You can mark one connection as the default for new agents.
+
+<Callout>
+Your model provider credentials stay on your own Securo instance. With a local provider like Ollama or LM Studio, your financial data never leaves your machine.
+</Callout>
+
+### Running a Local Model
+
+To use a local provider you first need a model server running on your machine. Both options below are free and run fully offline — follow their own guides to install them and start the server:
+
+- **Ollama** — a lightweight model server you control from the command line. Install it, pull a model (for example `ollama pull llama3.1:8b`), and it serves an API on port `11434`. Setup guide: [Ollama Quickstart](https://docs.ollama.com/quickstart).
+- **LM Studio** — a desktop app with a built-in model browser and a one-click local server, which listens on port `1234`. Setup guide: [Run LM Studio as a Local Server](https://lmstudio.ai/docs/developer/core/server).
+
+Once the server is running, add a connection in Securo. For Ollama, choose the **Ollama** provider. For LM Studio, choose the **OpenAI-compatible** provider and enter just the host and port — for example `http://localhost:1234` — Securo appends the `/v1` path automatically.
+
+<Callout type="warn">
+If Securo runs in Docker, `localhost` inside the container is not your host machine. On macOS and Windows, point the connection at `http://host.docker.internal:11434` for Ollama or `http://host.docker.internal:1234` for LM Studio; on Linux, use your host's LAN IP address.
+</Callout>
+
+## Creating an Agent
+
+Click **New agent** and configure:
+
+1. **Name** and **Description**
+2. **System prompt** (optional): Instructions that shape how the agent behaves
+3. **Connection**: Which LLM connection to use
+4. **Model** (optional): Overrides the connection's default model
+5. **Temperature**: How creative the responses are (0–2)
+6. **Auto-inject account context**: Prepends a short primer with your name, currency, today's date, and account list to every conversation
+7. **Default agent**: Makes this the agent used by the global chat
+
+## Knowledge Base
+
+Each agent can have its own **knowledge base**. On the agent's **Knowledge** tab, upload PDF, Markdown, or text files — a tax guide, an investment policy, your own notes. The agent searches these documents to ground its answers. You can **pin** a document so it's always included in context.
+
+## Tools
+
+On the **Tools** tab, you choose which actions the agent is allowed to take. Tools let an agent query your transactions, accounts, budgets, and goals, and even create or update records on your behalf. New agents start with all tools disabled — enable only the ones you want each agent to use.
+
+## Chatting with an Agent
+
+Open an agent and use the **Chat** tab to talk to it. Conversations are multi-turn and stream responses as they're generated. The agent is aware of the page you're on, so you can ask about "this list" or "this transaction" and it understands the context. Past conversations are saved and listed in the sidebar.
+
+## The Global Chat
+
+Press **⌘J** (or **Ctrl+J**) anywhere in Securo to open the global chat — a slide-over panel powered by your **default agent**. It's the fastest way to ask a quick question without leaving the page you're on. You can switch agents, start a new conversation, or browse recent ones from the panel header.
