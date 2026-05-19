@@ -1,0 +1,157 @@
+---
+title: Instalação
+description: Instale e rode o Securo usando Docker no macOS, Linux ou Windows.
+---
+
+O Securo roda inteiramente em containers Docker, então você não precisa instalar Python, Node.js ou PostgreSQL na sua máquina. O único pré-requisito é o **Docker**.
+
+## Instalação em uma linha (macOS e Linux)
+
+O jeito mais rápido de começar. Este script instala o Docker se necessário, clona o repositório, gera uma secret key e sobe todos os serviços:
+
+```bash
+curl -fsSL https://usesecuro.com/install.sh | bash
+```
+
+O instalador vai:
+
+1. Detectar seu sistema operacional (macOS, Ubuntu, Debian, Fedora, CentOS, etc.)
+2. Instalar o Docker se ele ainda não estiver presente (somente no Linux, no macOS você precisa do Docker Desktop)
+3. Clonar o repositório do Securo
+4. Gerar um arquivo `.env` com uma `SECRET_KEY` aleatória
+5. Baixar as imagens Docker mais recentes e subir os containers
+6. Aguardar o health check confirmar que tudo está rodando
+
+Quando terminar, abra **http://localhost:3000** e crie sua conta.
+
+## Configuração manual no macOS
+
+Se preferir configurar manualmente:
+
+1. **Instale o Docker Desktop** em [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/)
+2. Abra o Docker Desktop e garanta que ele está rodando (você deve ver o ícone do Docker na barra de menu)
+3. Abra o Terminal e rode:
+
+```bash
+git clone https://github.com/securo-finance/securo.git
+cd securo
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Abra **http://localhost:3000** no seu navegador.
+
+## Configuração manual no Linux
+
+1. **Instale o Docker Engine** seguindo o [guia oficial](https://docs.docker.com/engine/install/) para sua distribuição, ou deixe o script de instalação cuidar disso
+2. Garanta que o plugin Docker Compose está instalado (`docker compose version` deve funcionar)
+3. Clone e suba:
+
+```bash
+git clone https://github.com/securo-finance/securo.git
+cd securo
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Abra **http://localhost:3000** no seu navegador.
+
+> Se você receber um erro de permissão, adicione seu usuário ao grupo docker: `sudo usermod -aG docker $USER`, e depois faça logout e login novamente.
+
+## Configuração no Windows
+
+1. **Instale o Docker Desktop** em [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/)
+2. Garanta que o WSL 2 está habilitado (o Docker Desktop vai pedir se não estiver)
+3. Abra o PowerShell ou Prompt de Comando e rode:
+
+```bash
+git clone https://github.com/securo-finance/securo.git
+cd securo
+docker compose up --build
+```
+
+Abra **http://localhost:3000** no seu navegador.
+
+> No Windows você também pode rodar os comandos dentro do WSL 2 para uma experiência melhor.
+
+## O que é iniciado
+
+O Securo roda como um conjunto de containers Docker:
+
+| Serviço           | Descrição                                | Porta |
+| ----------------- | ---------------------------------------- | ----- |
+| **Frontend**      | App web em React                         | 3000  |
+| **Backend**       | Servidor da API em FastAPI               | 8000  |
+| **PostgreSQL**    | Banco de dados                           | 5432  |
+| **Redis**         | Fila de mensagens para jobs em background | 6379  |
+| **Celery Worker** | Processa tarefas assíncronas             | n/d   |
+| **Celery Beat**   | Agenda tarefas recorrentes               | n/d   |
+
+Os dados ficam persistidos em volumes Docker (`pgdata` para o banco, `attachments` para os arquivos enviados), então seus dados sobrevivem a restarts e atualizações dos containers.
+
+## Variáveis de Ambiente
+
+O script de instalação gera o arquivo `.env` automaticamente. Para configurações manuais, crie um na raiz do projeto:
+
+```ini
+SECRET_KEY=sua-secret-key-aleatoria
+```
+
+A `SECRET_KEY` é usada para os tokens JWT de autenticação. Gere um valor aleatório forte:
+
+```bash
+openssl rand -hex 32
+```
+
+## Integrações Opcionais
+
+### Sincronização Bancária (Pluggy)
+
+Para habilitar a sincronização automática de transações bancárias, adicione suas credenciais da [Pluggy](https://pluggy.ai) ao `.env`:
+
+```ini
+PLUGGY_CLIENT_ID=seu-client-id
+PLUGGY_CLIENT_SECRET=seu-client-secret
+```
+
+Em seguida, reinicie: `docker compose -f docker-compose.prod.yml up -d`
+
+### Taxas de Câmbio
+
+Para conversão automática de moedas, adicione uma API key gratuita do [Open Exchange Rates](https://openexchangerates.org/):
+
+```ini
+OPENEXCHANGERATES_APP_ID=seu-app-id
+```
+
+As taxas são buscadas sob demanda quando transações em moeda estrangeira são criadas. Sem uma key, valores entre moedas usam por padrão uma taxa fallback de 1:1, com um aviso visual.
+
+## Comandos Úteis
+
+```bash
+# Ver logs em tempo real
+docker compose -f docker-compose.prod.yml logs -f
+
+# Verificar o status dos containers
+docker compose -f docker-compose.prod.yml ps
+
+# Parar o Securo
+docker compose -f docker-compose.prod.yml down
+
+# Atualizar para a versão mais recente
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+
+# Rodar os testes do backend
+docker compose exec backend pytest
+```
+
+## Verificando a Instalação
+
+Depois de subir o Securo, você pode conferir se está tudo saudável:
+
+1. **Frontend**: abra http://localhost:3000 — você deve ver a tela de login/cadastro
+2. **API do Backend**: visite http://localhost:8000/api/health — você deve receber uma resposta JSON
+3. **Status dos containers**: rode `docker compose -f docker-compose.prod.yml ps` e verifique se todos os serviços aparecem como "running"
+
+## Próximos Passos
+
+Com o Securo rodando, siga o [Assistente de Configuração](/docs-pt/getting-started/setup-wizard) para criar seu usuário, adicionar sua primeira conta financeira e começar a acompanhar.

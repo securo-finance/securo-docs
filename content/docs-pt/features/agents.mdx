@@ -1,0 +1,75 @@
+---
+title: Agentes
+description: Construa assistentes de IA conversacionais sobre seus dados financeiros, com base de conhecimento e ferramentas próprias.
+---
+
+Os agentes são assistentes de IA conversacionais construídos sobre seus dados do Securo. Você pode perguntar a um agente sobre seus gastos, pedir para ele categorizar transações, gerar gráficos ou responder perguntas usando documentos que você forneceu. Cada agente tem seu próprio modelo, base de conhecimento e conjunto de ferramentas.
+
+![Agentes](/screenshots/agents.png)
+
+## Habilitando os Agentes
+
+Os agentes são um recurso opcional e vêm desativados por padrão. Para usá-los, a sua instância do Securo precisa:
+
+- `AGENTS_ENABLED=true` definido no ambiente do backend
+- Os serviços de agentes rodando: `docker compose --profile agents up -d`
+
+Uma vez habilitado, uma entrada **Agentes** aparece na barra lateral.
+
+## Conexões com LLMs
+
+Um agente precisa de uma **conexão** com um provedor de modelo de linguagem. Abra **Gerenciar conexões** e clique em **Adicionar conexão**. O Securo suporta:
+
+| Provedor | O que você precisa |
+|----------|--------------------|
+| **Ollama** | Um servidor [Ollama](https://ollama.com) local — opcionalmente sua base URL |
+| **OpenAI** | Uma API key |
+| **Anthropic** | Uma API key |
+| **Compatível com OpenAI** | Uma base URL, para [LM Studio](https://lmstudio.ai), vLLM, Groq, Together e similares |
+
+Cada conexão tem um **nome**, um **modelo padrão** opcional e um botão **Testar** para confirmar que funciona. Você pode marcar uma conexão como padrão para novos agentes.
+
+<Callout>
+As credenciais do seu provedor de modelo ficam na sua própria instância do Securo. Com um provedor local como Ollama ou LM Studio, seus dados financeiros nunca saem da sua máquina.
+</Callout>
+
+### Rodando um Modelo Local
+
+Para usar um provedor local você precisa antes de um servidor de modelos rodando na sua máquina. As duas opções abaixo são gratuitas e rodam totalmente offline — siga os guias delas para instalar e iniciar o servidor:
+
+- **Ollama** — um servidor de modelos leve que você controla pela linha de comando. Instale, baixe um modelo (por exemplo, `ollama pull llama3.1:8b`) e ele serve uma API na porta `11434`. Guia: [Ollama Quickstart](https://docs.ollama.com/quickstart).
+- **LM Studio** — um app desktop com navegador de modelos embutido e um servidor local em um clique, que escuta na porta `1234`. Guia: [Run LM Studio as a Local Server](https://lmstudio.ai/docs/developer/core/server).
+
+Com o servidor rodando, adicione uma conexão no Securo. Para Ollama, escolha o provedor **Ollama**. Para LM Studio, escolha o provedor **Compatível com OpenAI** e informe apenas o host e a porta — por exemplo, `http://localhost:1234` — o Securo acrescenta o caminho `/v1` automaticamente.
+
+<Callout type="warn">
+Se o Securo roda em Docker, `localhost` dentro do container não é a sua máquina host. No macOS e no Windows, aponte a conexão para `http://host.docker.internal:11434` (Ollama) ou `http://host.docker.internal:1234` (LM Studio); no Linux, use o IP de LAN da sua máquina host.
+</Callout>
+
+## Criando um Agente
+
+Clique em **Novo agente** e configure:
+
+1. **Nome** e **Descrição**
+2. **Prompt do sistema** (opcional): instruções que moldam o comportamento do agente
+3. **Conexão**: qual conexão de LLM usar
+4. **Modelo** (opcional): sobrescreve o modelo padrão da conexão
+5. **Temperatura**: o quão criativas são as respostas (0–2)
+6. **Auto-injetar contexto da conta**: prepende um pequeno resumo com seu nome, moeda, data de hoje e lista de contas em cada conversa
+7. **Agente padrão**: define este agente como o usado pelo chat global
+
+## Base de Conhecimento
+
+Cada agente pode ter sua própria **base de conhecimento**. Na aba **Conhecimento** do agente, envie arquivos PDF, Markdown ou texto — um guia tributário, uma política de investimentos, suas próprias notas. O agente busca nesses documentos para fundamentar as respostas. Você pode **fixar** um documento para que ele seja sempre incluído no contexto.
+
+## Ferramentas
+
+Na aba **Ferramentas**, você escolhe quais ações o agente pode executar. As ferramentas permitem que um agente consulte suas transações, contas, orçamentos e metas, e até crie ou atualize registros em seu nome. Novos agentes começam com todas as ferramentas desativadas — habilite só as que você quer que cada agente use.
+
+## Conversando com um Agente
+
+Abra um agente e use a aba **Chat** para falar com ele. As conversas são de múltiplos turnos e exibem as respostas em streaming conforme são geradas. O agente conhece a página em que você está, então você pode perguntar sobre "esta lista" ou "esta transação" e ele entende o contexto. Conversas anteriores ficam salvas e listadas na barra lateral.
+
+## O Chat Global
+
+Pressione **⌘J** (ou **Ctrl+J**) em qualquer lugar do Securo para abrir o chat global — um painel lateral movido pelo seu **agente padrão**. É o jeito mais rápido de fazer uma pergunta sem sair da página atual. Você pode trocar de agente, iniciar uma nova conversa ou navegar pelas recentes a partir do cabeçalho do painel.

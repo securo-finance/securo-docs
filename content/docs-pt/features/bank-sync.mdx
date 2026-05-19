@@ -1,0 +1,153 @@
+---
+title: Sincronização Bancária
+description: Importe transações das suas contas bancárias automaticamente usando provedores suportados.
+---
+
+A Sincronização Bancária permite conectar suas contas bancárias reais ao Securo para que as transações sejam importadas e atualizadas automaticamente. Em vez de digitar cada despesa manualmente, os dados do seu banco entram no Securo em uma agenda recorrente, são categorizados e ficam sincronizados.
+
+O sistema de provedores do Securo foi pensado para suportar várias integrações de sincronização bancária. Cada provedor cobre uma região ou conjunto de instituições financeiras diferente.
+
+## Provedores Suportados
+
+| Provedor | Região | Status |
+|----------|--------|--------|
+| [Pluggy](https://pluggy.ai) | Brasil | Disponível |
+| Provedor europeu | Europa | Em breve |
+| Provedor americano | Estados Unidos | Em breve |
+
+Estamos trabalhando ativamente para expandir a cobertura para bancos europeus e americanos. Por enquanto, a Pluggy cobre instituições financeiras brasileiras.
+
+## Como a Sincronização Bancária Funciona
+
+1. Você cria credenciais junto a um provedor suportado
+2. Configura essas credenciais no Securo
+3. Na página **Contas**, clique em **Conectar Banco** para vincular o seu banco
+4. O Securo importa suas contas e o histórico completo de transações
+5. Um job em background mantém tudo sincronizado automaticamente
+
+![Contas](/screenshots/accounts.png)
+
+## Pluggy (Bancos Brasileiros)
+
+A [Pluggy](https://pluggy.ai) é uma plataforma brasileira de open finance que se conecta aos principais bancos e instituições financeiras do Brasil. O Securo integra o Widget do Pluggy Connect direto no app, então todo o fluxo de autenticação bancária acontece sem sair do Securo.
+
+### 1. Crie uma Conta na Pluggy
+
+1. Acesse [dashboard.pluggy.ai](https://dashboard.pluggy.ai) e crie uma conta
+2. Crie um novo **Team** no dashboard
+3. Crie uma nova **Application** dentro do seu team
+4. Copie o **Client ID** e o **Client Secret** da sua application
+
+![Credenciais da Pluggy](/screenshots/pluggy-dashboard-credentials.png)
+
+Você pode navegar pela seção **Connectors** para ver quais bancos e instituições são suportados:
+
+![Conectores da Pluggy](/screenshots/pluggy-dashboard-connectors.png)
+
+<Callout type="warn">
+A Pluggy oferece um teste gratuito com conexões limitadas. Garanta que o seu trial está ativo antes de tentar conectar contas bancárias no Securo.
+</Callout>
+
+### 2. Teste suas Credenciais com o MeuPluggy (Opcional)
+
+O [MeuPluggy](https://meu.pluggy.ai) é um portal gratuito da Pluggy que te permite testar suas credenciais de API e verificar se a conexão com o banco funciona antes de configurar o Securo.
+
+1. Acesse [meu.pluggy.ai](https://meu.pluggy.ai) e entre
+2. Informe o **Client ID** e o **Client Secret** da sua application
+3. Tente conectar uma conta bancária para confirmar que as credenciais estão válidas
+
+![MeuPluggy](/screenshots/pluggy-meu-intro.png)
+
+Este passo é opcional, mas recomendado se você quiser verificar que tudo funciona do lado da Pluggy antes de configurar o Securo.
+
+### 3. Configure o Securo
+
+Adicione suas credenciais da Pluggy no arquivo `.env` do Securo:
+
+```bash
+PLUGGY_CLIENT_ID=seu-client-id-aqui
+PLUGGY_CLIENT_SECRET=seu-client-secret-aqui
+```
+
+Reinicie o backend depois de atualizar o ambiente. O Securo detecta os provedores configurados automaticamente na inicialização e deixa a Pluggy disponível como opção de conexão.
+
+### 4. Conecte o seu Banco
+
+1. Vá para a página **Contas** e clique em **Conectar Banco**
+2. Um diálogo mostra todos os provedores disponíveis — selecione **Pluggy**
+3. O Securo solicita um token de conexão ao backend e abre o Widget do Pluggy Connect dentro do app
+4. Selecione no MeuPluggy
+5. Escolha a conta bancária que você já conectou no [MeuPluggy](https://meu.pluggy.ai)
+6. Faça os desafios de MFA se o banco pedir
+7. Feita a autenticação, o widget devolve a conexão ao Securo automaticamente
+8. O Securo importa imediatamente suas contas e todo o histórico de transações
+
+![Conectar Banco](/screenshots/pluggy-connect-bank.png)
+
+Você não precisa copiar IDs nem sair do app. O widget cuida de todo o fluxo de autenticação, e o Securo guarda a conexão internamente. Depois de conectar, suas contas bancárias aparecem junto com as contas manuais na página de Contas.
+
+### Reconectando
+
+Se uma conexão expirar ou apresentar erro, clique em **Reconectar** na conexão afetada. O Securo reabre o widget usando a conexão existente, então você só precisa se autenticar novamente no banco. Nenhuma conexão nova é criada — a existente é atualizada.
+
+## Comportamento da Sincronização
+
+### Sincronização Automática
+
+Um job em background roda a cada hora e atualiza qualquer conexão que não tenha sido sincronizada nas últimas 4 horas. Suas transações ficam em dia sem intervenção manual.
+
+### Sincronização Manual
+
+Você pode disparar uma sincronização imediata na página de Contas clicando no ícone de sincronização ao lado de uma conexão bancária.
+
+### O que Acontece Durante a Sincronização
+
+- Os saldos das contas são atualizados
+- Novas transações desde a última sincronização são importadas
+- Transações pendentes são incluídas ou excluídas conforme suas configurações
+- Transações duplicadas (já importadas) são puladas
+- Transações lançadas manualmente são comparadas com as sincronizadas por correspondência aproximada (mesmo valor, data parecida, descrição parecida)
+- As categorias são mapeadas automaticamente das categorias do provedor para as suas categorias do Securo
+- Pares de transferência entre contas são detectados automaticamente
+
+## Configurações da Conexão
+
+Cada conexão bancária tem configurações que controlam como as transações são importadas.
+
+### Fonte do Beneficiário
+
+Controla como o nome do beneficiário é extraído dos dados do banco:
+
+| Opção | Descrição |
+|-------|-----------|
+| **Automático** (padrão) | Tenta o nome do estabelecimento primeiro, depois os dados de pagamento, e por fim nenhum |
+| **Estabelecimento** | Usa o nome do estabelecimento da transação |
+| **Dados de Pagamento** | Usa as informações de pagador/recebedor dos detalhes do pagamento |
+| **Descrição** | Usa a descrição bruta da transação do banco |
+| **Nenhum** | Não extrai um beneficiário |
+
+### Importar Pendentes
+
+Quando ativado (padrão), as transações pendentes são importadas junto com as lançadas. Desative se preferir importar apenas transações finalizadas.
+
+## Solução de Problemas
+
+### Conexão Aparece com Status de Erro
+
+Se uma conexão entrar em estado de erro, as credenciais do banco podem ter expirado ou o provedor pode ter encontrado um problema. Clique em **Reconectar** para se autenticar novamente no banco pelo widget.
+
+### Transações Duplicadas
+
+O Securo rastreia cada transação sincronizada pelo ID externo. Se você ver duplicatas, pode ser porque você lançou uma transação manualmente antes dela ser sincronizada. O Securo tenta combiná-las automaticamente (em até 3 dias, mesmo valor, 60%+ de similaridade na descrição), mas alguns casos podem exigir limpeza manual.
+
+### Transações Faltando
+
+Alguns bancos têm atraso para reportar transações. Se transações recentes estão faltando, tente uma sincronização manual depois de algumas horas. Verifique também se **Importar Pendentes** está ativado nas configurações da conexão.
+
+### Sincronização Não Está Rodando
+
+A sincronização automática depende do Redis e do Celery. Verifique se:
+
+- `REDIS_URL` está configurado no seu ambiente
+- O worker do Celery está rodando: `celery -A app.worker worker`
+- O scheduler do Celery beat está rodando: `celery -A app.worker beat`

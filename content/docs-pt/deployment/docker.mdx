@@ -1,0 +1,175 @@
+---
+title: Deploy em Produção
+description: Faça o deploy do Securo em um servidor de produção com Docker Compose, HTTPS, backups e atualizações.
+---
+
+Este guia cobre o deploy do Securo em um servidor de produção. Se você só está testando o Securo localmente, veja o [guia de Instalação](/docs-pt/getting-started/installation).
+
+## Produção vs Desenvolvimento
+
+O Securo vem com dois arquivos Docker Compose:
+
+| Arquivo                     | Caso de Uso     | Imagens                          |
+| --------------------------- | --------------- | -------------------------------- |
+| `docker-compose.yml`        | Desenvolvimento | Build do código, hot reload      |
+| `docker-compose.prod.yml`   | Produção        | Imagens pré-buildadas do GHCR    |
+
+Para produção, use sempre `docker-compose.prod.yml`. Ele puxa imagens otimizadas, já compiladas, do GitHub Container Registry, em vez de buildar a partir do código-fonte.
+
+## Requisitos do Servidor
+
+- Um servidor Linux (Ubuntu 22.04+ recomendado) com pelo menos **1 GB de RAM**
+- Docker Engine e o plugin Docker Compose instalados
+- Um nome de domínio (opcional, mas recomendado para HTTPS)
+
+## Passos de Deploy
+
+### 1. Instale o Docker
+
+No seu servidor, instale o Docker usando o script oficial:
+
+```bash
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+```
+
+Faça logout e login novamente para a mudança de grupo entrar em vigor.
+
+### 2. Clone e Configure
+
+```bash
+git clone https://github.com/securo-finance/securo.git
+cd securo
+```
+
+Crie um arquivo `.env` com uma secret key forte:
+
+```bash
+echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
+```
+
+Se você quiser sincronização bancária ou taxas de câmbio, adicione essas chaves também:
+
+```ini
+PLUGGY_CLIENT_ID=seu-client-id
+PLUGGY_CLIENT_SECRET=seu-client-secret
+OPENEXCHANGERATES_APP_ID=seu-app-id
+```
+
+### 3. Suba o Securo
+
+```bash
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Confira se todos os containers estão rodando:
+
+```bash
+docker compose -f docker-compose.prod.yml ps
+```
+
+## Configurando HTTPS
+
+Para produção, você deve colocar o Securo atrás de um proxy reverso com TLS. Aqui está um exemplo mínimo usando **Caddy** (que cuida do HTTPS automaticamente):
+
+```bash
+# Instale o Caddy
+sudo apt install -y caddy
+```
+
+Edite `/etc/caddy/Caddyfile`:
+
+```text
+securo.seudominio.com {
+    reverse_proxy localhost:3000
+}
+```
+
+Reinicie o Caddy:
+
+```bash
+sudo systemctl restart caddy
+```
+
+O Caddy obtém e renova automaticamente um certificado Let's Encrypt. Atualize o `.env` para refletir a URL pública:
+
+```ini
+FRONTEND_URL=https://securo.seudominio.com
+```
+
+Em seguida, reinicie o Securo: `docker compose -f docker-compose.prod.yml up -d`
+
+## Backups
+
+### Backup do Banco de Dados
+
+Exporte o banco PostgreSQL para um arquivo SQL:
+
+```bash
+docker compose -f docker-compose.prod.yml exec db \
+  pg_dump -U postgres securo > backup-$(date +%Y%m%d).sql
+```
+
+### Restauração do Banco
+
+```bash
+docker compose -f docker-compose.prod.yml exec -T db \
+  psql -U postgres securo < backup-20260401.sql
+```
+
+### Backups Automatizados
+
+Adicione um cron job para backups diários:
+
+```bash
+crontab -e
+```
+
+```text
+0 3 * * * cd /caminho/para/securo && docker compose -f docker-compose.prod.yml exec -T db pg_dump -U postgres securo > /backups/securo-$(date +\%Y\%m\%d).sql
+```
+
+## Atualizando
+
+Baixe as imagens mais recentes e reinicie:
+
+```bash
+cd /caminho/para/securo
+git pull
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+As migrations do banco de dados rodam automaticamente na inicialização (`alembic upgrade head`), então mudanças de schema são aplicadas durante a atualização.
+
+## Monitoramento
+
+Verifique os logs em busca de problemas:
+
+```bash
+# Todos os serviços
+docker compose -f docker-compose.prod.yml logs -f
+
+# Somente backend
+docker compose -f docker-compose.prod.yml logs -f backend
+
+# Últimas 100 linhas
+docker compose -f docker-compose.prod.yml logs --tail 100
+```
+
+Verifique o endpoint de health:
+
+```bash
+curl http://localhost:8000/api/health
+```
+
+## Solução de Problemas
+
+**Containers ficam reiniciando**: verifique os logs com `docker compose -f docker-compose.prod.yml logs backend`. Causas comuns: `DATABASE_URL` errado, `SECRET_KEY` ausente ou conflitos de porta.
+
+**Conexão com o banco recusada**: o container do banco pode ainda não estar pronto. Ele tem um health check, mas em servidores lentos pode demorar mais. Aguarde 30 segundos e tente de novo.
+
+**Sem espaço em disco**: imagens e volumes do Docker podem consumir bastante espaço. Limpe imagens antigas com `docker system prune`.
+
+**Permissão negada nos anexos**: o volume de anexos precisa ter permissão de escrita para o usuário do container. Verifique as permissões com `docker compose -f docker-compose.prod.yml exec backend ls -la /app/data/`.

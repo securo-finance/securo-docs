@@ -1,0 +1,70 @@
+---
+title: Patrimônio
+description: Acompanhe investimentos, imóveis e outros bens com preços de mercado em tempo real, regras de crescimento ou avaliações manuais.
+---
+
+A página de Patrimônio é onde você acompanha tudo o que você tem que não está em uma conta bancária — ações, ETFs, cripto, imóveis, veículos e outros bens. O valor de cada ativo entra no seu [Patrimônio Líquido](/docs-pt/features/net-worth) total.
+
+![Patrimônio](/screenshots/assets.png)
+
+## Tipos de Ativo
+
+O Securo suporta uma variedade de tipos de ativo, cada um com seu próprio ícone:
+
+| Tipo | Exemplos |
+|------|----------|
+| **Ação** | Ações individuais de empresas |
+| **ETF** | Fundos negociados em bolsa |
+| **Cripto** | Bitcoin, Ethereum e outros tokens |
+| **Fundo** | Fundos mútuos e fundos administrados |
+| **Imóvel** | Casas, apartamentos, terrenos |
+| **Veículo** | Carros, motos, barcos |
+| **Bem de Valor** | Joias, arte, itens colecionáveis |
+| **Investimento** | Investimentos genéricos |
+| **Outro** | Qualquer outra coisa |
+
+## Carteiras
+
+Os ativos são organizados em **carteiras** — agrupamentos como "Aposentadoria", "Trading" ou "Cripto". Cada carteira mostra um total combinado e pode ser expandida ou recolhida. Ativos sem carteira aparecem em uma seção **Sem agrupamento**.
+
+Para criar uma carteira, clique em **+ Nova Carteira**. Você também pode criar uma na hora enquanto adiciona um ativo.
+
+## Adicionando um Ativo
+
+Clique em **+ Adicionar Ativo** e preencha **nome**, **tipo**, **moeda** e, opcionalmente, uma **carteira** do ativo. Você também pode registrar uma **data de compra** e um **preço de compra** para o Securo calcular seu ganho ou perda.
+
+A escolha mais importante é o **método de avaliação**, que determina como o valor do ativo é mantido atualizado. Ele é fixado depois que o ativo é criado.
+
+### Métodos de Avaliação
+
+| Método | Como funciona |
+|--------|--------------|
+| **Manual** | Você informa o valor e atualiza quando quiser. Indicado para imóveis, veículos e bens de valor. |
+| **Regra de Crescimento** | Você define uma taxa de crescimento (porcentagem ou valor fixo) e uma frequência (diária, semanal, mensal, anual), e o Securo projeta o valor automaticamente a partir de uma data inicial. |
+| **Preço de Mercado** | Você informa um **ticker** (ex.: `AAPL`, `BTC-USD`, `PETR4.SA`) e uma **quantidade**. O Securo busca o preço em tempo real e mantém o valor atualizado. Indicado para ações, ETFs e cripto. |
+
+Para ativos de preço de mercado, o Securo mostra uma prévia ao vivo da cotação enquanto você digita o ticker, e atualiza os preços automaticamente todos os dias.
+
+## Histórico de Valor
+
+Cada ativo guarda um **histórico de valor**. Para ativos manuais, use o formulário **+ Adicionar Valor** para registrar um novo valor com data. Cada entrada mostra a variação em relação à anterior, com cor verde para ganhos e vermelha para perdas. Quando um ativo tem dois ou mais valores, um gráfico de tendência aparece no painel de detalhes.
+
+Ativos com regra de crescimento e com preço de mercado constroem o histórico automaticamente.
+
+## Ativos Sincronizados
+
+Se você conectar uma corretora ou conta de investimentos por meio da [Sincronização Bancária](/docs-pt/features/bank-sync), suas posições são importadas automaticamente como ativos. Ativos sincronizados:
+
+- Recebem o selo **Sincronizado** e são agrupados em uma carteira com o nome da instituição
+- Têm seus valores atualizados automaticamente em cada sincronização
+- São somente leitura — são gerenciados pela conexão, então edição e exclusão ficam desativadas
+
+Você ainda pode renomear uma carteira sincronizada e mover ativos sincronizados entre carteiras.
+
+## Valor da Carteira de Investimentos
+
+No topo da página, o gráfico **Valor do Portfólio** mostra o valor total dos seus ativos ao longo do tempo, em um gráfico de área empilhada. Alterne entre **Por Carteira** e **Por Ativo** para mudar como o valor é detalhado.
+
+## Patrimônio e Patrimônio Líquido
+
+O valor combinado de todos os seus ativos é convertido para sua moeda principal e somado ao seu [Patrimônio Líquido](/docs-pt/features/net-worth), junto com os saldos das suas contas. Vender um ativo — registrando uma **data de venda** e um **preço de venda** — move-o para uma seção de **Ativos Vendidos**, mantendo o histórico para os relatórios.

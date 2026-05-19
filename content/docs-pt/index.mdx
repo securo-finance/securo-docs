@@ -1,0 +1,57 @@
+---
+title: Introdução
+description: O Securo é um gerenciador de finanças pessoais open-source construído com FastAPI e React.
+---
+
+O Securo é um aplicativo de finanças pessoais self-hosted que te dá controle total dos seus dados financeiros. Acompanhe várias contas em diferentes moedas, categorize transações automaticamente com regras, defina orçamentos e monitore seu patrimônio líquido, tudo a partir de uma interface limpa e moderna.
+
+![Painel do Securo](/screenshots/dashboard.png)
+
+## Por que Securo?
+
+Gerenciar finanças pessoais não deveria exigir entregar seus dados para terceiros. O Securo roda na sua própria infraestrutura, então suas informações financeiras nunca saem do seu servidor. Ele suporta **múltiplas moedas** com conversão automática, o que o torna ideal para quem movimenta dinheiro entre países.
+
+Diferente de planilhas ou trackers básicos, o Securo oferece um conjunto completo de ferramentas que trabalham juntas:
+
+- **Transações** fluem para **categorias** através de **regras** que você define
+- **Orçamentos** acompanham seus gastos contra os limites por categoria a cada mês
+- **Transações recorrentes** cuidam de assinaturas e contas regulares automaticamente
+- **Relatórios** e **acompanhamento de patrimônio líquido** mostram o panorama ao longo do tempo
+
+## Por onde começar?
+
+Se você é novo no Securo, recomendamos este caminho:
+
+1. Siga o guia de [Instalação](/docs-pt/getting-started/installation) para colocar o app no ar
+2. Passe pelo [Assistente de Configuração](/docs-pt/getting-started/setup-wizard) para criar sua primeira conta
+3. Leia a visão geral do [Painel](/docs-pt/features/dashboard) para entender a tela inicial
+4. Configure [Categorias](/docs-pt/features/categories) e [Regras](/docs-pt/features/rules) para automatizar a classificação de transações
+
+## Stack Tecnológica
+
+| Camada    | Tecnologia        |
+| --------- | ----------------- |
+| Backend   | FastAPI (Python)  |
+| Frontend  | React + Vite      |
+| Banco     | PostgreSQL        |
+| Deploy    | Docker Compose    |
+
+## Atalhos
+
+<Cards>
+  <Card
+    title="Instalação"
+    description="Coloque o Securo rodando localmente em minutos."
+    href="/docs-pt/getting-started/installation"
+  />
+  <Card
+    title="Painel"
+    description="Entenda a tela principal e seus widgets."
+    href="/docs-pt/features/dashboard"
+  />
+  <Card
+    title="Deploy com Docker"
+    description="Faça o deploy do Securo com Docker Compose."
+    href="/docs-pt/deployment/docker"
+  />
+</Cards>

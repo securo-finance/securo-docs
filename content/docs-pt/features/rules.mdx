@@ -1,0 +1,64 @@
+---
+title: Regras
+description: Automatize a categorização de transações com regras de correspondência por padrão que classificam seus gastos para você.
+---
+
+As regras são um dos recursos mais poderosos do Securo. Elas atribuem categorias (e, opcionalmente, beneficiários) às transações automaticamente, com base em correspondência por padrão. Em vez de categorizar cada transação manualmente, você define as regras uma vez e o Securo aplica daí para a frente.
+
+![Regras](/screenshots/rules.png)
+
+## Como as Regras Funcionam
+
+Cada regra é composta por:
+
+1. **Uma condição**: um padrão que corresponde a descrições de transação (ex.: "descrição começa com UBER")
+2. **Uma ação**: o que fazer quando a condição corresponde (ex.: "definir categoria como Transporte")
+3. **Uma prioridade**: regras com prioridade mais alta são verificadas primeiro
+
+Quando uma transação nova é adicionada (manualmente, via importação ou via sincronização bancária), o Securo a avalia contra as suas regras em ordem de prioridade. A primeira regra que corresponder é aplicada.
+
+## Tipos de Condição
+
+As regras suportam várias estratégias de correspondência:
+
+- **Contém**: a descrição contém uma palavra específica (ex.: `descrição contém "STARBUCKS"`)
+- **Começa com**: a descrição começa com um padrão (ex.: `descrição começa com "UBER"`)
+- **Regex**: correspondência por expressão regular completa para padrões complexos (ex.: `descrição regex "SALARY|PAYROLL|DIRECT DEPOSIT"`)
+- **Condições OR**: combine vários padrões com lógica OR (ex.: `descrição começa com "NETFLIX" OR descrição começa com "SPOTIFY" OR descrição começa com "DISNEY"`)
+
+## Criando uma Regra
+
+1. Navegue até **Regras** na barra lateral
+2. Clique em **+ Adicionar**
+3. Defina a condição (tipo de correspondência e padrão)
+4. Defina a ação (atribuição de categoria, de beneficiário ou ambas)
+5. Defina a prioridade (regras de prioridade mais alta são avaliadas antes)
+6. Clique em **Salvar**
+
+## Pacotes de Regras
+
+Clique em **Pacotes de Regras** para navegar e instalar conjuntos prontos de regras. Eles são coleções de regras para padrões comuns de transação que poupam tempo na configuração da categorização do zero.
+
+## Reaplicar Regras
+
+Se você criou novas regras e quer aplicá-las às transações existentes, clique em **Reaplicar Todas**. Isso roda todas as suas regras em cada transação sem categoria, categorizando-as em lote.
+
+É especialmente útil quando você:
+- Acabou de configurar o Securo e importou transações históricas
+- Adicionou uma regra nova e quer que ela categorize retroativamente transações passadas
+
+## Sistema de Prioridade
+
+As regras são avaliadas da prioridade mais alta para a mais baixa. Se uma transação corresponde a várias regras, apenas a de prioridade mais alta é aplicada.
+
+A página de regras permite ordenar por **Prioridade**, **Nome** ou **Categoria** para organizar a sua lista.
+
+## Exemplos de Regras
+
+| Nome da Regra                    | Condição                                            | Ação                       |
+| -------------------------------- | --------------------------------------------------- | -------------------------- |
+| Starbucks                        | Descrição contém "STARBUCKS"                        | Beneficiário: Starbucks    |
+| Salário / Folha                  | Regex: `SALARY\|PAYROLL\|DIRECT DEPOSIT`              | Categoria: Receitas        |
+| Uber                             | Descrição começa com "UBER"                         | Categoria: Transporte      |
+| Assinaturas Apple / Google       | Contém "APPLE.COM/BILL" OU começa com "GOOGLE *"    | Categoria: Assinaturas     |
+| Streaming                        | Começa com "NETFLIX" OU "SPOTIFY" OU "DISNEY"       | Categoria: Assinaturas     |

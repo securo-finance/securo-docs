@@ -1,0 +1,23 @@
+{
+  "title": "Recursos",
+  "defaultOpen": true,
+  "pages": [
+    "index",
+    "dashboard",
+    "accounts",
+    "transactions",
+    "groups",
+    "categories",
+    "budgets",
+    "goals",
+    "recurring",
+    "rules",
+    "payees",
+    "import",
+    "assets",
+    "reports",
+    "net-worth",
+    "bank-sync",
+    "agents"
+  ]
+}

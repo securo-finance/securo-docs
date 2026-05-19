@@ -1,0 +1,46 @@
+---
+title: Importar
+description: Importe extratos bancários e histórico de transações de arquivos OFX, CSV, QIF e CAMT.
+---
+
+O recurso de importação do Securo permite trazer transações de extratos bancários e de outros softwares financeiros. É o jeito mais rápido de popular seu histórico, especialmente quando você está configurando o Securo pela primeira vez ou quando não tem a sincronização bancária ativada.
+
+![Importar](/screenshots/import.png)
+
+## Formatos Suportados
+
+O Securo aceita quatro formatos de arquivo:
+
+| Formato | Descrição                                              |
+| ------- | ------------------------------------------------------ |
+| **OFX** | Open Financial Exchange, o formato de exportação bancária mais comum |
+| **CSV** | Valores separados por vírgula, flexível e compatível com qualquer planilha |
+| **QIF** | Quicken Interchange Format, usado pelo Quicken e por outras ferramentas |
+| **CAMT** | Formato de extrato bancário ISO 20022, usado por bancos europeus |
+
+## Como Importar
+
+1. Navegue até **Importar** na barra lateral
+2. **Arraste e solte** um arquivo na área de upload, ou clique para escolher o arquivo
+3. O Securo vai interpretar o arquivo e mostrar uma prévia das transações
+4. Revise as transações importadas
+5. Confirme a importação
+
+## Template de CSV
+
+Se o formato CSV do seu banco não bater com o que o Securo espera, você pode baixar um **template de CSV** na página de importação. O template mostra a estrutura de colunas esperada para você reformatar os dados.
+
+## Histórico de Importação
+
+Abaixo da área de upload, a seção **Histórico de Importação** mostra todas as importações anteriores, com data, nome do arquivo e quantidade de transações importadas. Isso ajuda a acompanhar o que você já carregou.
+
+## Tratamento de Duplicatas
+
+O Securo verifica transações duplicadas durante a importação. Se uma transação com a mesma data, valor e descrição já existir na conta de destino, ela é marcada para você decidir se pula ou mantém.
+
+## Dicas para Importar
+
+- **Comece com OFX** se o seu banco oferecer — esse formato tem a leitura mais confiável e inclui todos os campos necessários
+- **Use CSV** quando precisar limpar ou transformar os dados antes de importar (ex.: juntar colunas, corrigir datas)
+- **Importe por conta**: cada importação vai para uma única conta, então importe arquivos separadamente para cada conta bancária
+- Depois de importar, configure [regras](/docs-pt/features/rules) para categorizar em lote as transações importadas

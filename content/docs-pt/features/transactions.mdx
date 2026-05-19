@@ -1,0 +1,96 @@
+---
+title: Transações
+description: Registre, busque, categorize, divida e gerencie todas as suas transações financeiras.
+---
+
+As transações são a base do Securo. Toda vez que dinheiro entra ou sai de uma das suas contas, isso é registrado como uma transação. A página de transações oferece uma interface poderosa para visualizar, filtrar e gerenciar toda a sua atividade financeira.
+
+![Transações](/screenshots/transactions.png)
+
+## Lista de Transações
+
+A visão principal mostra uma tabela ordenável da sua atividade. Cada linha pode exibir descrição, data, categoria, conta, valor, beneficiário e muito mais.
+
+- **Checkbox**: selecione várias transações para ações em lote
+- **Descrição**: o nome ou memorando da transação (ex.: "STARBUCKS Latte")
+- **Valor**: valores positivos (verde) para entradas, negativos (vermelho) para despesas
+
+Transações marcadas como **transferências** entre suas próprias contas recebem um selo especial para você distingui-las das entradas e saídas comuns. Transações sincronizadas também mostram um status **pendente** ou **lançada**, e compras parceladas exibem o número da parcela (ex.: 3/12).
+
+### Personalizando a Tabela
+
+A tabela de transações se adapta ao seu jeito de trabalhar:
+
+- **Seletor de colunas**: escolha quais colunas ficam visíveis — data, descrição, categoria, conta, valor, beneficiário, notas, tags, anexos, tipo e status
+- **Ordenação**: clique no cabeçalho de uma coluna para ordenar por ela; clique de novo para inverter a direção
+- **Redimensionamento**: arraste a borda do cabeçalho para ajustar a largura
+
+Os resultados são paginados em 20 por vez, com controles de navegação na parte inferior da lista.
+
+## Adicionando uma Transação
+
+Clique em **+ Adicionar Transação** no canto superior direito. Preencha:
+
+1. **Descrição**: do que se trata a transação
+2. **Conta**: de qual conta o dinheiro veio ou para qual foi
+3. **Valor**: o valor da transação
+4. **Data**: quando aconteceu (por padrão, hoje)
+5. **Categoria**: a categoria de gasto
+6. **Beneficiário** (opcional): o estabelecimento ou pessoa
+7. **Notas** (opcional): qualquer contexto adicional
+
+As transações também suportam **anexos**: você pode anexar recibos ou notas fiscais a qualquer transação para fins de registro. Transações com anexo mostram um ícone de clipe na lista.
+
+### Duplicando uma Transação
+
+Para registrar rapidamente uma transação semelhante, use **Duplicar** em uma linha existente. O Securo copia descrição, valor, conta, categoria e outros detalhes para uma nova transação, que você pode ajustar. Dados específicos da identidade, como divisões, não são copiados.
+
+## Transferências
+
+Clicar no botão **Transferência** cria uma transação pareada especial entre duas das suas contas. Por exemplo, mover dinheiro da sua conta corrente para a poupança cria:
+
+- Um débito na conta de origem
+- Um crédito correspondente na conta de destino
+
+Transações de transferência ficam automaticamente vinculadas e marcadas com um selo de transferência. Elas não contam como receita nem despesa nos seus relatórios — é apenas dinheiro circulando entre suas próprias contas.
+
+Para **transferências entre moedas** (ex.: BRL para USD), o Securo pede os dois valores para registrar os valores corretos em cada moeda.
+
+### Vinculando e Desvinculando Transferências
+
+Se uma transferência foi importada ou lançada como duas transações separadas, selecione as duas e **vincule como par de transferência**. O Securo passa a tratá-las como uma única transferência. Você pode **desvincular** o par a qualquer momento para voltar a ter transações independentes.
+
+## Dividindo Transações
+
+Quando uma despesa é compartilhada com outras pessoas — um jantar, uma viagem, um apartamento compartilhado — você pode dividi-la através de um **grupo**. A divisão registra a parte de cada pessoa para você acompanhar quem deve a quem.
+
+Você pode dividir uma transação ao adicionar ou editá-la, ou selecionar várias transações e adicioná-las a um grupo em lote. Veja o guia de [Grupos](/docs-pt/features/groups) para o fluxo completo.
+
+## Filtros e Busca
+
+A barra de filtros no topo oferece várias formas de refinar suas transações:
+
+- **Busca**: pesquisa por texto livre em descrições e notas
+- **Conta**: filtre por uma conta específica
+- **Categoria**: filtre por uma ou mais categorias, ou mostre apenas transações **sem categoria**
+- **Beneficiário**: filtre por estabelecimento ou pessoa
+- **Tipo**: mostre só entradas ou só despesas
+- **Período**: defina datas inicial e final com o seletor
+- **Tags**: filtre por hashtags usadas nas notas
+- **Grupo**: mostre transações divididas em um grupo específico
+
+Todos os filtros podem ser combinados para criar consultas precisas como "todas as despesas sem categoria do meu cartão de crédito neste mês". Filtros ativos ficam salvos na URL da página, então você pode recarregar, favoritar ou compartilhar uma visão filtrada.
+
+## Exportar
+
+Clique em **Exportar CSV** para baixar suas transações como um arquivo CSV. A exportação respeita seus filtros e seleção atuais, então você pode exportar um subconjunto específico de transações.
+
+## Ações em Lote
+
+Selecione várias transações com os checkboxes para mostrar a barra de ações em lote. A partir dela você pode:
+
+- **Categorizar** todas as transações selecionadas de uma só vez
+- **Adicionar tags** à seleção
+- **Adicionar a um grupo** com uma regra de divisão
+- **Vincular** duas transações como um par de transferência
+- **Excluir** várias transações de uma vez
