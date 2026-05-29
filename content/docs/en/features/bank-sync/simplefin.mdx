@@ -1,0 +1,104 @@
+---
+title: SimpleFIN (US and International Banks)
+description: Connect US and international bank accounts to Securo via the SimpleFIN Bridge protocol.
+---
+
+[SimpleFIN](https://www.simplefin.org/) is an intentionally minimalist open protocol for **read-only** financial data. You give Securo a single-use **Setup Token** from the SimpleFIN Bridge; Securo exchanges it for a private **Access URL** and uses that to pull your accounts, balances, transactions and holdings. There's no OAuth, no widget, and no on-demand refresh — the Bridge pulls from your bank on its own schedule (typically daily).
+
+Securo's SimpleFIN connector uses the same `BankProvider` abstraction as the others, but the connection flow is different: instead of redirecting to a consent page or opening an embedded widget, you generate a token on the Bridge and paste it into Securo.
+
+<Callout type="info">
+**Why SimpleFIN?** It's read-only by design, has very simple cryptography (Basic Auth on an unguessable URL), and the SimpleFIN Bridge offers paid plans for around US$1.50/month — much cheaper than enterprise aggregators. There's also a free **demo** that's perfect for evaluating the integration without any real bank.
+</Callout>
+
+## 1. Enable SimpleFIN in Securo
+
+Add the following to your Securo `.env`:
+
+```bash
+SIMPLEFIN_ENABLED=true
+# Optional — defaults to the SimpleFIN Bridge sandbox host. Switch to
+# https://bridge.simplefin.org once you're ready to connect real banks.
+SIMPLEFIN_API_URL=https://beta-bridge.simplefin.org
+```
+
+Restart the backend so the new env vars take effect:
+
+```bash
+docker compose up -d --force-recreate --no-deps backend celery-worker celery-beat
+```
+
+SimpleFIN now appears on the connector selector. Unlike Pluggy or Enable Banking, **no per-tenant API keys** are required — each connection brings its own credentials in the form of the Setup Token.
+
+## 2. Get a Setup Token from the SimpleFIN Bridge
+
+Open the [SimpleFIN Bridge](https://bridge.simplefin.org/) in a new tab.
+
+- **To try things out (no real bank)**: open the [developer page](https://beta-bridge.simplefin.org/info/developers). A fresh demo Setup Token is shown in a code box near the top of the page; each refresh gives you a new one.
+- **To connect a real bank**: click *Get Started*, sign up, pick the bank you want to link, and finish the Bridge's bank-login flow. After authorizing your bank, the Bridge gives you a Setup Token (a long base64 string).
+
+> The Setup Token decodes to a one-time URL. Once Securo claims it, the same token cannot be reused — you'll need a fresh one if you want to reconnect.
+
+## 3. Connect from Securo
+
+1. In Securo, open the **Accounts** page and click **Connect Bank**
+2. Pick **SimpleFIN** from the provider list
+3. The dialog shows a *Generate token at SimpleFIN Bridge* button (a shortcut to the Bridge) and a textarea
+4. Paste your Setup Token into the textarea and click **Connect**
+5. Securo POSTs the decoded claim URL, receives an Access URL, encrypts it with the per-instance Fernet key, then pulls your initial accounts and ~1 year of transactions
+
+When the request finishes you land back on the Accounts page with your new **SimpleFIN** connection at the top, accounts listed underneath, and a "Bank connected successfully" toast.
+
+<Callout type="warn">
+**Single-use tokens.** If you accidentally trigger the claim twice (e.g. by clicking Connect, navigating away mid-import, then retrying), the second attempt will fail with `setup_token_used`. Generate a fresh Setup Token at the Bridge and paste the new one — Securo will then succeed.
+</Callout>
+
+## 4. Reconnecting
+
+The Bridge can disable an Access URL if you revoke it from the Bridge dashboard, or after several consecutive errors against your bank. When that happens, Securo flips the connection to **error**. To reconnect:
+
+1. Generate a fresh Setup Token at the SimpleFIN Bridge
+2. On the Accounts page, click **Reconnect** on the affected SimpleFIN connection
+3. Paste the new Setup Token and click **Connect**
+
+The existing accounts and transaction history are preserved — only the Access URL is replaced.
+
+## What Securo imports
+
+A single `GET /accounts` call against your Access URL returns everything Securo needs:
+
+- **Accounts** — name, currency, balance, available balance
+- **Transactions** — booking and value dates, signed amount, description, payee, pending flag
+- **Holdings** — investment positions (description, symbol, shares, market value, cost basis, purchase date)
+
+Holdings flow into the Securo **Assets** page automatically. Transactions follow the same matching, deduplication and rule-engine path as any other provider.
+
+## Limits to know
+
+| Limit | Default | Notes |
+|---|---|---|
+| Requests per Access URL per day | 24 (for `GET /accounts`) + 24 per-account | Per the SimpleFIN spec. Securo's hourly background sync (which runs only for connections idle > 4 h) sits well below this. |
+| Maximum date window per request | 90 days | Securo's initial backfill walks the requested history in 90-day chunks. Follow-up syncs almost always fit in one call. |
+| History available | Varies per institution | Most banks expose 1–2 years of history. Older transactions return empty arrays without an error. |
+
+Exceeding the request budget shows up as `warn` entries in the Bridge's `errlist` response. Securo logs these as warnings — sync continues with whatever data did come back.
+
+## Troubleshooting
+
+### "Reauthorize at SimpleFIN Bridge"
+
+This corresponds to a `con.auth` / `gen.auth` error in the Bridge response. Generate a new Setup Token and use the **Reconnect** button on the connection.
+
+### Sync says "completed" but the data looks old
+
+The Bridge pulls from banks on its own cadence (typically once per day). If you connected at noon and your bank only refreshes overnight, the first batch of transactions may be a day stale. Subsequent syncs catch up automatically as the Bridge re-fetches.
+
+### Some accounts return `act.failed`
+
+That's a transient SimpleFIN/bank error. Securo logs a warning and imports whatever data was returned alongside the failure. The next sync will retry.
+
+## References
+
+- [SimpleFIN protocol specification](https://www.simplefin.org/protocol.html)
+- [SimpleFIN Bridge developer docs](https://beta-bridge.simplefin.org/info/developers)
+- [Bridge sign-up page](https://bridge.simplefin.org/)

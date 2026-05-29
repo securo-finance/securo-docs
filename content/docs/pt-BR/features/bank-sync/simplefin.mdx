@@ -1,0 +1,104 @@
+---
+title: SimpleFIN (Bancos dos EUA e Internacionais)
+description: Conecte contas bancárias dos EUA e internacionais ao Securo pelo protocolo SimpleFIN Bridge.
+---
+
+O [SimpleFIN](https://www.simplefin.org/) é um protocolo aberto e propositalmente minimalista para dados financeiros **somente leitura**. Você fornece ao Securo um **Setup Token** de uso único do SimpleFIN Bridge; o Securo troca esse token por uma **Access URL** privada e usa essa URL para puxar suas contas, saldos, transações e investimentos. Não tem OAuth, não tem widget e não tem refresh sob demanda — o Bridge consulta seu banco no ritmo dele (em geral, uma vez por dia).
+
+O conector SimpleFIN do Securo usa a mesma abstração `BankProvider` dos outros, mas o fluxo de conexão é diferente: em vez de redirecionar para uma página de consentimento ou abrir um widget embedado, você gera um token no Bridge e cola no Securo.
+
+<Callout type="info">
+**Por que SimpleFIN?** É somente leitura por design, tem criptografia bem simples (Basic Auth numa URL não-adivinhável) e o SimpleFIN Bridge oferece planos pagos por cerca de US$1,50/mês — muito mais barato que agregadores corporativos. Também tem uma **demo** gratuita que serve perfeitamente para avaliar a integração sem precisar de banco real.
+</Callout>
+
+## 1. Habilite o SimpleFIN no Securo
+
+Adicione o seguinte ao `.env` do Securo:
+
+```bash
+SIMPLEFIN_ENABLED=true
+# Opcional — o padrão é o host de sandbox. Mude para
+# https://bridge.simplefin.org quando estiver pronto para conectar bancos reais.
+SIMPLEFIN_API_URL=https://beta-bridge.simplefin.org
+```
+
+Reinicie o backend para que as variáveis novas entrem em vigor:
+
+```bash
+docker compose up -d --force-recreate --no-deps backend celery-worker celery-beat
+```
+
+O SimpleFIN aparece no seletor de conectores. Diferente do Pluggy ou Enable Banking, **não há chaves de API por instância** — cada conexão traz suas próprias credenciais na forma do Setup Token.
+
+## 2. Pegue um Setup Token no SimpleFIN Bridge
+
+Abra o [SimpleFIN Bridge](https://bridge.simplefin.org/) em outra aba.
+
+- **Para testar (sem banco real)**: abra a [página do desenvolvedor](https://beta-bridge.simplefin.org/info/developers). Um Setup Token de demonstração aparece numa caixa de código no topo da página; a cada refresh você ganha um novo.
+- **Para conectar um banco real**: clique em *Get Started*, faça o cadastro, escolha o banco que quer ligar e siga o fluxo de login do Bridge. Depois de autorizar o banco, o Bridge entrega um Setup Token (uma string base64 longa).
+
+> O Setup Token decodifica para uma URL de uso único. Depois que o Securo resgatá-la, o mesmo token não funciona de novo — você precisa de um novo se quiser reconectar.
+
+## 3. Conecte pelo Securo
+
+1. No Securo, abra a página **Contas** e clique em **Conectar Banco**
+2. Escolha **SimpleFIN** na lista de provedores
+3. O diálogo mostra um botão *Gerar token no SimpleFIN Bridge* (atalho para o Bridge) e um campo de texto
+4. Cole seu Setup Token no campo e clique em **Conectar**
+5. O Securo envia um POST para a URL decodificada, recebe uma Access URL, criptografa com a chave Fernet da instância e puxa as contas iniciais junto com ~1 ano de transações
+
+Quando a requisição termina, você volta para a página de Contas com a nova conexão **SimpleFIN** no topo, as contas listadas abaixo e um toast "Banco conectado com sucesso".
+
+<Callout type="warn">
+**Tokens de uso único.** Se você disparar o resgate duas vezes por engano (por exemplo, clicar em Conectar, sair no meio da importação e tentar de novo), a segunda tentativa falha com `setup_token_used`. Gere um Setup Token novo no Bridge e cole o novo — aí o Securo concluí.
+</Callout>
+
+## 4. Reconectando
+
+O Bridge pode desativar uma Access URL se você revogá-la no painel do Bridge, ou após vários erros consecutivos contra o seu banco. Quando isso acontece, o Securo marca a conexão como **erro**. Para reconectar:
+
+1. Gere um Setup Token novo no SimpleFIN Bridge
+2. Na página de Contas, clique em **Reconectar** na conexão SimpleFIN afetada
+3. Cole o novo Setup Token e clique em **Conectar**
+
+As contas existentes e o histórico de transações são preservados — só a Access URL é substituída.
+
+## O que o Securo importa
+
+Uma única chamada `GET /accounts` na sua Access URL devolve tudo o que o Securo precisa:
+
+- **Contas** — nome, moeda, saldo, saldo disponível
+- **Transações** — datas de lançamento e valor, valor com sinal, descrição, beneficiário, flag de pendência
+- **Investimentos** — posições (descrição, símbolo, quantidade, valor de mercado, custo, data de compra)
+
+Os investimentos vão para a página **Patrimônio** do Securo automaticamente. As transações seguem o mesmo caminho de correspondência, deduplicação e regras dos outros provedores.
+
+## Limites para saber
+
+| Limite | Padrão | Observações |
+|---|---|---|
+| Requisições por Access URL por dia | 24 (para `GET /accounts`) + 24 por conta | Conforme a especificação SimpleFIN. O sync de fundo do Securo (que roda só para conexões paradas há > 4 h) fica bem abaixo disso. |
+| Janela máxima de datas por requisição | 90 dias | O backfill inicial do Securo percorre o histórico solicitado em blocos de 90 dias. Syncs seguintes quase sempre cabem numa chamada só. |
+| Histórico disponível | Varia por instituição | A maioria dos bancos expõe 1–2 anos de histórico. Transações mais antigas voltam como arrays vazios, sem erro. |
+
+Estourar o orçamento de requisições aparece como entradas `warn` no `errlist` do Bridge. O Securo registra como warning — o sync continua com os dados que vieram.
+
+## Solução de problemas
+
+### "Reauthorize at SimpleFIN Bridge"
+
+Corresponde a um erro `con.auth` / `gen.auth` na resposta do Bridge. Gere um Setup Token novo e use o botão **Reconectar** na conexão.
+
+### O sync diz "concluído" mas os dados parecem antigos
+
+O Bridge consulta os bancos na cadência dele (em geral, uma vez por dia). Se você conectou ao meio-dia e o seu banco só atualiza de madrugada, o primeiro lote de transações pode estar um dia atrasado. Os próximos syncs se atualizam automaticamente conforme o Bridge re-busca.
+
+### Algumas contas retornam `act.failed`
+
+É um erro transitório do SimpleFIN ou do banco. O Securo registra um warning e importa o que veio junto. O próximo sync tenta de novo.
+
+## Referências
+
+- [Especificação do protocolo SimpleFIN](https://www.simplefin.org/protocol.html)
+- [Documentação do desenvolvedor do SimpleFIN Bridge](https://beta-bridge.simplefin.org/info/developers)
+- [Página de cadastro do Bridge](https://bridge.simplefin.org/)

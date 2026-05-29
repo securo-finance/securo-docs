@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "pluggy",
-    "enable-banking"
+    "enable-banking",
+    "simplefin"
   ]
 }
