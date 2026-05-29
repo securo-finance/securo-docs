@@ -1,0 +1,95 @@
+---
+title: Enable Banking (Bancos Europeus)
+description: Conecte contas bancárias europeias ao Securo pela API de open banking PSD2 da Enable Banking.
+---
+
+A [Enable Banking](https://enablebanking.com) é uma agregadora europeia de open banking que se conecta a cerca de 2500 bancos em 29 países europeus usando APIs PSD2 oficiais. O Securo usa a Enable Banking para buscar suas contas, saldos e transações pelo fluxo de consentimento exigido pelo PSD2.
+
+Diferente do widget embedado da Pluggy, o fluxo da Enable Banking é um **redirect OAuth**: você escolhe um país e um banco dentro do Securo, é redirecionado para a Enable Banking e depois para a página de consentimento do seu próprio banco, e finalmente volta para o Securo, onde a importação acontece.
+
+<Callout type="info">
+A Enable Banking oferece um **modo restrito gratuito** que permite acessar as *suas próprias* contas bancárias sem assinatura paga. Nesse modo, você precisa pré-vincular no portal da Enable Banking as contas que quer importar — veja o passo 3 abaixo.
+</Callout>
+
+## 1. Crie uma Aplicação na Enable Banking
+
+1. Cadastre-se em [enablebanking.com](https://enablebanking.com) e acesse o **Control Panel**
+2. Abra **API Applications** e preencha o formulário **Add a new application**:
+    - **Environment**: selecione **Production** (o ambiente **Sandbox** é útil para desenvolvimento — aceita URLs de redirect em HTTP puro)
+    - **Private key generation**: mantenha o padrão "Generate in the browser and export private key"
+    - **Application Name**: um nome descritivo, ex.: `Securo`
+    - **Allowed Redirect URLs**: informe a URL que o Securo vai usar como callback. Ela tem que ser exata, precisa usar HTTPS em Production, e o path pode ser o que você quiser desde que Securo e Enable Banking combinem. O padrão do Securo é `/oauth/callback`:
+      ```
+      https://<seu-host-securo>/oauth/callback
+      ```
+    - **Email for data protection matters**: seu e-mail
+    - **Privacy Policy / Terms of Service URLs**: qualquer URL acessível (no modo restrito esses campos não são validados)
+3. Ao enviar, o navegador baixa um arquivo `.pem` com a chave privada da sua aplicação — **guarde em um lugar seguro**, a Enable Banking não mostra a chave de novo
+4. Anote o **Application ID** (Client ID) que aparece no Control Panel
+
+![Criar aplicação na Enable Banking](/screenshots/enable-banking-create-app.png)
+
+## 2. Coloque o PEM na pasta de secrets do Securo
+
+O Securo espera o PEM em `./secrets/` (gitignored). Mova o arquivo baixado para lá com o nome que preferir:
+
+```bash
+mv ~/Downloads/<seu-app-id>.pem ./secrets/enable_banking.pem
+```
+
+## 3. Vincule suas Contas no Portal da Enable Banking (Obrigatório no Modo Restrito Gratuito)
+
+Este é o passo mais importante se você está no plano gratuito.
+
+1. No Control Panel da Enable Banking, abra a sua aplicação e clique em **Link accounts**
+2. Autentique no seu banco e autorize a Enable Banking a acessar as contas que você quer importar no Securo
+
+![Vincular contas no portal da Enable Banking](/screenshots/enable-banking-link-accounts.png)
+
+<Callout type="warn">
+Se você pular esse passo, a conexão dentro do Securo volta sem nenhuma conta. O Securo mostra um banner apontando para o portal para você corrigir sem perder o resto do fluxo.
+</Callout>
+
+## 4. Configure o Securo
+
+Adicione o seguinte ao `.env` do Securo:
+
+```bash
+ENABLE_BANKING_APP_ID=seu-application-id
+ENABLE_BANKING_PRIVATE_KEY_FILE=/app/secrets/enable_banking.pem
+ENABLE_BANKING_OAUTH_REDIRECT_URI=https://<seu-host-securo>/oauth/callback
+```
+
+A redirect URI tem que coincidir **exatamente** com uma das Allowed Redirect URLs registradas na Enable Banking.
+
+Recrie o container do backend para que as novas variáveis de ambiente e o volume `./secrets` entrem em vigor:
+
+```bash
+docker compose up -d --force-recreate --no-deps backend celery-worker celery-beat
+```
+
+O Securo detecta os provedores configurados na inicialização. Com as variáveis definidas e o PEM acessível, a **Enable Banking** aparece no seletor de conectores com `configured: true`.
+
+<Callout type="info">
+**Desenvolvimento local.** A Enable Banking em Production exige HTTPS. Se seu Securo roda em `http://localhost:3000`, exponha o app por um túnel (ngrok, cloudflared, seu próprio reverse proxy) e use a URL do túnel como redirect URI — *ou* registre uma aplicação separada em Sandbox, que aceita HTTP em localhost.
+</Callout>
+
+## 5. Conecte seu Banco
+
+1. Abra a página **Contas** e clique em **Conectar Banco**
+2. Escolha **Enable Banking** na lista de provedores
+3. Escolha o seu país, depois o seu banco
+4. O Securo pede a URL de consentimento à Enable Banking e redireciona o seu navegador
+5. Autorize a Enable Banking, faça login no seu banco e autorize o acesso aos dados
+6. Seu navegador é redirecionado de volta ao Securo, que mostra uma tela de loading enquanto importa suas contas, saldos e transações
+7. Você volta para a página de Contas com a nova conexão bancária na lista
+
+## Reconectando
+
+Consentimentos PSD2 têm tempo de vida fixo — em geral cerca de 6 meses, dependendo do banco. Quando um consentimento expira, o status da conexão vira **expirada** e a página de Contas mostra um botão **Reconectar**.
+
+Clicar em **Reconectar** em uma conexão da Enable Banking:
+
+- Reaproveita o país e o banco escolhidos originalmente (você não precisa selecionar de novo)
+- Gera uma nova URL de consentimento e te redireciona para autorizar novamente
+- Atualiza a conexão existente — suas contas e histórico de transações são preservados

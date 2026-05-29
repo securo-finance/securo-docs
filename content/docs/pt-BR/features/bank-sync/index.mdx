@@ -1,0 +1,92 @@
+---
+title: Sincronização Bancária
+description: Importe transações das suas contas bancárias automaticamente usando provedores suportados.
+---
+
+A Sincronização Bancária permite conectar suas contas bancárias reais ao Securo para que as transações sejam importadas e atualizadas automaticamente. Em vez de digitar cada despesa manualmente, os dados do seu banco entram no Securo em uma agenda recorrente, são categorizados e ficam sincronizados.
+
+O sistema de provedores do Securo foi pensado para suportar várias integrações de sincronização bancária. Cada provedor cobre uma região ou conjunto de instituições financeiras diferente, e você pode configurar mais de um ao mesmo tempo.
+
+## Provedores Suportados
+
+| Provedor | Região | Status |
+|----------|--------|--------|
+| [Pluggy](./bank-sync/pluggy) | Brasil | Disponível |
+| [Enable Banking](./bank-sync/enable-banking) | Europa (~2500 bancos PSD2 em 29 países) | Disponível |
+| Provedor americano | Estados Unidos | Em breve |
+
+## Como a Sincronização Bancária Funciona
+
+1. Você se cadastra em um dos provedores suportados e obtém as credenciais que ele oferece
+2. Adiciona essas credenciais no arquivo `.env` do Securo e reinicia o backend
+3. Na página **Contas**, clique em **Conectar Banco**
+4. O Securo lista todos os provedores que você configurou — escolha um e siga o fluxo específico do provedor
+5. Depois de autorizar, o Securo importa suas contas e o histórico recente de transações
+6. Um job em background mantém tudo sincronizado automaticamente
+
+![Contas](/screenshots/accounts.png)
+
+Para instruções de configuração de cada provedor, veja os guias [Pluggy](./bank-sync/pluggy) e [Enable Banking](./bank-sync/enable-banking).
+
+## Comportamento da Sincronização
+
+### Sincronização Automática
+
+Um job em background roda a cada hora e atualiza qualquer conexão que não tenha sido sincronizada nas últimas 4 horas. Suas transações ficam em dia sem intervenção manual.
+
+### Sincronização Manual
+
+Você pode disparar uma sincronização imediata na página de Contas clicando no ícone de sincronização ao lado de uma conexão bancária.
+
+### O que Acontece Durante a Sincronização
+
+- Os saldos das contas são atualizados
+- Novas transações desde a última sincronização são importadas
+- Transações pendentes são incluídas ou excluídas conforme suas configurações
+- Transações duplicadas (já importadas) são puladas
+- Transações lançadas manualmente são comparadas com as sincronizadas por correspondência aproximada (mesmo valor, data parecida, descrição parecida)
+- As categorias são mapeadas automaticamente das categorias do provedor para as suas categorias do Securo quando o provedor expõe essas informações
+- Pares de transferência entre contas são detectados automaticamente
+
+## Configurações da Conexão
+
+Cada conexão bancária tem configurações que controlam como as transações são importadas.
+
+### Fonte do Beneficiário
+
+Controla como o nome do beneficiário é extraído dos dados do banco:
+
+| Opção | Descrição |
+|-------|-----------|
+| **Automático** (padrão) | Tenta o nome do estabelecimento primeiro, depois os dados de pagamento, e por fim nenhum |
+| **Estabelecimento** | Usa o nome do estabelecimento da transação |
+| **Dados de Pagamento** | Usa as informações de pagador/recebedor dos detalhes do pagamento |
+| **Descrição** | Usa a descrição bruta da transação do banco |
+| **Nenhum** | Não extrai um beneficiário |
+
+### Importar Pendentes
+
+Quando ativado (padrão), as transações pendentes são importadas junto com as lançadas. Desative se preferir importar apenas transações finalizadas.
+
+## Solução de Problemas
+
+### Conexão Aparece com Status de Erro ou Expirada
+
+- **Erro**: as credenciais que o provedor te deu falharam inesperadamente. Clique em **Reconectar** para tentar novamente.
+- **Expirada**: o consentimento que o usuário concedeu chegou ao fim (comum em provedores PSD2 como o Enable Banking, que limita o consentimento a cerca de 6 meses). Clique em **Reconectar** para iniciar um novo fluxo de consentimento.
+
+### Transações Duplicadas
+
+O Securo rastreia cada transação sincronizada pelo ID externo. Se você ver duplicatas, pode ser porque você lançou uma transação manualmente antes dela ser sincronizada. O Securo tenta combiná-las automaticamente (em até 3 dias, mesmo valor, 60%+ de similaridade na descrição), mas alguns casos podem exigir limpeza manual.
+
+### Transações Faltando
+
+Alguns bancos têm atraso para reportar transações. Se transações recentes estão faltando, tente uma sincronização manual depois de algumas horas. Verifique também se **Importar Pendentes** está ativado nas configurações da conexão.
+
+### Sincronização Não Está Rodando
+
+A sincronização automática depende do Redis e do Celery. Verifique se:
+
+- `REDIS_URL` está configurado no seu ambiente
+- O worker do Celery está rodando: `celery -A app.worker worker`
+- O scheduler do Celery beat está rodando: `celery -A app.worker beat`

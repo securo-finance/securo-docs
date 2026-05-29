@@ -1,0 +1,95 @@
+---
+title: Enable Banking (European Banks)
+description: Connect European bank accounts to Securo via Enable Banking's PSD2 open banking API.
+---
+
+[Enable Banking](https://enablebanking.com) is a European open banking aggregator that connects to roughly 2500 banks across 29 European countries using official PSD2 APIs. Securo uses Enable Banking to fetch your accounts, balances and transactions through the user-consent flow that PSD2 mandates.
+
+Unlike Pluggy's embedded widget, the Enable Banking flow is an **OAuth-style redirect**: you pick a country and a bank inside Securo, get redirected to Enable Banking and then to your bank's own consent page, and finally come back to Securo where the import runs.
+
+<Callout type="info">
+Enable Banking offers a **free restricted mode** that lets you access your *own* bank accounts without a paid subscription. In restricted mode you must pre-link the accounts you want to import inside the Enable Banking portal — see step 3 below.
+</Callout>
+
+## 1. Create an Enable Banking Application
+
+1. Sign up at [enablebanking.com](https://enablebanking.com) and access the **Control Panel**
+2. Open **API Applications** and fill in the **Add a new application** form:
+    - **Environment**: select **Production** (the **Sandbox** environment is useful for development — it allows plain HTTP redirect URLs)
+    - **Private key generation**: keep the default "Generate in the browser and export private key"
+    - **Application Name**: a descriptive name, e.g. `Securo`
+    - **Allowed Redirect URLs**: enter the URL Securo will use as its callback. It must be exact, must use HTTPS in Production, and the path is anything you want as long as Securo and Enable Banking agree on it. The Securo default is `/oauth/callback`:
+      ```
+      https://<your-securo-host>/oauth/callback
+      ```
+    - **Email for data protection matters**: your email
+    - **Privacy Policy / Terms of Service URLs**: any reachable URL (in restricted mode these aren't validated)
+3. On submit, the browser downloads a `.pem` file with your application's private key — **save it somewhere safe**, Enable Banking will not show it again
+4. Note your **Application ID** (Client ID) from the Control Panel
+
+![Create Enable Banking Application](/screenshots/enable-banking-create-app.png)
+
+## 2. Drop the PEM into Securo's secrets folder
+
+Securo expects the PEM under `./secrets/` (gitignored). Move the downloaded file there and use any filename you like:
+
+```bash
+mv ~/Downloads/<your-app-id>.pem ./secrets/enable_banking.pem
+```
+
+## 3. Link Your Accounts in the EB Portal (Required for Free Restricted Mode)
+
+This is the most important step if you're on the free plan.
+
+1. In the Enable Banking Control Panel, open your application and click **Link accounts**
+2. Authenticate with your bank and authorize Enable Banking to access the accounts you want to import into Securo
+
+![Link accounts in the Enable Banking portal](/screenshots/enable-banking-link-accounts.png)
+
+<Callout type="warn">
+If you skip this step, the connection inside Securo will come back with no accounts. Securo will show a banner pointing you to the portal so you can fix it without losing the rest of the flow.
+</Callout>
+
+## 4. Configure Securo
+
+Add the following to your Securo `.env`:
+
+```bash
+ENABLE_BANKING_APP_ID=your-application-id
+ENABLE_BANKING_PRIVATE_KEY_FILE=/app/secrets/enable_banking.pem
+ENABLE_BANKING_OAUTH_REDIRECT_URI=https://<your-securo-host>/oauth/callback
+```
+
+The redirect URI must match **exactly** one of the Allowed Redirect URLs you registered with Enable Banking.
+
+Recreate the backend container so the new environment variables and the `./secrets` volume mount take effect:
+
+```bash
+docker compose up -d --force-recreate --no-deps backend celery-worker celery-beat
+```
+
+Securo detects configured providers on startup. Once the variables are set and the PEM file is reachable, **Enable Banking** appears on the connector selector with `configured: true`.
+
+<Callout type="info">
+**Local development.** Production Enable Banking requires HTTPS. If your Securo runs at `http://localhost:3000`, expose it through a tunnel (ngrok, cloudflared, your own reverse proxy) and use the tunnel URL as the redirect URI — *or* register a separate Sandbox application that does accept plain HTTP localhost.
+</Callout>
+
+## 5. Connect Your Bank
+
+1. Open the **Accounts** page and click **Connect Bank**
+2. Pick **Enable Banking** from the provider list
+3. Choose your country, then your bank
+4. Securo asks Enable Banking for the consent URL and redirects your browser there
+5. Authorize Enable Banking, then log in to your bank and authorize the data access
+6. Your browser is redirected back to Securo, which shows a loading screen while it imports your accounts, balances and transactions
+7. You land back on the Accounts page with your new bank connection in the list
+
+## Reconnecting
+
+PSD2 consents have a fixed lifetime — typically around 6 months, depending on the bank. When a consent expires, the connection's status flips to **expired** and the Accounts page shows a "Reconnect" button.
+
+Clicking **Reconnect** for an Enable Banking connection:
+
+- Reuses the country and bank you chose originally (no need to pick them again)
+- Builds a fresh consent URL and redirects you to authorize again
+- Updates the existing connection in place — your accounts and transaction history are preserved

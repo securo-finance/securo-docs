@@ -1,0 +1,92 @@
+---
+title: Bank Sync
+description: Automatically import transactions from your bank accounts using supported providers.
+---
+
+Bank Sync lets you connect your real bank accounts to Securo so transactions are imported and updated automatically. Instead of manually entering every expense, your bank data flows into Securo on a recurring schedule, gets categorized, and stays in sync.
+
+Securo's provider system is designed to support multiple bank sync integrations. Each provider covers a different region or set of financial institutions, and you can configure more than one at the same time.
+
+## Supported Providers
+
+| Provider | Region | Status |
+|----------|--------|--------|
+| [Pluggy](./bank-sync/pluggy) | Brazil | Available |
+| [Enable Banking](./bank-sync/enable-banking) | Europe (~2500 PSD2 banks across 29 countries) | Available |
+| US provider | United States | Coming soon |
+
+## How Bank Sync Works
+
+1. You sign up at one of the supported providers and get the credentials they expose
+2. You add those credentials to your Securo `.env` file and restart the backend
+3. On the **Accounts** page, click **Connect Bank**
+4. Securo lists every provider you have configured — pick one and follow the provider-specific flow
+5. After authorizing, Securo imports your accounts and recent transaction history
+6. A background task keeps everything in sync automatically
+
+![Accounts](/screenshots/accounts.png)
+
+For per-provider setup instructions, see the [Pluggy](./bank-sync/pluggy) and [Enable Banking](./bank-sync/enable-banking) guides.
+
+## Sync Behavior
+
+### Automatic Sync
+
+A background task runs every hour and refreshes any connection that hasn't been synced in the last 4 hours. Your transactions stay up to date without manual intervention.
+
+### Manual Sync
+
+You can trigger an immediate sync from the Accounts page by clicking the sync icon next to a bank connection.
+
+### What Happens During Sync
+
+- Account balances are updated
+- New transactions since the last sync are imported
+- Pending transactions are included or excluded based on your settings
+- Duplicate transactions (already imported) are skipped
+- Manually entered transactions are matched against synced ones using fuzzy matching (same amount, similar date, similar description)
+- Categories are auto-mapped from the provider's categories to your Securo categories when the provider exposes them
+- Transfer pairs between accounts are detected automatically
+
+## Connection Settings
+
+Each bank connection has settings that control how transactions are imported.
+
+### Payee Source
+
+Controls how the payee name is extracted from bank data:
+
+| Option | Description |
+|--------|-------------|
+| **Auto** (default) | Tries merchant name first, then payment data, then falls back to none |
+| **Merchant** | Uses the merchant name from the transaction |
+| **Payment Data** | Uses payer/receiver information from payment details |
+| **Description** | Uses the raw bank transaction description |
+| **None** | Does not extract a payee |
+
+### Import Pending
+
+When enabled (default), pending transactions are imported alongside posted ones. Disable this if you prefer to only import finalized transactions.
+
+## Troubleshooting
+
+### Connection Shows Error or Expired Status
+
+- **Error**: the credentials the provider gave us failed unexpectedly. Click **Reconnect** to retry authentication.
+- **Expired**: the user-granted consent reached its end date (common with PSD2 providers like Enable Banking, which cap consent at around 6 months). Click **Reconnect** to start a fresh consent flow.
+
+### Duplicate Transactions
+
+Securo tracks each synced transaction by its external ID. If you see duplicates, it may be because you entered a transaction manually before it was synced. Securo attempts to match these automatically (within 3 days, same amount, 60%+ description similarity), but some edge cases may require manual cleanup.
+
+### Missing Transactions
+
+Some banks have delays in reporting transactions. If recent transactions are missing, try a manual sync after a few hours. Also check that **Import Pending** is enabled in your connection settings.
+
+### Sync Not Running
+
+Automatic sync requires Redis and Celery. Verify that:
+
+- `REDIS_URL` is configured in your environment
+- The Celery worker is running: `celery -A app.worker worker`
+- The Celery beat scheduler is running: `celery -A app.worker beat`
