@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   },
   description:
     'Documentation for Securo, an open-source personal finance manager.',
+  icons: {
+    icon: '/logo.svg',
+  },
 };
 
 export default function Layout({ children }: LayoutProps<'/'>) {
