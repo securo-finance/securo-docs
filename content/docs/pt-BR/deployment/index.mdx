@@ -1,14 +1,34 @@
 ---
 title: Implantação
-description: Faça o deploy do Securo para produção com Docker.
+description: Faça o deploy do Securo para a sua própria infraestrutura.
 ---
 
-Pronto para hospedar seu próprio Securo? Siga o guia de implantação para colocá-lo no ar no seu servidor.
+Pronto para hospedar seu próprio Securo? Nós fornecemos tanto configurações de teste local quanto guias de implantação em produção robustos, dependendo de sua infraestrutura.
 
+### Desenvolvimento / Testes Locais
 <Cards>
   <Card
-    title="Docker"
-    description="Faça o deploy do Securo com Docker Compose, o jeito mais fácil de hospedar."
+    title="Docker Compose (Local)"
+    description="Inicie rapidamente o Securo localmente usando o Docker Compose para desenvolvimento e testes."
     href="/pt-BR/docs/deployment/docker"
+  />
+  <Card
+    title="Kubernetes (Kind)"
+    description="Teste o Helm chart oficial do Securo localmente usando um cluster Kind leve."
+    href="/pt-BR/docs/deployment/kubernetes"
+  />
+</Cards>
+
+### Implantação em Produção
+<Cards>
+  <Card
+    title="Docker em Produção"
+    description="Implante o Securo com segurança em um único servidor de produção usando Docker Compose e HTTPS."
+    href="/pt-BR/docs/deployment/docker-prod"
+  />
+  <Card
+    title="Kubernetes em Produção"
+    description="Implante o Securo em escala usando o Helm chart com bancos de dados externos e segredos GitOps."
+    href="/pt-BR/docs/deployment/kubernetes-prod"
   />
 </Cards>

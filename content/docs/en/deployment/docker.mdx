@@ -1,175 +1,53 @@
 ---
-title: Production Deployment
-description: Deploy Securo to a production server with Docker Compose, HTTPS, backups, and updates.
+title: Docker Development
+description: Deploy Securo locally for development using Docker Compose.
 ---
 
-This guide covers deploying Securo to a production server. If you're just trying Securo locally, see the [Installation guide](/docs/getting-started/installation) instead.
+This guide covers deploying Securo locally for testing and development.
 
-## Production vs Development
+If you are ready to deploy Securo to a live server, please see the [Docker Production](/docs/deployment/docker-prod) guide instead.
 
-Securo ships with two Docker Compose files:
+## 1. Prerequisites
 
-| File                        | Use Case    | Images          |
-| --------------------------- | ----------- | --------------- |
-| `docker-compose.yml`        | Development | Builds from source, hot reload |
-| `docker-compose.prod.yml`   | Production  | Pre-built images from GHCR     |
-
-For production, always use `docker-compose.prod.yml`. It pulls optimized pre-built images from GitHub Container Registry instead of building from source.
-
-## Server Requirements
-
-- A Linux server (Ubuntu 22.04+ recommended) with at least **1 GB RAM**
 - Docker Engine and Docker Compose plugin installed
-- A domain name (optional, but recommended for HTTPS)
+- Git installed
 
-## Deployment Steps
+## 2. Clone and Configure
 
-### 1. Install Docker
-
-On your server, install Docker using the official script:
-
-```bash
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker $USER
-```
-
-Log out and back in for the group change to take effect.
-
-### 2. Clone and Configure
+Clone the repository to your local machine:
 
 ```bash
 git clone https://github.com/securo-finance/securo.git
 cd securo
 ```
 
-Create a `.env` file with a strong secret key:
+Create a `.env` file with a secret key:
 
 ```bash
 echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
 ```
 
-If you want bank sync or exchange rates, add those keys too:
+## 3. Start Securo
 
-```ini
-PLUGGY_CLIENT_ID=your-client-id
-PLUGGY_CLIENT_SECRET=your-client-secret
-OPENEXCHANGERATES_APP_ID=your-app-id
-```
-
-### 3. Start Securo
+By default, the `docker-compose.yml` file builds the images from your local source code, which is great for development and hot-reloading.
 
 ```bash
-docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
+docker compose up -d --build
 ```
 
-Verify all containers are running:
+Wait a few seconds for the database to initialize and the backend to start up. You can verify all containers are running:
 
 ```bash
-docker compose -f docker-compose.prod.yml ps
+docker compose ps
 ```
 
-## Setting Up HTTPS
+## 4. Access the Application
 
-For production, you should put Securo behind a reverse proxy with TLS. Here's a minimal example using **Caddy** (which handles HTTPS automatically):
+Once all containers are healthy, open your browser and navigate to:
 
-```bash
-# Install Caddy
-sudo apt install -y caddy
-```
+**http://localhost:3000**
 
-Edit `/etc/caddy/Caddyfile`:
+You can now log in, configure your accounts, and test Securo locally!
 
-```text
-securo.yourdomain.com {
-    reverse_proxy localhost:3000
-}
-```
-
-Restart Caddy:
-
-```bash
-sudo systemctl restart caddy
-```
-
-Caddy will automatically obtain and renew a Let's Encrypt certificate. Update your `.env` to reflect the public URL:
-
-```ini
-FRONTEND_URL=https://securo.yourdomain.com
-```
-
-Then restart Securo: `docker compose -f docker-compose.prod.yml up -d`
-
-## Backups
-
-### Database Backup
-
-Export the PostgreSQL database to a SQL file:
-
-```bash
-docker compose -f docker-compose.prod.yml exec db \
-  pg_dump -U postgres securo > backup-$(date +%Y%m%d).sql
-```
-
-### Database Restore
-
-```bash
-docker compose -f docker-compose.prod.yml exec -T db \
-  psql -U postgres securo < backup-20260401.sql
-```
-
-### Automated Backups
-
-Add a cron job for daily backups:
-
-```bash
-crontab -e
-```
-
-```text
-0 3 * * * cd /path/to/securo && docker compose -f docker-compose.prod.yml exec -T db pg_dump -U postgres securo > /backups/securo-$(date +\%Y\%m\%d).sql
-```
-
-## Updating
-
-Pull the latest images and restart:
-
-```bash
-cd /path/to/securo
-git pull
-docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
-```
-
-The database migrations run automatically on startup (`alembic upgrade head`), so schema changes are applied during the update.
-
-## Monitoring
-
-Check logs for any issues:
-
-```bash
-# All services
-docker compose -f docker-compose.prod.yml logs -f
-
-# Backend only
-docker compose -f docker-compose.prod.yml logs -f backend
-
-# Last 100 lines
-docker compose -f docker-compose.prod.yml logs --tail 100
-```
-
-Check the health endpoint:
-
-```bash
-curl http://localhost:8000/api/health
-```
-
-## Troubleshooting
-
-**Containers keep restarting**: Check logs with `docker compose -f docker-compose.prod.yml logs backend`. Common causes: bad `DATABASE_URL`, missing `SECRET_KEY`, or port conflicts.
-
-**Database connection refused**: The database container might not be ready yet. It has a health check, but on slow servers it may take longer. Wait 30 seconds and try again.
-
-**Out of disk space**: Docker images and volumes can consume significant space. Clean up old images with `docker system prune`.
-
-**Permission denied on attachments**: The attachments volume needs to be writable by the container user. Check volume permissions with `docker compose -f docker-compose.prod.yml exec backend ls -la /app/data/`.
+---
+> Ready to deploy this to the internet? Check out the [Docker Production](/docs/deployment/docker-prod) guide to learn how to set up HTTPS, backups, and use pre-built optimized images.

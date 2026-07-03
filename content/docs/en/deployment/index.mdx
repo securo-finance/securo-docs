@@ -1,14 +1,34 @@
 ---
 title: Deployment
-description: Deploy Securo to production with Docker.
+description: Deploy Securo to your own infrastructure.
 ---
 
-Ready to self-host Securo? Follow the deployment guide to get it running on your server.
+Ready to self-host Securo? We provide both local testing configurations and robust production deployment guides depending on your infrastructure.
 
+### Development / Local Testing
 <Cards>
   <Card
-    title="Docker"
-    description="Deploy Securo with Docker Compose, the easiest way to self-host."
+    title="Docker Compose (Local)"
+    description="Quickly spin up Securo locally using Docker Compose for development and testing."
     href="/docs/deployment/docker"
+  />
+  <Card
+    title="Kubernetes (Kind)"
+    description="Test the official Securo Helm chart locally using a lightweight Kind cluster."
+    href="/docs/deployment/kubernetes"
+  />
+</Cards>
+
+### Production Deployment
+<Cards>
+  <Card
+    title="Docker Production"
+    description="Deploy Securo securely to a single production server using Docker Compose and HTTPS."
+    href="/docs/deployment/docker-prod"
+  />
+  <Card
+    title="Kubernetes Production"
+    description="Deploy Securo at scale using the Helm chart with external databases and GitOps secrets."
+    href="/docs/deployment/kubernetes-prod"
   />
 </Cards>

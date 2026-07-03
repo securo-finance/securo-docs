@@ -1,0 +1,241 @@
+---
+title: Desenvolvimento em Kubernetes
+description: Implante o Securo localmente em um cluster Kind usando o Helm chart oficial.
+---
+
+O Securo fornece um Helm chart oficial (`charts/securo`) para implantar facilmente o aplicativo, seus serviços e seus bancos de dados em qualquer cluster Kubernetes.
+
+Se você estiver implantando em um cluster de produção real, consulte o guia [Produção em Kubernetes](/pt-BR/docs/deployment/kubernetes-prod) para saber mais sobre o gerenciamento de segredos e bancos de dados externos.
+
+## 1. Pré-requisitos
+
+- `helm` instalado em sua máquina local
+- [Kind](https://kind.sigs.k8s.io/) instalado para criação de cluster local
+- Um Controlador de Ingress ou Controlador de Gateway API (ex: Cilium, NGINX)
+
+## 2. Configurando Recursos do Aplicativo
+
+Todos os recursos de nível de aplicativo (como Serviços de IA, autenticação OIDC e integrações de Open Banking) podem ser configurados diretamente através do Helm.
+As variáveis nos blocos `config:` e `secret:` do `values.yaml` correspondem diretamente às variáveis de ambiente usadas na configuração do Docker.
+
+Se você estiver usando um `existingSecret` para produção, basta adicionar suas chaves de API a esse segredo.
+
+Observe que as variáveis do Docker (que usam `UPPER_SNAKE_CASE`) são convertidas para `camelCase` no Helm. For exemplo, `AGENTS_OPENAI_API_KEY` torna-se `agentsOpenaiApiKey`.
+
+Se você quiser saber quais variáveis são necessárias para recursos específicos, consulte o [Readme do Securo](https://github.com/securo-finance/securo) ou o arquivo `values.yaml`.
+
+---
+
+## 3. Testes Locais com Kind (3 Caminhos de Ponta a Ponta)
+
+O Kind (Kubernetes IN Docker) é a maneira mais fácil de testar o Helm chart localmente. Abaixo estão três maneiras diferentes de implantar e testar o aplicativo, variando de um simples NodePort a uma configuração completa de Gateway API.
+
+### Caminho A: NodePort Direto (Mais Simples)
+Este caminho ignora completamente os controladores de Ingress, expondo o frontend do Securo diretamente através de um NodePort do Kubernetes mapeado para sua máquina host.
+
+**1. Criar o Cluster Kind**
+Crie um arquivo `kind-config-nodeport.yaml` para mapear a porta local 8080 para o NodePort 30080:
+```yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 30080
+    hostPort: 8080
+    protocol: TCP
+```
+```bash
+kind create cluster --name securo-test-nodeport --config kind-config-nodeport.yaml
+```
+
+**2. Instalar o Chart**
+Instale o Securo e force o serviço de frontend a usar o NodePort `30080`:
+```bash
+helm install securo charts/securo \
+  --set global.domain=localhost:8080 \
+  --set frontend.service.type=NodePort \
+  --set frontend.service.nodePort=30080 \
+  --set ingress.enabled=false \
+  --set httpRoute.enabled=false
+```
+
+**3. Testar**
+Aguarde até que os pods estejam prontos:
+```bash
+kubectl wait --namespace default \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/instance=securo \
+  --timeout=300s
+```
+Em seguida, abra `http://localhost:8080` no seu navegador.
+
+**4. Limpeza**
+Quando terminar de testar, exclua o cluster para liberar recursos:
+```bash
+kind delete cluster --name securo-test-nodeport
+```
+
+---
+
+### Caminho B: NGINX Ingress Controller
+Este caminho usa o NGINX Ingress Controller padrão, que é oficialmente suportado pelo Kind para testes locais.
+
+**1. Criar o Cluster Kind**
+Crie um arquivo `kind-config-ingress.yaml` para mapear as portas locais 80 e 443:
+```yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
+    protocol: TCP
+```
+```bash
+kind create cluster --name securo-test-ingress --config kind-config-ingress.yaml
+```
+
+**2. Instalar o NGINX Ingress Controller**
+Instale o provedor oficial NGINX do Kind que se vincula automaticamente às portas do nó:
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=300s
+```
+
+**3. Instalar o Chart**
+```bash
+helm install securo charts/securo \
+  --set global.domain=securo.local \
+  --set ingress.enabled=true \
+  --set ingress.className=nginx
+```
+
+**4. Testar**
+Aguarde até que os pods estejam prontos:
+```bash
+kubectl wait --namespace default \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/instance=securo \
+  --timeout=300s
+```
+Adicione `127.0.0.1 securo.local` ao seu arquivo `/etc/hosts` e abra `http://securo.local` no seu navegador.
+
+**5. Limpeza**
+Quando terminar de testar, exclua o cluster para liberar recursos:
+```bash
+kind delete cluster --name securo-test-ingress
+```
+
+---
+
+### Caminho C: Cilium Gateway API
+Este caminho usa a moderna Gateway API do Kubernetes (`HTTPRoute`), que é a abordagem recomendada para o futuro.
+
+**1. Criar o Cluster Kind**
+Crie um arquivo `kind-config-cilium.yaml` para desabilitar o CNI padrão e mapear as portas locais:
+```yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
+    protocol: TCP
+networking:
+  disableDefaultCNI: true
+```
+```bash
+kind create cluster --name securo-test-gateway --config kind-config-cilium.yaml
+```
+
+**2. Instalar CRDs da Gateway API & Cilium**
+Você deve instalar as Definições de Recursos Personalizados (CRDs) da Gateway API antes de instalar o Cilium.
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_grpcroutes.yaml
+
+helm repo add cilium https://helm.cilium.io/
+helm install cilium cilium/cilium --version 1.19.5 \
+  --namespace kube-system \
+  --set gatewayAPI.enabled=true \
+  --set gatewayAPI.hostNetwork.enabled=true \
+  --set kubeProxyReplacement=true \
+  --set ipam.mode=kubernetes \
+  --set operator.replicas=1
+```
+
+Aguarde até que os agentes do Cilium estejam prontos antes de prosseguir:
+```bash
+kubectl wait --namespace kube-system \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/name=cilium-agent \
+  --timeout=300s
+```
+
+**3. Criar um Recurso Gateway**
+Crie um arquivo `gateway.yaml` para dizer ao Cilium para escutar na porta 80:
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: my-gateway
+  namespace: default
+spec:
+  gatewayClassName: cilium
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
+```
+```bash
+kubectl apply -f gateway.yaml
+```
+
+**4. Instalar o Chart**
+Vincule o Securo ao Gateway usando `HTTPRoute`:
+```bash
+helm install securo charts/securo \
+  --set global.domain=securo.local \
+  --set ingress.enabled=false \
+  --set httpRoute.enabled=true \
+  --set "httpRoute.parentRefs[0].name=my-gateway" \
+  --set "httpRoute.parentRefs[0].namespace=default"
+```
+
+**5. Testar**
+Aguarde até que os pods estejam prontos:
+```bash
+kubectl wait --namespace default \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/instance=securo \
+  --timeout=300s
+```
+Adicione `127.0.0.1 securo.local` ao seu arquivo `/etc/hosts` e abra `http://securo.local` no seu navegador.
+
+**6. Limpeza**
+Quando terminar de testar, exclua o cluster para liberar recursos:
+```bash
+kind delete cluster --name securo-test-gateway
+```
+
+---
+> Pronto para implantar isso em um cluster real? Confira o [Guia de Produção em Kubernetes](/pt-BR/docs/deployment/kubernetes-prod).
