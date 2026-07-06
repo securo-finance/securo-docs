@@ -45,7 +45,34 @@ helm install securo charts/securo \
 > [!WARNING]
 > If you bring your own PostgreSQL database, it **must** have the `pgvector` extension installed. Securo relies on `pgvector` for its AI embedding models and semantic search features.
 
-## 3. Configuring Ingress / HTTPRoute
+## 3. High Availability and Persistent Storage
+
+By default, the Helm chart enables the attachments PersistentVolumeClaim (`persistence.attachments.enabled=true`) using the `ReadWriteOnce` (RWO) access mode. To run Securo in a highly available, multi-node production cluster, persistent storage must be configured carefully:
+
+### High Availability via Object Storage (Recommended)
+Sharing writeable block storage across multiple nodes is typically not supported by standard `ReadWriteOnce` (RWO) storage classes. Instead of using a shared PVC for attachments, you should use **S3-compatible Object Storage** (such as AWS S3, Google Cloud Storage, or MinIO). 
+
+Configure the S3 credentials in your `securo-secrets` (or `values.yaml`) and ensure attachments persistence is disabled:
+```yaml
+# values.yaml
+persistence:
+  attachments:
+    enabled: false
+
+config:
+  storageS3Bucket: "my-securo-attachments"
+  storageS3Region: "us-east-1"
+  storageS3EndpointUrl: "https://s3.amazonaws.com" # Or your MinIO/custom endpoint
+```
+This allows the Frontend, Backend, and Celery Worker pods to scale horizontally across any number of nodes since they do not rely on local file attachments.
+
+### Non-HA Components and Limitations
+While most of Securo can scale horizontally, note the following architectural constraints in a production setup:
+* **Celery Beat**: Must run as a singleton (exactly 1 replica) to prevent duplicate background task scheduling. It is hardcoded to 1 replica in the chart.
+* **Built-in Databases**: The default PostgreSQL and Redis StatefulSets deployed by the chart are single-replica instances and are not HA. For production HA, always use external database clusters (`postgresql.enabled=false`, `redis.enabled=false`).
+* **AI Knowledge Bases**: If AI features are enabled (`config.agentsEnabled=true`), the `agentKnowledge` PVC stores uploaded source documents. If you scale the backend and Celery workers across multiple nodes, you will need a StorageClass that supports `ReadWriteMany` (RWX) for `agentKnowledge` (e.g., NFS, CephFS, or Longhorn RWX), or restrict the AI-facing components to a single node using pod affinity constraints.
+
+## 4. Configuring Ingress / HTTPRoute
 
 Securo routes all API traffic through the frontend container internally, so you only need to expose the root path (`/`) to the frontend service. You can use either the standard Kubernetes `Ingress` resource or the newer `Gateway API` (`HTTPRoute`).
 
@@ -98,7 +125,7 @@ spec:
           - name: securo-tls-secret
 ```
 
-## 4. Horizontal Pod Autoscaling (HPA)
+## 5. Horizontal Pod Autoscaling (HPA)
 
 To handle production load and scale your services dynamically, you should enable the Horizontal Pod Autoscaler (HPA). The Helm chart supports autoscaling for all stateless and worker components (Frontend, Backend, Celery Worker, and MCP Server), while keeping the Celery Beat scheduler as a single instance. Celery Beat must remain a singleton to prevent duplicate task execution (otherwise, multiple schedulers would send the same recurring tasks to the queue concurrently).
 

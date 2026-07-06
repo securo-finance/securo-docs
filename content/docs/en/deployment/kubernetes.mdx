@@ -24,6 +24,9 @@ Note that Docker variables (which use `UPPER_SNAKE_CASE`) are converted to `came
 
 If you want to know which variables are required for specific features, please refer to the [Securo Readme](https://github.com/securo-finance/securo) or the `values.yaml` file.
 
+> [!NOTE]
+> By default, the Helm chart enables persistent storage for attachments (`persistence.attachments.enabled=true`) using the `ReadWriteOnce` (RWO) access mode to prevent data loss on pod restarts. Since the Frontend, Backend, and Celery Worker pods all access attachments concurrently, they require a `ReadWriteMany` (RWX) storage class to scale across multiple nodes. If your cluster spans multiple nodes and you do not have an RWX storage class, you must either restrict all pods to a single Kubernetes node to avoid mount failures, or disable the PVC (`persistence.attachments.enabled=false`) and configure external S3-compatible object storage. Local single-node clusters (like Kind) support this out of the box.
+
 ---
 
 ## 3. Local Testing with Kind (3 End-to-End Paths)

@@ -24,6 +24,9 @@ Observe que as variáveis do Docker (que usam `UPPER_SNAKE_CASE`) são convertid
 
 Se você quiser saber quais variáveis são necessárias para recursos específicos, consulte o [Readme do Securo](https://github.com/securo-finance/securo) ou o arquivo `values.yaml`.
 
+> [!NOTE]
+> Por padrão, o Helm chart habilita o armazenamento persistente para anexos (`persistence.attachments.enabled=true`) usando o modo de acesso `ReadWriteOnce` (RWO) para evitar a perda de dados nas reinicializações dos pods. Como os pods do Frontend, Backend e Celery Worker acessam os anexos simultaneamente, eles requerem uma classe de armazenamento `ReadWriteMany` (RWX) para escalar em vários nós. Se o seu cluster abranger vários nós e você não tiver uma classe de armazenamento RWX, deverá restringir todos os pods a um único nó do Kubernetes para evitar falhas de montagem, ou desativar o PVC (`persistence.attachments.enabled=false`) e configurar o armazenamento de objetos compatível com S3 externo. Clusters locais de nó único (como o Kind) suportam isso nativamente.
+
 ---
 
 ## 3. Testes Locais com Kind (3 Caminhos de Ponta a Ponta)

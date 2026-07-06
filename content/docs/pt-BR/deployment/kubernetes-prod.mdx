@@ -45,7 +45,34 @@ helm install securo charts/securo \
 > [!WARNING]
 > Se você trouxer seu próprio banco de dados PostgreSQL, ele **deve** ter a extensão `pgvector` instalada. O Securo depende do `pgvector` para seus modelos de embedding de IA e recursos de busca semântica.
 
-## 3. Configurando Ingress / HTTPRoute
+## 3. Alta Disponibilidade e Armazenamento Persistente
+
+Por padrão, o Helm chart habilita o PersistentVolumeClaim para anexos (`persistence.attachments.enabled=true`) usando o modo de acesso `ReadWriteOnce` (RWO). Para rodar o Securo em um cluster de produção altamente disponível e multi-nó, o armazenamento persistente deve ser configurado com cuidado:
+
+### Alta Disponibilidade via Armazenamento de Objetos (Recomendado)
+O compartilhamento de armazenamento de blocos gravável entre vários nós normalmente não é suportado por classes de armazenamento padrão `ReadWriteOnce` (RWO). Em vez de usar um PVC compartilhado para anexos, você deve usar um **Armazenamento de Objetos compatível com S3** (como AWS S3, Google Cloud Storage ou MinIO).
+
+Configure as credenciais do S3 no seu `securo-secrets` (ou `values.yaml`) e garanta que a persistência de anexos esteja desativada:
+```yaml
+# values.yaml
+persistence:
+  attachments:
+    enabled: false
+
+config:
+  storageS3Bucket: "my-securo-attachments"
+  storageS3Region: "us-east-1"
+  storageS3EndpointUrl: "https://s3.amazonaws.com" # Ou seu endpoint MinIO/customizado
+```
+Isso permite que os pods do Frontend, Backend e Celery Worker escalem horizontalmente em qualquer número de nós, pois eles não dependem de arquivos de anexos locais.
+
+### Componentes Não-HA e Limitações
+Embora a maior parte do Securo possa escalar horizontalmente, observe as seguintes restrições arquiteturais em uma configuração de produção:
+* **Celery Beat**: Deve rodar como um singleton (exatamente 1 réplica) para evitar o agendamento duplicado de tarefas em segundo plano. Ele está codificado para 1 réplica no chart.
+* **Bancos de Dados Integrados**: Os StatefulSets padrão do PostgreSQL e Redis implantados pelo chart são instâncias de réplica única e não são HA. Para produção altamente disponível, sempre use clusters de bancos de dados externos (`postgresql.enabled=false`, `redis.enabled=false`).
+* **Bases de Conhecimento de IA**: Se os recursos de IA estiverem ativados (`config.agentsEnabled=true`), o PVC `agentKnowledge` armazena os documentos de origem carregados. Se você escalar o backend e os trabalhadores do Celery em vários nós, precisará de uma StorageClass que suporte `ReadWriteMany` (RWX) para o `agentKnowledge` (ex: NFS, CephFS ou Longhorn RWX), ou restringir os componentes voltados para IA a um único nó usando restrições de afinidade de pod.
+
+## 4. Configurando Ingress / HTTPRoute
 
 O Securo roteia todo o tráfego de API internamente através do container de frontend, portanto você só precisa expor o caminho raiz (`/`) para o serviço de frontend. Você pode usar tanto o recurso padrão `Ingress` do Kubernetes quanto a nova `Gateway API` (`HTTPRoute`).
 
@@ -98,7 +125,7 @@ spec:
           - name: securo-tls-secret
 ```
 
-## 4. Autoscaling de Pods (HPA)
+## 5. Autoscaling de Pods (HPA)
 
 Para lidar com a carga de produção e dimensionar seus serviços dinamicamente, você deve habilitar o Horizontal Pod Autoscaler (HPA). O Helm chart suporta autoscaling para todos os componentes sem estado (stateless) e trabalhadores (Frontend, Backend, Celery Worker e MCP Server), mantendo o agendador Celery Beat como uma instância única. O Celery Beat deve permanecer como um singleton para evitar a execução duplicada de tarefas (caso contrário, múltiplos agendadores enviariam as mesmas tarefas recorrentes para a fila simultaneamente).
 
