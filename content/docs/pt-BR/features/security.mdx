@@ -1,0 +1,42 @@
+---
+title: Login e Segurança
+description: Proteja sua conta do Securo com passkeys, autenticação em dois fatores e single sign-on.
+---
+
+Sua instância do Securo guarda todo o seu histórico financeiro, então o login merece mais do que uma senha. O Securo suporta passkeys, autenticação em dois fatores TOTP e single sign-on OIDC, tudo self-hosted, sem nada sair do seu servidor.
+
+## Passkeys
+
+As passkeys permitem entrar com a digital do dispositivo, o desbloqueio facial ou uma chave de segurança física, sem digitar senha. Registre uma nas configurações da sua conta e a página de login ganha um botão **Continuar com passkey**.
+
+- Você pode registrar várias passkeys (notebook, celular, uma chave física de reserva) e remover qualquer uma depois
+- Uma passkey também pode servir de **segundo fator** para logins com senha, no lugar do código do autenticador
+- Passkeys exigem um contexto seguro: sirva o Securo via **HTTPS** (ou use `localhost`). Num endereço HTTP puro da rede local o navegador recusa, é uma regra da plataforma, não uma limitação do Securo
+
+## Autenticação em Dois Fatores
+
+Adicione um código temporário (TOTP) como segunda etapa depois da senha:
+
+1. Abra as configurações da sua conta e escolha **Configurar Autenticação em Dois Fatores**
+2. Escaneie o QR code com qualquer app autenticador (Aegis, Google Authenticator, 1Password, ...)
+3. Confirme com um código de 6 dígitos, e o 2FA está ligado
+
+Códigos das janelas de tempo adjacentes são aceitos, então um autenticador com o relógio alguns segundos fora ainda funciona, e o endpoint de verificação tem limite de tentativas contra adivinhação. Desativar o 2FA exige a senha e um código atual.
+
+## Single Sign-On (OIDC)
+
+Se você roda um provedor de identidade (Authelia, Authentik, Keycloak ou qualquer serviço compatível com OIDC), o Securo pode delegar o login a ele. Habilite com variáveis de ambiente:
+
+```ini
+OIDC_ENABLED=true
+OIDC_PROVIDER_NAME=Authentik
+OIDC_DISCOVERY_URL=https://auth.seudominio.com/.well-known/openid-configuration
+OIDC_CLIENT_ID=securo
+OIDC_CLIENT_SECRET=seu-client-secret
+```
+
+A página de login ganha um botão "Continuar com ..." com o nome do seu provedor. Auto-registro de novos usuários, vínculo com contas existentes, exigência de email verificado e mapeamento de grupos do provedor para papéis são todos configuráveis; veja o `.env.example` no repositório para a lista completa de opções `OIDC_*`.
+
+## Senhas
+
+O login com senha está sempre disponível (a menos que você o desative com políticas de OIDC-only no seu proxy). Você pode trocar sua senha nas configurações da conta, e proprietários de workspace que criam contas para novos membros definem apenas uma senha inicial, que o membro pode trocar depois do primeiro login.

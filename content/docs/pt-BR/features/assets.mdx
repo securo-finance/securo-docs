@@ -45,6 +45,16 @@ A escolha mais importante é o **método de avaliação**, que determina como o 
 
 Para ativos de preço de mercado, o Securo mostra uma prévia ao vivo da cotação enquanto você digita o ticker, e atualiza os preços automaticamente todos os dias.
 
+## Livro de Compras e Vendas
+
+Para posições com preço de mercado, as transações são a fonte da verdade: registre cada **compra** e **venda** com data, quantidade e preço, e o Securo deriva o resto reproduzindo o livro em ordem. Isso te dá:
+
+- A **quantidade atual** em carteira
+- Seu **preço médio** ponderado e **custo de aquisição**
+- O **ganho realizado** nas vendas, separado dos ganhos não realizados
+
+Editar um lançamento antigo (inclusive a data) recalcula tudo na nova ordem, então uma correção nunca deixa números defasados para trás.
+
 ## Histórico de Valor
 
 Cada ativo guarda um **histórico de valor**. Para ativos manuais, use o formulário **+ Adicionar Valor** para registrar um novo valor com data. Cada entrada mostra a variação em relação à anterior, com cor verde para ganhos e vermelha para perdas. Quando um ativo tem dois ou mais valores, um gráfico de tendência aparece no painel de detalhes.

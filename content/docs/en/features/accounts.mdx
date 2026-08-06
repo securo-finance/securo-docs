@@ -13,16 +13,21 @@ Securo organizes accounts into two categories:
 
 ### Manual Accounts
 
-These are accounts you manage by hand. You create them, set a starting balance, and manually add transactions (or import them from CSV/OFX files). This includes:
+These are accounts you manage by hand. You create them, set a starting balance, and manually add transactions (or import them from CSV/OFX files). Available types:
 
-- **Checking accounts**
-- **Savings accounts**
-- **Cash wallets**
-- **Credit cards**
+- **Checking**
+- **Savings**
+- **Credit Card**
+- **Investment**
+- **Wallet**
 
 ### Bank Connections
 
-If you connect your bank through the bank sync feature, those accounts appear in a separate section. Connected accounts can automatically import transactions from your bank.
+If you connect your bank through the bank sync feature, those accounts appear in a separate section, with the institution's logo next to the connection. Connected accounts can automatically import transactions from your bank, show the account's **masked number** so you can tell similar accounts apart, and can be given a **display name** of your own when the bank's name is unhelpful.
+
+### Credit Cards
+
+Credit card accounts carry extra fields that model how a card actually works: **credit limit**, **statement close day**, and **payment due day**. Securo uses them to compute billing cycles and group each purchase into the right statement, so a purchase made after the close date lands on next month's bill, exactly like your card does it.
 
 ## Multi-Currency Support
 
@@ -54,6 +59,14 @@ Click on any account in the sidebar or the accounts page to see:
 - Current balance with percentage change
 - Account type and currency
 - A filtered list of all transactions for that account
+
+## Closing an Account
+
+An account you no longer use can be **closed** instead of deleted: its history stays intact for reports, but it moves to a separate Closed Accounts section and stops counting toward totals. Closed accounts can be reopened at any time.
+
+## Grouping Accounts with Collections
+
+When you have many accounts, [collections](/docs/features/collections) let you group them (personal, family, a specific project) and filter the dashboard and reports by one group at a time.
 
 ## Account Sidebar
 

@@ -3,21 +3,17 @@ title: Categories
 description: Organize your spending with hierarchical category groups, custom icons, and colors.
 ---
 
-Categories are how Securo organizes your spending. Every transaction can be assigned to a category, and those categories power your budgets, reports, and dashboard widgets. Securo uses a **two-level hierarchy**: category groups contain individual categories.
+Categories are how Securo organizes your spending. Every transaction can be assigned to a category, and those categories power your budgets, reports, and dashboard widgets. Groups are optional: categories work on their own, and you can organize them into **category groups** whenever your list grows.
 
 ![Categories](/screenshots/categories.png)
 
+## Default Categories
+
+A fresh install seeds a set of ready-to-use categories covering the common areas, localized to your language: Housing, Food & Dining, Groceries, Transport, Health, Leisure, Subscriptions, Education, Shopping, Personal Care, Donations, Taxes & Fees, Transfers, Investments, Salary & Income, and Other. Rename, recolor, or delete any of them, they're a starting point, not a constraint.
+
 ## Category Groups
 
-Category groups are the top-level organizers. Securo comes with sensible defaults:
-
-- **Housing**: Rent, mortgage, home expenses
-- **Food**: Groceries, dining out, delivery
-- **Transportation**: Gas, public transit, rideshare
-- **Lifestyle**: Health, entertainment, education, personal care
-- **Other**: Everything else
-
-Each group has its own icon and can be expanded or collapsed in the category list.
+Groups are the optional top level: create them yourself and move categories inside to organize the list. Each group has its own icon and color and can be expanded or collapsed in the category list.
 
 ## Individual Categories
 
@@ -30,7 +26,12 @@ Each category has:
 - A **name**
 - An **icon** (emoji-based)
 - A **color** (hex code) for use in charts and visualizations
-- A link to its **parent group**
+- An optional **parent group**
+
+Two flags change how a category behaves in the numbers:
+
+- **Treat as transfer**: transactions in this category are excluded from income and expense totals, like real transfers. The default Transfers and Investments categories ship with this on, so moving money to your brokerage never shows up as "spending"
+- **Ignored**: the category's transactions stay visible but are left out of totals and reports
 
 ## Creating a Category
 

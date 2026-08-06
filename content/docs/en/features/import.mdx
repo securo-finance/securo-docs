@@ -23,20 +23,28 @@ Securo accepts four file formats:
 1. Navigate to **Import** in the sidebar
 2. **Drag and drop** a file onto the upload area, or click to browse your files
 3. Securo will parse the file and show a preview of the transactions
-4. Review the imported transactions
+4. Review the transactions: assign or adjust the **category per row** (with suggestions from your rules), and untick any rows you don't want
 5. Confirm the import
 
-## CSV Template
+## CSV Column Mapping
 
-If your bank's CSV format doesn't match what Securo expects, you can download a **CSV template** from the import page. This template shows the expected column structure so you can reformat your data to match.
+Real bank exports rarely match a fixed template, so CSV imports come with a **mapping step**: point each CSV header at the Securo field it holds. Date, description, and amount are auto-detected from the usual headers in English and Portuguese, and payee and notes are picked up automatically too. You can override any guess, and a few fields are worth knowing about:
+
+- **Payee** and **Notes**: bring the extra columns your bank exports instead of losing them
+- **Transaction ID**: never guessed, map it explicitly. It drives duplicate detection, so a wrong guess would silently drop rows
+- **Date format**: pick the format when your bank uses `15.01.2026` or other regional styles
+- **Flip amounts**: for banks that export expenses as positive numbers
+- **Separate inflow/outflow columns**: for exports that split credits and debits into two columns
+
+If you'd rather reshape the data yourself, a **CSV template** with the expected structure can be downloaded from the import page.
 
 ## Import History
 
-Below the upload area, the **Import History** section shows all previous imports with their date, file name, and number of transactions imported. This helps you keep track of what you've already loaded.
+Below the upload area, the **Import History** section shows all previous imports with their date, file name, and number of transactions imported. An import can also be **undone**: deleting it from the history removes the transactions it created, so a botched file is one click away from never having happened.
 
 ## Duplicate Handling
 
-Securo checks for duplicate transactions during import. If a transaction with the same date, amount, and description already exists in the target account, it will be flagged so you can decide whether to skip or keep it.
+Securo checks for duplicates during import, matching on transaction ID when your file has one and on date, amount, and description otherwise. Duplicates are skipped automatically and the import summary reports how many were left out.
 
 ## Tips for Importing
 

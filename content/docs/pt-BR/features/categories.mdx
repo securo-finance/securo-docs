@@ -3,21 +3,17 @@ title: Categorias
 description: Organize seus gastos com grupos hierárquicos de categorias, ícones e cores personalizadas.
 ---
 
-As categorias são como o Securo organiza seus gastos. Toda transação pode ser atribuída a uma categoria, e essas categorias alimentam seus orçamentos, relatórios e widgets do painel. O Securo usa uma **hierarquia de dois níveis**: grupos de categoria contêm categorias individuais.
+As categorias são como o Securo organiza seus gastos. Toda transação pode ser atribuída a uma categoria, e essas categorias alimentam seus orçamentos, relatórios e widgets do painel. Grupos são opcionais: as categorias funcionam sozinhas, e você pode organizá-las em **grupos de categoria** quando a sua lista crescer.
 
 ![Categorias](/screenshots/categories.png)
 
+## Categorias Padrão
+
+Uma instalação nova já vem com um conjunto de categorias prontas cobrindo as áreas comuns, localizadas para o seu idioma: Moradia, Alimentação, Mercado, Transporte, Saúde, Lazer, Assinaturas, Educação, Compras, Cuidados Pessoais, Doações, Impostos e Taxas, Transferências, Investimentos, Salário e Renda, e Outros. Renomeie, mude a cor ou exclua qualquer uma delas, são um ponto de partida, não uma limitação.
+
 ## Grupos de Categoria
 
-Os grupos de categoria são os organizadores do primeiro nível. O Securo já vem com padrões sensatos:
-
-- **Moradia**: aluguel, financiamento, despesas da casa
-- **Alimentação**: mercado, restaurantes, delivery
-- **Transporte**: combustível, transporte público, aplicativos
-- **Estilo de vida**: saúde, entretenimento, educação, cuidados pessoais
-- **Outros**: todo o resto
-
-Cada grupo tem seu próprio ícone e pode ser expandido ou recolhido na lista de categorias.
+Os grupos são o primeiro nível opcional: crie você mesmo e mova categorias para dentro para organizar a lista. Cada grupo tem seu próprio ícone e cor e pode ser expandido ou recolhido na lista de categorias.
 
 ## Categorias Individuais
 
@@ -30,7 +26,12 @@ Cada categoria tem:
 - Um **nome**
 - Um **ícone** (baseado em emoji)
 - Uma **cor** (código hexadecimal) usada em gráficos e visualizações
-- Um vínculo com seu **grupo pai**
+- Um **grupo pai** opcional
+
+Duas opções mudam como uma categoria se comporta nos números:
+
+- **Tratar como transferência**: as transações desta categoria ficam fora dos totais de receita e despesa, como transferências de verdade. As categorias padrão Transferências e Investimentos já vêm com isso ligado, então mover dinheiro para a corretora nunca aparece como "gasto"
+- **Ignorada**: as transações da categoria continuam visíveis, mas ficam fora dos totais e relatórios
 
 ## Criando uma Categoria
 

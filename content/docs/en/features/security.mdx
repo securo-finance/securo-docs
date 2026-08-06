@@ -1,0 +1,42 @@
+---
+title: Login & Security
+description: Protect your Securo account with passkeys, two-factor authentication, and single sign-on.
+---
+
+Your Securo instance holds your complete financial history, so the login deserves more than a password. Securo supports passkeys, TOTP two-factor authentication, and OIDC single sign-on, all self-hosted, with nothing leaving your server.
+
+## Passkeys
+
+Passkeys let you sign in with your device's fingerprint reader, face unlock, or a hardware security key, no password typed. Register one from your account settings and the login page gains a **Continue with passkey** button.
+
+- You can register multiple passkeys (laptop, phone, a backup hardware key) and remove any of them later
+- A passkey can also serve as the **second factor** for password logins, instead of an authenticator code
+- Passkeys require a secure context: serve Securo over **HTTPS** (or use `localhost`). On a plain-HTTP LAN address the browser will refuse, that's a platform rule, not a Securo limitation
+
+## Two-Factor Authentication
+
+Add a time-based one-time code (TOTP) as a second step after your password:
+
+1. Open your account settings and choose **Set Up Two-Factor Authentication**
+2. Scan the QR code with any authenticator app (Aegis, Google Authenticator, 1Password, ...)
+3. Confirm with a 6-digit code, and 2FA is on
+
+Codes from the adjacent time windows are accepted, so an authenticator whose clock drifts a few seconds still works, and the verification endpoint is rate-limited against guessing. Disabling 2FA requires both your password and a current code.
+
+## Single Sign-On (OIDC)
+
+If you run an identity provider (Authelia, Authentik, Keycloak, or any OIDC-compliant service), Securo can delegate login to it. Enable it with environment variables:
+
+```ini
+OIDC_ENABLED=true
+OIDC_PROVIDER_NAME=Authentik
+OIDC_DISCOVERY_URL=https://auth.yourdomain.com/.well-known/openid-configuration
+OIDC_CLIENT_ID=securo
+OIDC_CLIENT_SECRET=your-client-secret
+```
+
+The login page gains a "Continue with ..." button named after your provider. Auto-registration of new users, linking to existing accounts, requiring verified emails, and mapping provider groups to roles are all configurable; see `.env.example` in the repository for the full list of `OIDC_*` options.
+
+## Passwords
+
+Password login is always available (unless you disable it via OIDC-only policies at your proxy). You can change your password from account settings, and workspace owners who create accounts for new members set only an initial password, which the member can change after their first login.

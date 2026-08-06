@@ -45,6 +45,16 @@ The most important choice is the **valuation method**, which determines how the 
 
 For market-price assets, Securo shows a live quote preview as you type the ticker, and refreshes prices automatically each day.
 
+## Buy and Sell Ledger
+
+For market-priced holdings, the transactions are the source of truth: record each **buy** and **sell** with its date, units, and price, and Securo derives the rest by replaying the ledger in order. That gives you:
+
+- The current **units held**
+- Your **weighted-average price** and **cost basis**
+- The **realized gain** from sales, kept separate from unrealized gains
+
+Editing a past entry (including its date) recomputes everything in the new order, so a correction never leaves stale numbers behind.
+
 ## Value History
 
 Every asset keeps a **value history**. For manual assets, use the **+ Add Value** form to record a new value with a date. Each entry shows the change from the previous one, color-coded green for gains and red for losses. Once an asset has two or more values, a trend chart appears in its detail panel.

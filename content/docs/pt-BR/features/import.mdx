@@ -23,20 +23,28 @@ O Securo aceita quatro formatos de arquivo:
 1. Navegue até **Importar** na barra lateral
 2. **Arraste e solte** um arquivo na área de upload, ou clique para escolher o arquivo
 3. O Securo vai interpretar o arquivo e mostrar uma prévia das transações
-4. Revise as transações importadas
+4. Revise as transações: atribua ou ajuste a **categoria linha a linha** (com sugestões das suas regras) e desmarque as linhas que não quiser
 5. Confirme a importação
 
-## Template de CSV
+## Mapeamento de Colunas do CSV
 
-Se o formato CSV do seu banco não bater com o que o Securo espera, você pode baixar um **template de CSV** na página de importação. O template mostra a estrutura de colunas esperada para você reformatar os dados.
+Exportações reais de banco raramente seguem um template fixo, então a importação de CSV tem uma **etapa de mapeamento**: aponte cada cabeçalho do CSV para o campo do Securo que ele contém. Data, descrição e valor são detectados automaticamente pelos cabeçalhos usuais em inglês e português, e beneficiário e notas também são reconhecidos sozinhos. Você pode corrigir qualquer palpite, e vale conhecer alguns campos:
+
+- **Beneficiário** e **Notas**: trazem as colunas extras que o seu banco exporta, em vez de perdê-las
+- **ID da transação**: nunca é adivinhado, mapeie explicitamente. Ele comanda a detecção de duplicatas, então um palpite errado descartaria linhas silenciosamente
+- **Formato de data**: escolha o formato quando o banco usa `15.01.2026` ou outros estilos regionais
+- **Inverter valores**: para bancos que exportam despesas como números positivos
+- **Colunas separadas de entrada/saída**: para exportações que dividem créditos e débitos em duas colunas
+
+Se preferir remodelar os dados você mesmo, um **template de CSV** com a estrutura esperada pode ser baixado na página de importação.
 
 ## Histórico de Importação
 
-Abaixo da área de upload, a seção **Histórico de Importação** mostra todas as importações anteriores, com data, nome do arquivo e quantidade de transações importadas. Isso ajuda a acompanhar o que você já carregou.
+Abaixo da área de upload, a seção **Histórico de Importação** mostra todas as importações anteriores, com data, nome do arquivo e quantidade de transações importadas. Uma importação também pode ser **desfeita**: excluí-la do histórico remove as transações que ela criou, então um arquivo errado fica a um clique de nunca ter acontecido.
 
 ## Tratamento de Duplicatas
 
-O Securo verifica transações duplicadas durante a importação. Se uma transação com a mesma data, valor e descrição já existir na conta de destino, ela é marcada para você decidir se pula ou mantém.
+O Securo verifica duplicatas durante a importação, comparando pelo ID da transação quando o arquivo tem um, e por data, valor e descrição quando não tem. Duplicatas são puladas automaticamente e o resumo da importação informa quantas ficaram de fora.
 
 ## Dicas para Importar
 

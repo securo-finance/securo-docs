@@ -3,7 +3,7 @@ title: Transações
 description: Registre, busque, categorize, divida e gerencie todas as suas transações financeiras.
 ---
 
-As transações são a base do Securo. Toda vez que dinheiro entra ou sai de uma das suas contas, isso é registrado como uma transação. A página de transações oferece uma interface poderosa para visualizar, filtrar e gerenciar toda a sua atividade financeira.
+As transações são a base do Securo. Toda vez que dinheiro entra ou sai de uma das suas contas, isso é registrado como uma transação. A página de transações oferece uma interface poderosa para visualizar, filtrar e gerenciar toda a sua atividade financeira, como lista ou como um calendário de fluxo de caixa.
 
 ![Transações](/screenshots/transactions.png)
 
@@ -25,7 +25,22 @@ A tabela de transações se adapta ao seu jeito de trabalhar:
 - **Ordenação**: clique no cabeçalho de uma coluna para ordenar por ela; clique de novo para inverter a direção
 - **Redimensionamento**: arraste a borda do cabeçalho para ajustar a largura
 
-Os resultados são paginados em 20 por vez, com controles de navegação na parte inferior da lista.
+Os resultados são paginados, com controles de navegação na parte inferior da lista; o tamanho da página é selecionável e o Securo lembra a sua escolha.
+
+### No Celular
+
+Em telas pequenas a tabela vira **cards agrupados por data** sob cabeçalhos fixos: ícone da categoria, descrição, conta e valor colorido, com o status pendente exibido como selo. Filtros, seleção em lote e a troca Lista / Calendário vão para um menu adaptado ao celular. A tabela do desktop não muda.
+
+## Visão de Calendário
+
+Ao lado da lista, a visão de **Calendário** coloca o mês numa grade para você enxergar onde o dinheiro vai apertar antes de acontecer. Cada dia mostra suas transações e os lançamentos projetados das suas [agendas recorrentes](/pt-BR/docs/features/recurring), e escolher um dia abre os detalhes num painel lateral (ou logo abaixo do dia, no celular). O calendário é limitado a uma conta por vez, para que o saldo corrente signifique alguma coisa.
+
+Dois seletores independentes moldam a visão, e as duas escolhas são lembradas:
+
+- **Saldo | Atividade**: Saldo responde "quanto vou ter?", mostrando o saldo corrente de cada dia com uma linha de tendência acima da grade. Atividade responde "quanto se moveu?", transformando a tendência em barras diárias com receitas acima do eixo e despesas abaixo, e fazendo as células do dia mostrarem os valores reais que se moveram
+- **Compacto | Detalhado**: Compacto mostra só saldo e marcadores; Detalhado lista as principais transações de cada dia com um `+N mais`
+
+As projeções nunca se misturam aos números liquidados: elas têm a própria linha, as próprias barras tracejadas e o próprio bloco no painel do dia. Transferências mantêm o marcador, mas nunca contam como receita ou despesa.
 
 ## Adicionando uma Transação
 
@@ -37,9 +52,12 @@ Clique em **+ Adicionar Transação** no canto superior direito. Preencha:
 4. **Data**: quando aconteceu (por padrão, hoje)
 5. **Categoria**: a categoria de gasto
 6. **Beneficiário** (opcional): o estabelecimento ou pessoa
-7. **Notas** (opcional): qualquer contexto adicional
+7. **Status**: **Lançada** para dinheiro que já se moveu, **Pendente** para uma conta que você sabe que vem. Transações pendentes ficam fora dos totais do período no dashboard até serem lançadas
+8. **Notas** (opcional): qualquer contexto adicional
 
-As transações também suportam **anexos**: você pode anexar recibos ou notas fiscais a qualquer transação para fins de registro. Transações com anexo mostram um ícone de clipe na lista.
+As transações também suportam **anexos**: você pode anexar recibos ou notas fiscais a qualquer transação para fins de registro. Transações com anexo mostram um ícone de clipe na lista. O diálogo também pode **tornar a transação recorrente** na hora, criando uma agenda a partir do que você acabou de preencher.
+
+Transações individuais podem ser marcadas como **ignoradas**: elas continuam na lista com o valor acinzentado e um selo "Ignorada", mas ficam fora dos totais e relatórios, útil para reembolsos ou correções que você quer manter visíveis.
 
 ### Duplicando uma Transação
 
@@ -52,7 +70,7 @@ Clicar no botão **Transferência** cria uma transação pareada especial entre 
 - Um débito na conta de origem
 - Um crédito correspondente na conta de destino
 
-Transações de transferência ficam automaticamente vinculadas e marcadas com um selo de transferência. Elas não contam como receita nem despesa nos seus relatórios — é apenas dinheiro circulando entre suas próprias contas.
+Transações de transferência ficam automaticamente vinculadas e marcadas com um selo de transferência. Elas não contam como receita nem despesa nos seus relatórios — é apenas dinheiro circulando entre suas próprias contas. Ao editar qualquer uma das pernas, o diálogo mostra exatamente qual transação está do outro lado (conta, data e valor), então um vínculo automático pode ser conferido de relance.
 
 Para **transferências entre moedas** (ex.: BRL para USD), o Securo pede os dois valores para registrar os valores corretos em cada moeda.
 
@@ -75,6 +93,8 @@ A barra de filtros no topo oferece várias formas de refinar suas transações:
 - **Categoria**: filtre por uma ou mais categorias, ou mostre apenas transações **sem categoria**
 - **Beneficiário**: filtre por estabelecimento ou pessoa
 - **Tipo**: mostre só entradas ou só despesas
+- **Status**: todas, só lançadas ou só pendentes
+- **Valor**: defina um valor mínimo e/ou máximo
 - **Período**: defina datas inicial e final com o seletor
 - **Tags**: filtre por hashtags usadas nas notas
 - **Grupo**: mostre transações divididas em um grupo específico

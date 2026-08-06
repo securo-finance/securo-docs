@@ -13,16 +13,21 @@ O Securo organiza as contas em duas categorias:
 
 ### Contas Manuais
 
-São contas que você administra na mão. Você as cria, define um saldo inicial e adiciona transações manualmente (ou importa de arquivos CSV/OFX). Inclui:
+São contas que você administra na mão. Você as cria, define um saldo inicial e adiciona transações manualmente (ou importa de arquivos CSV/OFX). Tipos disponíveis:
 
-- **Contas correntes**
-- **Contas poupança**
-- **Carteiras de dinheiro**
-- **Cartões de crédito**
+- **Conta Corrente**
+- **Poupança**
+- **Cartão de Crédito**
+- **Investimento**
+- **Carteira**
 
 ### Conexões Bancárias
 
-Se você conecta seu banco através do recurso de sincronização bancária, essas contas aparecem em uma seção separada. Contas conectadas podem importar transações automaticamente do seu banco.
+Se você conecta seu banco através do recurso de sincronização bancária, essas contas aparecem em uma seção separada, com o logo da instituição ao lado da conexão. Contas conectadas podem importar transações automaticamente do seu banco, mostram o **número mascarado** da conta para você distinguir contas parecidas, e podem receber um **nome de exibição** seu quando o nome vindo do banco não ajuda.
+
+### Cartões de Crédito
+
+Contas de cartão de crédito carregam campos extras que modelam como um cartão funciona de verdade: **limite de crédito**, **dia de fechamento da fatura** e **dia de vencimento**. O Securo os usa para calcular os ciclos de cobrança e agrupar cada compra na fatura certa, então uma compra feita depois do fechamento cai na fatura do mês seguinte, exatamente como o seu cartão faz.
 
 ## Suporte a Múltiplas Moedas
 
@@ -54,6 +59,14 @@ Clique em qualquer conta na barra lateral ou na página de contas para ver:
 - Saldo atual com variação percentual
 - Tipo de conta e moeda
 - Uma lista filtrada de todas as transações dessa conta
+
+## Encerrando uma Conta
+
+Uma conta que você não usa mais pode ser **encerrada** em vez de excluída: o histórico fica intacto para os relatórios, mas ela vai para uma seção separada de Contas Encerradas e deixa de contar nos totais. Contas encerradas podem ser reabertas a qualquer momento.
+
+## Agrupando Contas com Coleções
+
+Quando você tem muitas contas, as [coleções](/pt-BR/docs/features/collections) permitem agrupá-las (pessoal, família, um projeto específico) e filtrar o painel e os relatórios por um grupo de cada vez.
 
 ## Barra Lateral de Contas
 

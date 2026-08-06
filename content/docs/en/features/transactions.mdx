@@ -3,7 +3,7 @@ title: Transactions
 description: Record, search, categorize, split, and manage all your financial transactions.
 ---
 
-Transactions are the foundation of Securo. Every time money enters or leaves one of your accounts, it's recorded as a transaction. The transactions page provides a powerful interface for viewing, filtering, and managing all your financial activity.
+Transactions are the foundation of Securo. Every time money enters or leaves one of your accounts, it's recorded as a transaction. The transactions page provides a powerful interface for viewing, filtering, and managing all your financial activity, as a list or as a cash-flow calendar.
 
 ![Transactions](/screenshots/transactions.png)
 
@@ -25,7 +25,22 @@ The transaction table adapts to how you work:
 - **Sorting**: Click a column header to sort by it; click again to reverse the direction
 - **Resizing**: Drag the edge of a column header to adjust its width
 
-Results are paginated 20 at a time, with navigation controls at the bottom of the list.
+Results are paginated, with navigation controls at the bottom of the list; the page size is selectable and Securo remembers your choice.
+
+### On Mobile
+
+On small screens the table becomes **cards grouped by date** under sticky headers: category icon, description, account, and a color-coded amount, with pending status shown as a badge. Filters, bulk selection, and the List / Calendar switch move into a mobile-friendly menu. The desktop table is unchanged.
+
+## Calendar View
+
+Next to the list, the **Calendar** view puts the month on a grid so you can see where money runs thin before it happens. Each day shows its transactions and projected entries from your [recurring schedules](/docs/features/recurring), and picking a day opens its details in a side panel (or right below the day, on mobile). It's scoped to one account at a time so the running balance means something.
+
+Two independent toggles shape the view, and both choices are remembered:
+
+- **Balance | Activity**: Balance answers "what will I have?", showing each day's running balance with a trend line above the grid. Activity answers "how much moved?", turning the trend into daily bars with income above the axis and expenses below, and making day cells report the real amounts that moved
+- **Compact | Detailed**: Compact shows balance and markers only; Detailed lists the top transactions per day with a `+N more`
+
+Projections are never mixed into settled figures: they get their own line, their own dashed bars, and their own block in the day panel. Transfers keep their marker but never count as income or expense.
 
 ## Adding a Transaction
 
@@ -37,9 +52,12 @@ Click **+ Add Transaction** in the top right corner. Fill in:
 4. **Date**: When it happened (defaults to today)
 5. **Category**: The spending category
 6. **Payee** (optional): The merchant or person
-7. **Notes** (optional): Any additional context
+7. **Status**: **Posted** for money that already moved, **Pending** for a bill you know is coming. Pending transactions are excluded from the dashboard's period totals until they post
+8. **Notes** (optional): Any additional context
 
-Transactions also support **file attachments**: you can attach receipts or invoices to any transaction for record keeping. Attached transactions show a paperclip icon in the list.
+Transactions also support **file attachments**: you can attach receipts or invoices to any transaction for record keeping. Attached transactions show a paperclip icon in the list. The dialog can also **make the transaction recurring** on the spot, creating a schedule from what you just entered.
+
+Individual transactions can be marked as **ignored**: they stay in the list with a greyed amount and an "Ignored" badge but are left out of totals and reports, useful for reimbursements or corrections you want to keep visible.
 
 ### Duplicating a Transaction
 
@@ -52,7 +70,7 @@ Clicking the **Transfer** button creates a special paired transaction between tw
 - A debit in the source account
 - A matching credit in the destination account
 
-Transfer transactions are automatically linked and marked with a transfer badge. They don't count as income or expenses in your reports — they're just money moving between your own accounts.
+Transfer transactions are automatically linked and marked with a transfer badge. They don't count as income or expenses in your reports — they're just money moving between your own accounts. When you edit either leg, the dialog shows exactly which transaction sits on the other side (account, date, and amount), so an automatic link can be verified at a glance.
 
 For **cross-currency transfers** (e.g., BRL to USD), Securo asks for both amounts so it can record the correct values in each currency.
 
@@ -75,6 +93,8 @@ The filter bar at the top provides multiple ways to narrow down your transaction
 - **Category**: Filter by one or more categories, or show only **uncategorized** transactions
 - **Payee**: Filter by merchant or person
 - **Type**: Show only income or only expenses
+- **Status**: All, posted only, or pending only
+- **Amount**: Set a minimum and/or maximum value
 - **Date range**: Set start and end dates with the date picker
 - **Tags**: Filter by hashtags used in transaction notes
 - **Group**: Show transactions split through a specific group
