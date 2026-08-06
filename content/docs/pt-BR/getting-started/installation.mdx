@@ -3,7 +3,7 @@ title: Instalação
 description: Instale e rode o Securo usando Docker no macOS, Linux ou Windows.
 ---
 
-O Securo roda inteiramente em containers Docker, então você não precisa instalar Python, Node.js ou PostgreSQL na sua máquina. O único pré-requisito é o **Docker**.
+O Securo roda inteiramente em containers Docker, então você não precisa instalar Python, Node.js ou PostgreSQL na sua máquina. O único pré-requisito é o **Docker** (Podman também funciona, com podman-compose 1.6.0 ou mais novo). Roda Kubernetes? O Securo também publica um [Helm chart](/pt-BR/docs/deployment/kubernetes).
 
 ## Instalação em uma linha (macOS e Linux)
 
@@ -22,7 +22,7 @@ O instalador vai:
 5. Baixar as imagens Docker mais recentes e subir os containers
 6. Aguardar o health check confirmar que tudo está rodando
 
-Quando terminar, abra **http://localhost:3000** e crie sua conta.
+Quando terminar, abra **http://localhost:3000** e crie sua conta de administrador.
 
 ## Configuração manual no macOS
 
@@ -65,7 +65,7 @@ Abra **http://localhost:3000** no seu navegador.
 ```bash
 git clone https://github.com/securo-finance/securo.git
 cd securo
-docker compose up --build
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 Abra **http://localhost:3000** no seu navegador.
@@ -76,14 +76,16 @@ Abra **http://localhost:3000** no seu navegador.
 
 O Securo roda como um conjunto de containers Docker:
 
-| Serviço           | Descrição                                | Porta |
-| ----------------- | ---------------------------------------- | ----- |
-| **Frontend**      | App web em React                         | 3000  |
-| **Backend**       | Servidor da API em FastAPI               | 8000  |
-| **PostgreSQL**    | Banco de dados                           | 5432  |
-| **Redis**         | Fila de mensagens para jobs em background | 6379  |
-| **Celery Worker** | Processa tarefas assíncronas             | n/d   |
-| **Celery Beat**   | Agenda tarefas recorrentes               | n/d   |
+| Serviço           | Descrição                                | Porta        |
+| ----------------- | ---------------------------------------- | ------------ |
+| **Frontend**      | App web em React                         | 3000         |
+| **Backend**       | Servidor da API em FastAPI               | 8000         |
+| **PostgreSQL**    | Banco de dados                           | apenas interna |
+| **Redis**         | Fila de mensagens para jobs em background | apenas interna |
+| **Celery Worker** | Processa tarefas assíncronas             | n/d          |
+| **Celery Beat**   | Agenda tarefas recorrentes               | n/d          |
+
+Apenas o frontend (3000) e o backend (8000) são publicados na sua máquina; o banco e o Redis ficam na rede interna do Docker, inacessíveis de fora. Use `FRONTEND_PORT` e `BACKEND_PORT` no `.env` para mudar as portas publicadas.
 
 Os dados ficam persistidos em volumes Docker (`pgdata` para o banco, `attachments` para os arquivos enviados), então seus dados sobrevivem a restarts e atualizações dos containers.
 
@@ -139,19 +141,16 @@ docker compose -f docker-compose.prod.yml down
 # Atualizar para a versão mais recente
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
-
-# Rodar os testes do backend
-docker compose exec backend pytest
 ```
 
 ## Verificando a Instalação
 
 Depois de subir o Securo, você pode conferir se está tudo saudável:
 
-1. **Frontend**: abra http://localhost:3000 — você deve ver a tela de login/cadastro
+1. **Frontend**: abra http://localhost:3000 — você deve ver a tela de configuração inicial (ou a de login, numa instalação existente)
 2. **API do Backend**: visite http://localhost:8000/api/health — você deve receber uma resposta JSON
 3. **Status dos containers**: rode `docker compose -f docker-compose.prod.yml ps` e verifique se todos os serviços aparecem como "running"
 
 ## Próximos Passos
 
-Com o Securo rodando, siga o [Assistente de Configuração](/pt-BR/docs/getting-started/setup-wizard) para criar seu usuário, adicionar sua primeira conta financeira e começar a acompanhar.
+Com o Securo rodando, veja [Primeira Inicialização](/pt-BR/docs/getting-started/first-launch) para criar sua conta de administrador, fazer o tour guiado e começar a acompanhar.

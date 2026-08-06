@@ -3,7 +3,7 @@ title: Installation
 description: Install and run Securo using Docker on macOS, Linux, or Windows.
 ---
 
-Securo runs entirely in Docker containers, so you don't need to install Python, Node.js, or PostgreSQL on your machine. The only prerequisite is **Docker**.
+Securo runs entirely in Docker containers, so you don't need to install Python, Node.js, or PostgreSQL on your machine. The only prerequisite is **Docker** (Podman works too, with podman-compose 1.6.0 or newer). Running Kubernetes? Securo also ships a [Helm chart](/docs/deployment/kubernetes).
 
 ## One-Line Install (macOS & Linux)
 
@@ -22,7 +22,7 @@ The installer will:
 5. Pull the latest Docker images and start the containers
 6. Wait for the health check to confirm everything is running
 
-Once complete, open **http://localhost:3000** and create your account.
+Once complete, open **http://localhost:3000** and create your admin account.
 
 ## macOS Manual Setup
 
@@ -65,7 +65,7 @@ Open **http://localhost:3000** in your browser.
 ```bash
 git clone https://github.com/securo-finance/securo.git
 cd securo
-docker compose up --build
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 Open **http://localhost:3000** in your browser.
@@ -76,14 +76,16 @@ Open **http://localhost:3000** in your browser.
 
 Securo runs as a set of Docker containers:
 
-| Service           | Description                       | Port  |
-| ----------------- | --------------------------------- | ----- |
-| **Frontend**      | React web app                     | 3000  |
-| **Backend**       | FastAPI API server                | 8000  |
-| **PostgreSQL**    | Database                          | 5432  |
-| **Redis**         | Message queue for background jobs | 6379  |
-| **Celery Worker** | Processes async tasks             | n/a   |
-| **Celery Beat**   | Schedules recurring tasks         | n/a   |
+| Service           | Description                       | Port          |
+| ----------------- | --------------------------------- | ------------- |
+| **Frontend**      | React web app                     | 3000          |
+| **Backend**       | FastAPI API server                | 8000          |
+| **PostgreSQL**    | Database                          | internal only |
+| **Redis**         | Message queue for background jobs | internal only |
+| **Celery Worker** | Processes async tasks             | n/a           |
+| **Celery Beat**   | Schedules recurring tasks         | n/a           |
+
+Only the frontend (3000) and backend (8000) are published on your machine; the database and Redis stay on the internal Docker network, unreachable from outside. Use `FRONTEND_PORT` and `BACKEND_PORT` in `.env` to change the published ports.
 
 Data is persisted in Docker volumes (`pgdata` for the database, `attachments` for uploaded files), so your data survives container restarts and upgrades.
 
@@ -139,19 +141,16 @@ docker compose -f docker-compose.prod.yml down
 # Update to latest version
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
-
-# Run backend tests
-docker compose exec backend pytest
 ```
 
 ## Verifying the Installation
 
 After starting Securo, you can check that everything is healthy:
 
-1. **Frontend**: Open http://localhost:3000, you should see the login/register screen
+1. **Frontend**: Open http://localhost:3000, you should see the setup screen (or the login screen on an existing install)
 2. **Backend API**: Visit http://localhost:8000/api/health, you should get a JSON response
 3. **Container status**: Run `docker compose -f docker-compose.prod.yml ps` and verify all services show "running"
 
 ## Next Steps
 
-Once Securo is running, follow the [Setup Wizard](/docs/getting-started/setup-wizard) to create your user account, add your first financial account, and start tracking.
+Once Securo is running, see [First Launch](/docs/getting-started/first-launch) to create your admin account, take the guided tour, and start tracking.

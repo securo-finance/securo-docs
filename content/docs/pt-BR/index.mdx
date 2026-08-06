@@ -9,7 +9,7 @@ O Securo é um aplicativo de finanças pessoais self-hosted que te dá controle 
 
 ## Por que Securo?
 
-Gerenciar finanças pessoais não deveria exigir entregar seus dados para terceiros. O Securo roda na sua própria infraestrutura, então suas informações financeiras nunca saem do seu servidor. Ele suporta **múltiplas moedas** com conversão automática, o que o torna ideal para quem movimenta dinheiro entre países.
+Gerenciar finanças pessoais não deveria exigir entregar seus dados para terceiros. O Securo roda na sua própria infraestrutura, então suas informações financeiras nunca saem do seu servidor. Ele suporta **múltiplas moedas** com conversão automática (traga uma chave gratuita do [Open Exchange Rates](https://openexchangerates.org/); sem ela, valores entre moedas caem para uma taxa 1:1 com um aviso visual), o que o torna ideal para quem movimenta dinheiro entre países.
 
 Diferente de planilhas ou trackers básicos, o Securo oferece um conjunto completo de ferramentas que trabalham juntas:
 
@@ -23,18 +23,19 @@ Diferente de planilhas ou trackers básicos, o Securo oferece um conjunto comple
 Se você é novo no Securo, recomendamos este caminho:
 
 1. Siga o guia de [Instalação](/pt-BR/docs/getting-started/installation) para colocar o app no ar
-2. Passe pelo [Assistente de Configuração](/pt-BR/docs/getting-started/setup-wizard) para criar sua primeira conta
+2. Passe pela [Primeira Inicialização](/pt-BR/docs/getting-started/first-launch) para criar sua conta de administrador
 3. Leia a visão geral do [Painel](/pt-BR/docs/features/dashboard) para entender a tela inicial
 4. Configure [Categorias](/pt-BR/docs/features/categories) e [Regras](/pt-BR/docs/features/rules) para automatizar a classificação de transações
 
 ## Stack Tecnológica
 
-| Camada    | Tecnologia        |
-| --------- | ----------------- |
-| Backend   | FastAPI (Python)  |
-| Frontend  | React + Vite      |
-| Banco     | PostgreSQL        |
-| Deploy    | Docker Compose    |
+| Camada             | Tecnologia              |
+| ------------------ | ----------------------- |
+| Backend            | FastAPI (Python)        |
+| Frontend           | React + Vite            |
+| Banco              | PostgreSQL              |
+| Jobs em background | Redis + Celery          |
+| Deploy             | Docker Compose ou Helm  |
 
 ## Atalhos
 

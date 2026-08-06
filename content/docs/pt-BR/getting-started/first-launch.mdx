@@ -1,0 +1,42 @@
+---
+title: Primeira Inicialização
+description: Crie sua conta de administrador, veja o que o Securo configura para você e faça o tour guiado.
+---
+
+Em uma instalação nova o Securo ainda não tem usuários, então abrir **http://localhost:3000** leva você direto para a tela de configuração. Essa tela só existe enquanto a instância está vazia: assim que a primeira conta é criada, ela passa a redirecionar para a página normal de login.
+
+## Crie Sua Conta de Administrador
+
+A tela de configuração pede tudo em um único formulário:
+
+- **Seu nome**: Como o Securo deve se dirigir a você
+- **Email e senha**: Suas credenciais de login nesta instância
+- **Moeda**: Sua moeda principal, usada como padrão no dashboard, nos orçamentos e nos relatórios
+
+Você também pode escolher o **idioma** da interface e alternar entre **tema claro e escuro** nessa mesma tela.
+
+Se você lida com várias moedas, não se preocupe: cada conta pode ter a própria moeda, e o Securo converte tudo para a moeda principal nas visões agregadas.
+
+## O Que o Securo Cria para Você
+
+Ao enviar o formulário, a instância já fica pronta para uso:
+
+- Um **workspace pessoal**, o contêiner que guarda todos os seus dados financeiros
+- Uma conta corrente **Carteira**, para você registrar a primeira transação imediatamente
+- Um conjunto de **[categorias](/pt-BR/docs/features/categories) padrão** cobrindo as áreas mais comuns (Moradia, Mercado, Transporte, Salário e Renda, entre outras), já localizadas para o seu idioma
+
+Não há saldo inicial para preencher nem nada mais para configurar de antemão. Tudo isso pode ser renomeado ou removido depois.
+
+## O Tour Guiado
+
+Depois da configuração você chega ao [Dashboard](/pt-BR/docs/features/dashboard) e um tour rápido de seis passos aponta o essencial: a navegação lateral, o próprio dashboard, contas, transações, importação de arquivos e categorias. Dá para pular a qualquer momento, ele existe só para orientar.
+
+## Depois do Tour
+
+A partir daqui, recomendamos:
+
+1. **Adicione suas contas reais** em [Contas](/pt-BR/docs/features/accounts), cada uma com o saldo atual
+2. **Adicione algumas transações** manualmente, ou [importe](/pt-BR/docs/features/import) o histórico do seu banco (OFX, CSV, QIF e CAMT são aceitos)
+3. **Crie regras de categorização** em [Regras](/pt-BR/docs/features/rules) para que as próximas transações sejam classificadas automaticamente
+4. **Configure orçamentos** em [Orçamentos](/pt-BR/docs/features/budgets) para as suas principais categorias de gasto
+5. **Adicione transações recorrentes** em [Recorrentes](/pt-BR/docs/features/recurring) para assinaturas e contas fixas

@@ -1,0 +1,60 @@
+---
+title: Kubernetes (Helm)
+description: Faça o deploy do Securo em um cluster Kubernetes com o Helm chart oficial.
+---
+
+O Securo publica um Helm chart oficial como artefato OCI no GitHub Container Registry, listado no [Artifact Hub](https://artifacthub.io/packages/helm/securo/securo). Cada versão do chart fixa as imagens do Securo daquela mesma release, então uma dada versão do chart sempre implanta uma versão conhecida e correspondente da aplicação.
+
+## Instalação
+
+Sem repositório para adicionar, instale direto do registry OCI:
+
+```bash
+helm install securo oci://ghcr.io/securo-finance/charts/securo \
+  --version 0.14.0 \
+  --set global.domain=securo.seudominio.com \
+  --set secret.secretKey="$(openssl rand -hex 32)"
+```
+
+Confira [a página de releases](https://github.com/securo-finance/securo/releases) para o número da versão mais recente, as versões do chart acompanham as versões da aplicação.
+
+## O Que o Chart Implanta
+
+- **Backend** (FastAPI) com a migração do banco rodando na inicialização
+- **Frontend** (nginx servindo o app compilado, com proxy de `/api` para o backend)
+- **Celery worker e beat** para os jobs em background
+- **PostgreSQL** e **Redis**, embutidos e habilitados por padrão
+- **Servidor MCP** opcional para o recurso de agentes de IA, desabilitado por padrão
+
+A persistência vem habilitada por padrão para o banco, os anexos e a base de conhecimento dos agentes.
+
+## Valores Principais
+
+| Valor | Padrão | Função |
+| --- | --- | --- |
+| `global.domain` | `securo.local` | Domínio público do app; as URLs de callback OAuth derivam dele |
+| `global.tls` | `false` | Se as URLs derivadas usam `https://` |
+| `secret.secretKey` | placeholder de dev | Chave de assinatura JWT. **Sempre defina a sua** |
+| `ingress.enabled` | `false` | Cria um Ingress para o frontend |
+| `httpRoute.enabled` | `false` | HTTPRoute da Gateway API, alternativa ao Ingress |
+| `persistence.*` | habilitada | PVCs para banco, anexos e conhecimento dos agentes |
+| `config.agentsEnabled` | `"false"` | Recurso opcional de agentes de IA |
+| `postgresql.enabled` / `redis.enabled` | `true` | Desabilite para usar seu próprio banco ou Redis |
+
+As integrações opcionais (sincronização bancária, taxas de câmbio, OIDC) usam as mesmas configurações documentadas no [guia de Docker](/pt-BR/docs/deployment/docker), expostas como valores `secret.*` e `config.*`. Inspecione a lista completa e comentada da sua versão com:
+
+```bash
+helm show values oci://ghcr.io/securo-finance/charts/securo --version 0.14.0
+```
+
+## Atualizando
+
+```bash
+helm upgrade securo oci://ghcr.io/securo-finance/charts/securo --version <NOVA_VERSAO>
+```
+
+As migrações do banco rodam automaticamente quando o novo backend sobe. Faça backup do banco antes de atualizar, como em qualquer método de deploy.
+
+## Código do Chart
+
+O chart vive no repositório principal em [`charts/securo`](https://github.com/securo-finance/securo/tree/main/charts/securo). Issues e contribuições são bem-vindas por lá.

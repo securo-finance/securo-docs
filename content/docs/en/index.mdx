@@ -9,7 +9,7 @@ Securo is a self-hosted personal finance application that gives you full control
 
 ## Why Securo?
 
-Managing personal finances shouldn't require handing your data to a third party. Securo runs on your own infrastructure, so your financial information never leaves your server. It supports **multiple currencies** with automatic conversion, making it ideal for people who manage money across borders.
+Managing personal finances shouldn't require handing your data to a third party. Securo runs on your own infrastructure, so your financial information never leaves your server. It supports **multiple currencies** with automatic conversion (bring a free [Open Exchange Rates](https://openexchangerates.org/) key; without one, cross-currency amounts fall back to a 1:1 rate with a visual warning), making it ideal for people who manage money across borders.
 
 Unlike spreadsheets or basic trackers, Securo provides a complete set of tools that work together:
 
@@ -23,18 +23,19 @@ Unlike spreadsheets or basic trackers, Securo provides a complete set of tools t
 If you're new to Securo, we recommend this path:
 
 1. Follow the [Installation](/docs/getting-started/installation) guide to get the app running
-2. Walk through the [Setup Wizard](/docs/getting-started/setup-wizard) to create your first account
+2. Walk through [First Launch](/docs/getting-started/first-launch) to create your admin account
 3. Read the [Dashboard](/docs/features/dashboard) overview to understand the home screen
 4. Set up [Categories](/docs/features/categories) and [Rules](/docs/features/rules) to automate transaction sorting
 
 ## Tech Stack
 
-| Layer    | Technology        |
-| -------- | ----------------- |
-| Backend  | FastAPI (Python)  |
-| Frontend | React + Vite      |
-| Database | PostgreSQL        |
-| Deploy   | Docker Compose    |
+| Layer           | Technology              |
+| --------------- | ----------------------- |
+| Backend         | FastAPI (Python)        |
+| Frontend        | React + Vite            |
+| Database        | PostgreSQL              |
+| Background jobs | Redis + Celery          |
+| Deploy          | Docker Compose or Helm  |
 
 ## Quick Links
 

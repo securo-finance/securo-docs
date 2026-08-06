@@ -1,0 +1,60 @@
+---
+title: Kubernetes (Helm)
+description: Deploy Securo to a Kubernetes cluster with the official Helm chart.
+---
+
+Securo ships an official Helm chart, published as an OCI artifact on GitHub Container Registry and listed on [Artifact Hub](https://artifacthub.io/packages/helm/securo/securo). Each release of the chart pins the Securo images from that same release, so a given chart version always deploys a known, matching application version.
+
+## Install
+
+No repository to add, install straight from the OCI registry:
+
+```bash
+helm install securo oci://ghcr.io/securo-finance/charts/securo \
+  --version 0.14.0 \
+  --set global.domain=securo.yourdomain.com \
+  --set secret.secretKey="$(openssl rand -hex 32)"
+```
+
+Check [the releases page](https://github.com/securo-finance/securo/releases) for the latest version number, chart versions track application versions.
+
+## What the Chart Deploys
+
+- **Backend** (FastAPI) with the database migration run as part of startup
+- **Frontend** (nginx serving the built app, proxying `/api` to the backend)
+- **Celery worker and beat** for background jobs
+- **PostgreSQL** and **Redis**, bundled and enabled by default
+- Optional **MCP server** for the AI agents feature, disabled by default
+
+Persistence is enabled by default for the database, attachments, and the agents knowledge base.
+
+## Key Values
+
+| Value | Default | Purpose |
+| --- | --- | --- |
+| `global.domain` | `securo.local` | Public domain of the app; OAuth callback URLs are derived from it |
+| `global.tls` | `false` | Whether derived URLs use `https://` |
+| `secret.secretKey` | dev placeholder | JWT signing key. **Always set your own** |
+| `ingress.enabled` | `false` | Create an Ingress for the frontend |
+| `httpRoute.enabled` | `false` | Gateway API HTTPRoute, as an alternative to Ingress |
+| `persistence.*` | `enabled` | PVCs for database, attachments, agents knowledge |
+| `config.agentsEnabled` | `"false"` | Optional AI agents feature |
+| `postgresql.enabled` / `redis.enabled` | `true` | Disable to bring your own database or Redis |
+
+Optional integrations (bank sync, exchange rates, OIDC) take the same settings documented in the [Docker guide](/docs/deployment/docker), exposed as `secret.*` and `config.*` values. Inspect the full annotated list for your version with:
+
+```bash
+helm show values oci://ghcr.io/securo-finance/charts/securo --version 0.14.0
+```
+
+## Upgrading
+
+```bash
+helm upgrade securo oci://ghcr.io/securo-finance/charts/securo --version <NEW_VERSION>
+```
+
+Database migrations run automatically when the new backend starts. Back up your database before upgrading, as with any deployment method.
+
+## Chart Source
+
+The chart lives in the main repository under [`charts/securo`](https://github.com/securo-finance/securo/tree/main/charts/securo). Issues and contributions are welcome there.

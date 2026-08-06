@@ -7,7 +7,7 @@ The reports section provides visual analytics to help you understand your financ
 
 ![Reports](/screenshots/reports.png)
 
-Reports are organized into three tabs at the top of the page. Each one is read-only and updates automatically as you add and categorize transactions.
+Reports are organized into four tabs at the top of the page: **Net Worth**, **Income vs Expenses**, **Cash Flow**, and **Money Map**. Each one is read-only and updates automatically as you add and categorize transactions. If you use collections to group accounts, the active collection filter scopes every tab.
 
 ## Net Worth
 
@@ -27,9 +27,13 @@ The **Cash Flow** report tracks your running balance forward in time, projecting
 
 A positive trend means you're on track to save; a downward trend is an early warning that spending is outpacing income.
 
+## Money Map
+
+The **Money Map** is a Sankey diagram of where your money comes from and where it goes: income sources on the left flow through to spending categories on the right, with the width of each band proportional to the amount. It supports 30D, 3M, 6M, YTD, and 1Y ranges, and it's the fastest way to see your financial structure at a glance.
+
 ## Composition
 
-Below the main chart, the **Composition** donut breaks the selected report down by category. The top categories are shown individually and the rest are grouped into **Other**. Use the toggle to switch between the summary, income-only, and expense-only views. Hover any slice to see its value and share of the total.
+Below the main chart, the **Composition** donut breaks the selected report down by category. The top categories are shown individually and the rest are grouped into **Other**. Use the toggle to switch between the **Net**, **By income**, and **By expenses** views. Hover any slice to see its value and share of the total.
 
 ## Category Trends
 
@@ -41,7 +45,7 @@ Each report supports flexible controls in the top right:
 
 | Control | Net Worth & Income vs Expenses | Cash Flow |
 |---------|-------------------------------|-----------|
-| **Range** | 6M, 1Y, 2Y | 3M, 6M, 12M |
+| **Range** | 6M, YTD, 1Y, 2Y | 3M, 6M, 12M |
 | **Granularity** | Daily, Weekly, Monthly, Yearly | Daily, Weekly, Monthly |
 
 Net Worth and Income vs Expenses look backward over your historical data, while Cash Flow projects forward.

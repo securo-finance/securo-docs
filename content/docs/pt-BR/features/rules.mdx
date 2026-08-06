@@ -1,64 +1,70 @@
 ---
 title: Regras
-description: Automatize a categorização de transações com regras de correspondência por padrão que classificam seus gastos para você.
+description: Automatize a categorização de transações com regras de correspondência que classificam seus gastos para você.
 ---
 
-As regras são um dos recursos mais poderosos do Securo. Elas atribuem categorias (e, opcionalmente, beneficiários) às transações automaticamente, com base em correspondência por padrão. Em vez de categorizar cada transação manualmente, você define as regras uma vez e o Securo aplica daí para a frente.
+As regras são um dos recursos mais poderosos do Securo. Elas atribuem categorias e beneficiários às transações automaticamente, com base em condições que você define. Em vez de categorizar cada transação manualmente, você define as regras uma vez e o Securo aplica daí para a frente.
 
 ![Regras](/screenshots/rules.png)
 
 ## Como as Regras Funcionam
 
-Cada regra é composta por:
+Cada regra é composta de:
 
-1. **Uma condição**: um padrão que corresponde a descrições de transação (ex.: "descrição começa com UBER")
-2. **Uma ação**: o que fazer quando a condição corresponde (ex.: "definir categoria como Transporte")
-3. **Uma prioridade**: regras com prioridade mais alta são verificadas primeiro
+1. **Uma ou mais condições**, combinadas com **E** (todas precisam corresponder) ou **OU** (qualquer uma basta)
+2. **Ações**: definir uma categoria, definir um beneficiário, ou ambos
+3. **Uma prioridade**: regras com número de prioridade **menor** rodam primeiro
 
-Quando uma transação nova é adicionada (manualmente, via importação ou via sincronização bancária), o Securo a avalia contra as suas regras em ordem de prioridade. A primeira regra que corresponder é aplicada.
+Quando uma transação é adicionada (manualmente, via importação ou pela sincronização bancária), o Securo a avalia contra todas as regras **ativas** em ordem de prioridade. Todas as regras que corresponderem aplicam suas ações, com uma proteção: a **categoria só é definida uma vez**. A primeira regra que atribuir uma categoria vence e as seguintes nunca a sobrescrevem; ações de beneficiário de regras posteriores ainda se aplicam.
 
-## Tipos de Condição
+## Condições
 
-As regras suportam várias estratégias de correspondência:
+Uma condição mira um campo da transação e o compara com um operador:
 
-- **Contém**: a descrição contém uma palavra específica (ex.: `descrição contém "STARBUCKS"`)
-- **Começa com**: a descrição começa com um padrão (ex.: `descrição começa com "UBER"`)
-- **Regex**: correspondência por expressão regular completa para padrões complexos (ex.: `descrição regex "SALARY|PAYROLL|DIRECT DEPOSIT"`)
-- **Condições OR**: combine vários padrões com lógica OR (ex.: `descrição começa com "NETFLIX" OR descrição começa com "SPOTIFY" OR descrição começa com "DISNEY"`)
+- **Campos**: Descrição, Notas, Valor, Tipo (receita/despesa), Conta, Beneficiário, Data
+- **Operadores de texto**: contém, não contém, começa com, termina com, é igual a, é diferente de, e regex para padrões complexos (ex.: `descrição regex "SALARIO|PAGAMENTO|FOLHA"`). A correspondência de texto ignora maiúsculas/minúsculas e acentos.
+- **Operadores de valor e data**: igual, maior que, maior ou igual, menor que, menor ou igual
+
+Valores de condição em branco são rejeitados ao salvar: um padrão vazio corresponderia a todas as transações, o que nunca é o que você quer.
 
 ## Criando uma Regra
 
 1. Navegue até **Regras** na barra lateral
 2. Clique em **+ Adicionar**
-3. Defina a condição (tipo de correspondência e padrão)
-4. Defina a ação (atribuição de categoria, de beneficiário ou ambas)
-5. Defina a prioridade (regras de prioridade mais alta são avaliadas antes)
-6. Clique em **Salvar**
+3. Adicione uma ou mais condições (campo, operador, valor) e escolha **E** ou **OU** para combiná-las
+4. Defina as ações (atribuição de categoria, de beneficiário, ou ambas)
+5. Defina a prioridade (números menores são avaliados primeiro)
+6. Clique em **Salvar**. O Securo pergunta se você quer aplicar a regra também às transações existentes imediatamente
+
+Cada regra tem um botão de **ativa/inativa**, então você pode desabilitar uma temporariamente sem excluí-la.
 
 ## Pacotes de Regras
 
-Clique em **Pacotes de Regras** para navegar e instalar conjuntos prontos de regras. Eles são coleções de regras para padrões comuns de transação que poupam tempo na configuração da categorização do zero.
+Clique em **Pacotes de Regras** para navegar e instalar conjuntos prontos. São coleções de regras para padrões comuns de transação que economizam o trabalho de montar a categorização do zero.
 
-## Reaplicar Regras
+Você também pode **exportar suas regras como JSON** e importá-las em outra instância do Securo, útil para compartilhar uma configuração ou migrar de servidor.
 
-Se você criou novas regras e quer aplicá-las às transações existentes, clique em **Reaplicar Todas**. Isso roda todas as suas regras em cada transação sem categoria, categorizando-as em lote.
+## Reaplicando Regras
 
-É especialmente útil quando você:
-- Acabou de configurar o Securo e importou transações históricas
-- Adicionou uma regra nova e quer que ela categorize retroativamente transações passadas
+Se você criou regras novas e quer aplicá-las às transações existentes, clique em **Reaplicar Todas**. Isso roda todas as regras ativas contra todas as suas transações. Categorias já definidas nunca são sobrescritas; beneficiários ainda podem ser atribuídos a transações que já têm categoria.
+
+Isso é especialmente útil quando você:
+
+- Acabou de configurar o Securo e importou o histórico de transações
+- Adicionou uma regra nova e quer que ela categorize retroativamente as transações passadas
 
 ## Sistema de Prioridade
 
-As regras são avaliadas da prioridade mais alta para a mais baixa. Se uma transação corresponde a várias regras, apenas a de prioridade mais alta é aplicada.
+As regras são avaliadas do menor número de prioridade para o maior. Como a categoria fica com a primeira regra que corresponder, coloque as regras mais específicas em números baixos e as genéricas em números altos, para que uma regra genérica nunca reivindique uma transação antes de a mais precisa ter a chance.
 
-A página de regras permite ordenar por **Prioridade**, **Nome** ou **Categoria** para organizar a sua lista.
+A página de regras permite ordenar por **Prioridade**, **Nome** ou **Categoria** para organizar sua lista.
 
 ## Exemplos de Regras
 
-| Nome da Regra                    | Condição                                            | Ação                       |
-| -------------------------------- | --------------------------------------------------- | -------------------------- |
-| Starbucks                        | Descrição contém "STARBUCKS"                        | Beneficiário: Starbucks    |
-| Salário / Folha                  | Regex: `SALARY\|PAYROLL\|DIRECT DEPOSIT`              | Categoria: Receitas        |
-| Uber                             | Descrição começa com "UBER"                         | Categoria: Transporte      |
-| Assinaturas Apple / Google       | Contém "APPLE.COM/BILL" OU começa com "GOOGLE *"    | Categoria: Assinaturas     |
-| Streaming                        | Começa com "NETFLIX" OU "SPOTIFY" OU "DISNEY"       | Categoria: Assinaturas     |
+| Nome da Regra                | Condições                                                                       | Ações                      |
+| ---------------------------- | ------------------------------------------------------------------------------- | -------------------------- |
+| Starbucks                    | Descrição contém "STARBUCKS"                                                    | Beneficiário: Starbucks    |
+| Salário                      | Descrição regex `SALARIO\|PAGAMENTO\|FOLHA`                                     | Categoria: Salário e Renda |
+| Uber                         | Descrição começa com "UBER"                                                     | Categoria: Transporte      |
+| Streaming (OU)               | Descrição começa com "NETFLIX" OU "SPOTIFY" OU "DISNEY"                         | Categoria: Assinaturas     |
+| Compras grandes (E)          | Descrição contém "AMAZON" E Valor maior que 200                                 | Categoria: Compras         |

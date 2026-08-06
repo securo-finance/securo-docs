@@ -18,9 +18,11 @@ For production, always use `docker-compose.prod.yml`. It pulls optimized pre-bui
 
 ## Server Requirements
 
-- A Linux server (Ubuntu 22.04+ recommended) with at least **1 GB RAM**
-- Docker Engine and Docker Compose plugin installed
+- A Linux server (Ubuntu 22.04+ recommended) with at least **2 GB RAM** (the stack runs six containers)
+- Docker Engine and Docker Compose plugin installed. Podman works too: use podman-compose **1.6.0 or newer**, older versions silently break the compose variable interpolation, which manifests as CORS and login-callback failures
 - A domain name (optional, but recommended for HTTPS)
+
+> The fastest path on a fresh server is the one-line installer, which does everything in the next two sections for you (including installing Docker and generating `.env`): `curl -fsSL https://usesecuro.com/install.sh | bash`
 
 ## Deployment Steps
 
@@ -68,6 +70,18 @@ Verify all containers are running:
 ```bash
 docker compose -f docker-compose.prod.yml ps
 ```
+
+## Set FRONTEND_URL for Any Non-Localhost Access
+
+If Securo will be reached at anything other than `http://localhost:3000` (a LAN IP, a domain, a tunnel), set `FRONTEND_URL` in `.env` to that exact public URL **before** people log in:
+
+```ini
+FRONTEND_URL=http://192.168.1.50:3000
+```
+
+This one variable drives CORS, bank-sync OAuth callbacks, OIDC redirect defaults, and passkey origins. Skipping it is the most common cause of "login works on the server but not from my laptop" reports. Restart after changing it: `docker compose -f docker-compose.prod.yml up -d`
+
+To change the published ports, set `FRONTEND_PORT` and `BACKEND_PORT` in `.env`. On a hardened server you can keep the backend off the public interface entirely with `BACKEND_PORT=127.0.0.1:8000`; the frontend proxies `/api` to the backend internally, so nothing outside needs port 8000.
 
 ## Setting Up HTTPS
 
@@ -118,16 +132,32 @@ docker compose -f docker-compose.prod.yml exec -T db \
   psql -U postgres securo < backup-20260401.sql
 ```
 
+### Attachments and Other Volumes
+
+The database is not the whole story: uploaded transaction attachments live in the `attachments` volume, and the agents knowledge base (if you enabled the optional AI feature) lives in `agent_knowledge`. A database-only restore silently loses every uploaded file, so back these up too:
+
+```bash
+docker run --rm -v securo_attachments:/data -v "$(pwd)":/backup alpine \
+  tar czf /backup/attachments-$(date +%Y%m%d).tar.gz -C /data .
+```
+
+Restore by extracting into the volume the same way:
+
+```bash
+docker run --rm -v securo_attachments:/data -v "$(pwd)":/backup alpine \
+  tar xzf /backup/attachments-20260401.tar.gz -C /data
+```
+
 ### Automated Backups
 
-Add a cron job for daily backups:
+Add a cron job for daily backups (cron runs with a minimal PATH, so use the absolute docker path):
 
 ```bash
 crontab -e
 ```
 
 ```text
-0 3 * * * cd /path/to/securo && docker compose -f docker-compose.prod.yml exec -T db pg_dump -U postgres securo > /backups/securo-$(date +\%Y\%m\%d).sql
+0 3 * * * cd /path/to/securo && /usr/bin/docker compose -f docker-compose.prod.yml exec -T db pg_dump -U postgres securo > /backups/securo-$(date +\%Y\%m\%d).sql
 ```
 
 ## Updating
@@ -141,7 +171,7 @@ docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-The database migrations run automatically on startup (`alembic upgrade head`), so schema changes are applied during the update.
+The database migrations run automatically on startup (`alembic upgrade head`), so schema changes are applied during the update. Take a database backup before updating, and check the [releases page](https://github.com/securo-finance/securo/releases) for the notes of what changed.
 
 ## Monitoring
 
@@ -166,7 +196,9 @@ curl http://localhost:8000/api/health
 
 ## Troubleshooting
 
-**Containers keep restarting**: Check logs with `docker compose -f docker-compose.prod.yml logs backend`. Common causes: bad `DATABASE_URL`, missing `SECRET_KEY`, or port conflicts.
+**Containers keep restarting**: Check logs with `docker compose -f docker-compose.prod.yml logs backend`. Common causes: not enough RAM, port conflicts (fix with `FRONTEND_PORT`/`BACKEND_PORT`), or, on Podman, podman-compose older than 1.6.0.
+
+**Login or CORS errors from another machine**: `FRONTEND_URL` is missing or doesn't match the URL in the browser. See the section above.
 
 **Database connection refused**: The database container might not be ready yet. It has a health check, but on slow servers it may take longer. Wait 30 seconds and try again.
 

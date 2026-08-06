@@ -1,4 +1,8 @@
 {
   "title": "Implantação",
-  "pages": ["index", "docker"]
+  "pages": [
+    "index",
+    "docker",
+    "kubernetes"
+  ]
 }

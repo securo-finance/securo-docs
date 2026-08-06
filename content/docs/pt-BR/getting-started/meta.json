@@ -1,5 +1,9 @@
 {
   "title": "Primeiros Passos",
   "defaultOpen": true,
-  "pages": ["index", "installation", "setup-wizard"]
+  "pages": [
+    "index",
+    "installation",
+    "first-launch"
+  ]
 }

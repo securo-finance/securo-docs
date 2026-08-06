@@ -18,9 +18,11 @@ Para produção, use sempre `docker-compose.prod.yml`. Ele puxa imagens otimizad
 
 ## Requisitos do Servidor
 
-- Um servidor Linux (Ubuntu 22.04+ recomendado) com pelo menos **1 GB de RAM**
-- Docker Engine e o plugin Docker Compose instalados
+- Um servidor Linux (Ubuntu 22.04+ recomendado) com pelo menos **2 GB de RAM** (a stack roda seis containers)
+- Docker Engine e o plugin Docker Compose instalados. Podman também funciona: use podman-compose **1.6.0 ou mais novo**, versões antigas quebram silenciosamente a interpolação de variáveis do compose, o que aparece como falhas de CORS e de callback de login
 - Um nome de domínio (opcional, mas recomendado para HTTPS)
+
+> O caminho mais rápido num servidor novo é o instalador de uma linha, que faz tudo das próximas duas seções por você (incluindo instalar o Docker e gerar o `.env`): `curl -fsSL https://usesecuro.com/install.sh | bash`
 
 ## Passos de Deploy
 
@@ -68,6 +70,18 @@ Confira se todos os containers estão rodando:
 ```bash
 docker compose -f docker-compose.prod.yml ps
 ```
+
+## Defina FRONTEND_URL para Qualquer Acesso Fora do Localhost
+
+Se o Securo vai ser acessado por qualquer endereço diferente de `http://localhost:3000` (um IP da rede local, um domínio, um túnel), defina `FRONTEND_URL` no `.env` com essa URL pública exata **antes** de as pessoas fazerem login:
+
+```ini
+FRONTEND_URL=http://192.168.1.50:3000
+```
+
+Essa única variável comanda o CORS, os callbacks OAuth da sincronização bancária, os redirects padrão do OIDC e as origens das passkeys. Pular esse passo é a causa mais comum dos relatos de "o login funciona no servidor mas não no meu notebook". Reinicie depois de mudar: `docker compose -f docker-compose.prod.yml up -d`
+
+Para mudar as portas publicadas, defina `FRONTEND_PORT` e `BACKEND_PORT` no `.env`. Num servidor mais protegido, você pode tirar o backend da interface pública com `BACKEND_PORT=127.0.0.1:8000`; o frontend faz proxy de `/api` para o backend internamente, então nada de fora precisa da porta 8000.
 
 ## Configurando HTTPS
 
@@ -118,16 +132,32 @@ docker compose -f docker-compose.prod.yml exec -T db \
   psql -U postgres securo < backup-20260401.sql
 ```
 
+### Anexos e Outros Volumes
+
+O banco não é a história toda: os anexos de transações ficam no volume `attachments`, e a base de conhecimento dos agentes (se você habilitou o recurso opcional de IA) fica em `agent_knowledge`. Uma restauração só do banco perde silenciosamente todos os arquivos enviados, então faça backup desses volumes também:
+
+```bash
+docker run --rm -v securo_attachments:/data -v "$(pwd)":/backup alpine \
+  tar czf /backup/attachments-$(date +%Y%m%d).tar.gz -C /data .
+```
+
+Restaure extraindo para dentro do volume do mesmo jeito:
+
+```bash
+docker run --rm -v securo_attachments:/data -v "$(pwd)":/backup alpine \
+  tar xzf /backup/attachments-20260401.tar.gz -C /data
+```
+
 ### Backups Automatizados
 
-Adicione um cron job para backups diários:
+Adicione um cron job para backups diários (o cron roda com um PATH mínimo, então use o caminho absoluto do docker):
 
 ```bash
 crontab -e
 ```
 
 ```text
-0 3 * * * cd /caminho/para/securo && docker compose -f docker-compose.prod.yml exec -T db pg_dump -U postgres securo > /backups/securo-$(date +\%Y\%m\%d).sql
+0 3 * * * cd /caminho/para/securo && /usr/bin/docker compose -f docker-compose.prod.yml exec -T db pg_dump -U postgres securo > /backups/securo-$(date +\%Y\%m\%d).sql
 ```
 
 ## Atualizando
@@ -141,7 +171,7 @@ docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-As migrations do banco de dados rodam automaticamente na inicialização (`alembic upgrade head`), então mudanças de schema são aplicadas durante a atualização.
+As migrations do banco de dados rodam automaticamente na inicialização (`alembic upgrade head`), então mudanças de schema são aplicadas durante a atualização. Faça um backup do banco antes de atualizar, e confira a [página de releases](https://github.com/securo-finance/securo/releases) para as notas do que mudou.
 
 ## Monitoramento
 
@@ -166,7 +196,9 @@ curl http://localhost:8000/api/health
 
 ## Solução de Problemas
 
-**Containers ficam reiniciando**: verifique os logs com `docker compose -f docker-compose.prod.yml logs backend`. Causas comuns: `DATABASE_URL` errado, `SECRET_KEY` ausente ou conflitos de porta.
+**Containers ficam reiniciando**: verifique os logs com `docker compose -f docker-compose.prod.yml logs backend`. Causas comuns: pouca RAM, conflitos de porta (resolva com `FRONTEND_PORT`/`BACKEND_PORT`) ou, no Podman, podman-compose mais antigo que 1.6.0.
+
+**Erros de login ou CORS a partir de outra máquina**: `FRONTEND_URL` está ausente ou não bate com a URL no navegador. Veja a seção acima.
 
 **Conexão com o banco recusada**: o container do banco pode ainda não estar pronto. Ele tem um health check, mas em servidores lentos pode demorar mais. Aguarde 30 segundos e tente de novo.
 

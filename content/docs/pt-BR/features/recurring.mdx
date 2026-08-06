@@ -13,11 +13,14 @@ Uma transação recorrente é um template que define:
 
 - **Descrição**: do que se trata o pagamento (ex.: "Spotify", "Netflix USD")
 - **Valor**: o valor da transação, incluindo a moeda
-- **Frequência**: com que frequência se repete (mensal, semanal, etc.)
+- **Frequência**: com que frequência se repete (semanal, mensal, trimestral ou anual)
 - **Próxima data**: quando é a próxima ocorrência
+- **Data final** (opcional): quando a agenda para de gerar ocorrências
 - **Status**: ativa ou pausada
 
-Quando chega a data agendada, o Securo cria uma transação real na conta apropriada, com base no template.
+Quando chega a data agendada, o Securo cria uma transação real na conta apropriada, com base no template. A geração roda automaticamente em segundo plano a cada hora; cada agenda também tem um botão de **geração automática**, e agendas com ele desligado só criam transações quando você clica em **Gerar Pendentes**.
+
+Agendas mensais, trimestrais e anuais preservam o dia do mês pretendido: uma assinatura ancorada no dia 31 cai em 30 de abril e volta para 31 de julho.
 
 ## Criando uma Transação Recorrente
 
@@ -26,8 +29,8 @@ Quando chega a data agendada, o Securo cria uma transação real na conta apropr
 3. Informe a descrição
 4. Defina o valor e a moeda
 5. Escolha a conta
-6. Selecione a frequência (mensal, semanal, quinzenal, etc.)
-7. Defina a data inicial
+6. Selecione a frequência (semanal, mensal, trimestral ou anual)
+7. Defina a data inicial (e, se quiser, uma data final)
 8. Clique em **Salvar**
 
 ## Gerenciando Transações Recorrentes
@@ -45,7 +48,13 @@ A página de transações recorrentes mostra uma tabela com todas as suas agenda
 
 ## Gerando Transações Pendentes
 
-Clique em **Gerar Pendentes** para criar de uma só vez todas as transações recorrentes atrasadas. Útil se você passou alguns dias sem abrir o Securo e precisa colocar tudo em dia.
+Clique em **Gerar Pendentes** para criar de uma só vez todas as transações recorrentes atrasadas. Útil se você passou alguns dias sem abrir o Securo e precisa colocar tudo em dia, ou para agendas com a geração automática desligada.
+
+## Vínculo com Transações Reais
+
+As contas recorrentes se conectam às transações que de fato as pagam. Quando uma transação sincronizada ou importada corresponde com alta confiança a uma ocorrência prevista (mesma conta, descrição e valor parecidos, data próxima), o Securo a vincula à agenda em vez de criar uma duplicata, substituindo o lançamento gerado se houver um. Uma transação vinculada pode ser desvinculada pelo diálogo de edição.
+
+O **selo de recorrente** na lista de transações aparece apenas em transações realmente vinculadas a uma agenda, então duas compras que por acaso compartilham a descrição nunca são ambas marcadas como recorrentes.
 
 ## Assinaturas em Múltiplas Moedas
 
