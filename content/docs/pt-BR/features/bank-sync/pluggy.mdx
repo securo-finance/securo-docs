@@ -3,7 +3,7 @@ title: Pluggy (Bancos Brasileiros)
 description: Conecte contas bancárias brasileiras ao Securo pelo widget de open finance da Pluggy.
 ---
 
-A [Pluggy](https://pluggy.ai) é uma plataforma brasileira de open finance que se conecta aos principais bancos e instituições financeiras do Brasil. O Securo integra o Widget do Pluggy Connect direto no app, então todo o fluxo de autenticação bancária acontece sem sair do Securo.
+A [Pluggy](https://pluggy.ai) é uma plataforma brasileira de open finance que se conecta aos principais bancos e instituições financeiras do Brasil. O fluxo funciona em duas partes: primeiro você conecta suas contas bancárias no portal MeuPluggy, e depois o Securo importa essas conexões pelo Widget do Pluggy Connect, integrado direto no app.
 
 ## 1. Crie uma Conta na Pluggy
 
@@ -22,17 +22,19 @@ Você pode navegar pela seção **Connectors** para ver quais bancos e institui�
 A Pluggy oferece um teste gratuito com conexões limitadas. Garanta que o seu trial está ativo antes de tentar conectar contas bancárias no Securo.
 </Callout>
 
-## 2. Teste suas Credenciais com o MeuPluggy (Opcional)
+## 2. Conecte suas Contas Bancárias no MeuPluggy
 
-O [MeuPluggy](https://meu.pluggy.ai) é um portal gratuito da Pluggy que te permite testar suas credenciais de API e verificar se a conexão com o banco funciona antes de configurar o Securo.
+O [MeuPluggy](https://meu.pluggy.ai) é um portal gratuito da Pluggy onde você conecta suas contas bancárias. **Este passo é obrigatório**: é no MeuPluggy que a conexão com o banco de fato acontece — o Securo depois importa as contas que você conectou lá.
 
 1. Acesse [meu.pluggy.ai](https://meu.pluggy.ai) e entre
 2. Informe o **Client ID** e o **Client Secret** da sua application
-3. Tente conectar uma conta bancária para confirmar que as credenciais estão válidas
+3. Conecte cada conta bancária que você quer sincronizar com o Securo, autenticando diretamente no seu banco
 
 ![MeuPluggy](/screenshots/pluggy-meu-intro.png)
 
-Este passo é opcional, mas recomendado se você quiser verificar que tudo funciona do lado da Pluggy antes de configurar o Securo.
+<Callout type="warn">
+Contas que não forem conectadas aqui não vão aparecer no Securo. Se mais tarde você quiser sincronizar um banco novo, volte ao MeuPluggy e conecte-o primeiro.
+</Callout>
 
 ## 3. Configure o Securo
 
@@ -50,14 +52,15 @@ Reinicie o backend depois de atualizar o ambiente. O Securo detecta os provedore
 1. Vá para a página **Contas** e clique em **Conectar Banco**
 2. Um diálogo mostra todos os provedores disponíveis — selecione **Pluggy**
 3. O Securo solicita um token de conexão ao backend e abre o Widget do Pluggy Connect dentro do app
-4. Selecione seu banco no widget
-5. Faça os desafios de MFA se o banco pedir
-6. Feita a autenticação, o widget devolve a conexão ao Securo automaticamente
-7. O Securo importa imediatamente suas contas e todo o histórico de transações
+4. No widget, selecione **MeuPluggy** — não selecione o seu banco diretamente
+5. Um pop-up abre mostrando os bancos que você já conectou no MeuPluggy — escolha o banco desejado
+6. Faça os desafios de MFA se o banco pedir
+7. Feita a autenticação, o widget devolve a conexão ao Securo automaticamente
+8. O Securo importa imediatamente suas contas e todo o histórico de transações
 
 ![Conectar Banco](/screenshots/pluggy-connect-bank.png)
 
-Você não precisa copiar IDs nem sair do app. O widget cuida de todo o fluxo de autenticação, e o Securo guarda a conexão internamente. Depois de conectar, suas contas bancárias aparecem junto com as contas manuais na página de Contas.
+Você não precisa copiar IDs. O widget cuida do fluxo de autenticação, e o Securo guarda a conexão internamente. Depois de conectar, suas contas bancárias aparecem junto com as contas manuais na página de Contas. Se o banco que você procura não aparecer no pop-up, é porque ele ainda não foi conectado no MeuPluggy — volte ao passo 2.
 
 ## Reconectando
 
