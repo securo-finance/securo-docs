@@ -5,9 +5,28 @@ description: Deploy Securo securely to a production Kubernetes cluster with the 
 
 When deploying Securo to a production Kubernetes cluster, we strongly recommend bypassing plain text secrets in `values.yaml` and providing external databases for reliability and scaling. Please note that setting up an external PostgreSQL database is slightly more complex, as it **must** have the `pgvector` extension installed for Securo's AI features to function.
 
+The official chart is published on **[Artifact Hub](https://artifacthub.io/packages/helm/securo/securo)** and distributed via **OCI** in GitHub Container Registry.
+
 If you are just looking to test the Helm chart locally, see the [Kubernetes Development](/docs/deployment/kubernetes) guide instead.
 
-## 1. Managing Secrets (existingSecret)
+## 1. Installing from Artifact Hub / OCI Registry
+
+Production installations should target pinned, release versions of the OCI chart:
+
+```bash
+# Pull and inspect values for a specific release
+helm show values oci://ghcr.io/securo-finance/charts/securo --version <VERSION>
+
+# Deploy using a customized values-production.yaml file
+helm install securo oci://ghcr.io/securo-finance/charts/securo \
+  --version <VERSION> \
+  -f values-production.yaml
+```
+
+### Automated Database Migrations (Helm Hook)
+The chart includes an integrated database migration `Job` configured with Helm `post-install` and `post-upgrade` hooks. Whenever you install or run `helm upgrade`, this job runs `alembic upgrade head` with built-in retries to ensure schema updates are applied cleanly before application traffic shifts to updated pods.
+
+## 2. Managing Secrets (existingSecret)
 
 Do **not** commit sensitive keys directly into your `values.yaml` in production. Instead, create a Kubernetes `Secret` resource out-of-band (or via tools like External Secrets Operator / Sealed Secrets).
 
@@ -25,14 +44,14 @@ stringData:
 2. Apply it: `kubectl apply -f secret.yaml`
 3. Tell the Helm chart to use it by passing `--set global.existingSecret=securo-secrets`.
 
-## 2. Using External Databases (PostgreSQL / Redis)
+## 3. Using External Databases (PostgreSQL / Redis)
 
 By default, the chart deploys simple, single-instance StatefulSets for Postgres and Redis. In production, it is recommended to use managed services (like RDS/ElastiCache) or high-availability clustered deployments instead.
 
 To disable the built-in databases/redis and use external ones execute the following command:
 
 ```bash
-helm install securo charts/securo \
+helm install securo oci://ghcr.io/securo-finance/charts/securo --version <VERSION> \
   --set postgresql.enabled=false \
   --set redis.enabled=false \
   --set config.redisUrl="redis://your-external-redis:6379/0" \
@@ -45,12 +64,12 @@ helm install securo charts/securo \
 > [!WARNING]
 > If you bring your own PostgreSQL database, it **must** have the `pgvector` extension installed. Securo relies on `pgvector` for its AI embedding models and semantic search features.
 
-## 3. High Availability and Persistent Storage
+## 4. High Availability and Persistent Storage
 
 By default, the Helm chart enables the attachments PersistentVolumeClaim (`persistence.attachments.enabled=true`) using the `ReadWriteOnce` (RWO) access mode. To run Securo in a highly available, multi-node production cluster, persistent storage must be configured carefully:
 
 ### High Availability via Object Storage (Recommended)
-Sharing writeable block storage across multiple nodes is typically not supported by standard `ReadWriteOnce` (RWO) storage classes. Instead of using a shared PVC for attachments, you should use **S3-compatible Object Storage** (such as AWS S3, Google Cloud Storage, or MinIO). 
+Sharing writeable block storage across multiple nodes is typically not supported by standard `ReadWriteOnce` (RWO) storage classes. Instead of using a shared PVC for attachments, you should use **S3-compatible Object Storage** (such as AWS S3, Google Cloud Storage, or MinIO).
 
 Configure the S3 credentials in your `securo-secrets` (or `values.yaml`) and ensure attachments persistence is disabled:
 ```yaml
@@ -72,7 +91,7 @@ While most of Securo can scale horizontally, note the following architectural co
 * **Built-in Databases**: The default PostgreSQL and Redis StatefulSets deployed by the chart are single-replica instances and are not HA. For production HA, always use external database clusters (`postgresql.enabled=false`, `redis.enabled=false`).
 * **AI Knowledge Bases**: If AI features are enabled (`config.agentsEnabled=true`), the `agentKnowledge` PVC stores uploaded source documents. If you scale the backend and Celery workers across multiple nodes, you will need a StorageClass that supports `ReadWriteMany` (RWX) for `agentKnowledge` (e.g., NFS, CephFS, or Longhorn RWX), or restrict the AI-facing components to a single node using pod affinity constraints.
 
-## 4. Configuring Ingress / HTTPRoute
+## 5. Configuring Ingress / HTTPRoute
 
 Securo routes all API traffic through the frontend container internally, so you only need to expose the root path (`/`) to the frontend service. You can use either the standard Kubernetes `Ingress` resource or the newer `Gateway API` (`HTTPRoute`).
 
@@ -81,7 +100,7 @@ Securo routes all API traffic through the frontend container internally, so you 
 If you are using a traditional Ingress Controller like NGINX, you can enable the `ingress` values and optionally configure TLS with `cert-manager`.
 
 ```bash
-helm install securo charts/securo \
+helm install securo oci://ghcr.io/securo-finance/charts/securo --version <VERSION> \
   --set ingress.enabled=true \
   --set ingress.className=nginx \
   --set global.domain=app.securo.com \
@@ -94,7 +113,7 @@ helm install securo charts/securo \
 If your cluster uses the Gateway API, you can configure an `HTTPRoute` instead. For example, if you use Cilium as your Gateway controller, you can easily secure your deployment using `cert-manager` and `Let's Encrypt`.
 
 ```bash
-helm install securo charts/securo \
+helm install securo oci://ghcr.io/securo-finance/charts/securo --version <VERSION> \
   --set ingress.enabled=false \
   --set httpRoute.enabled=true \
   --set httpRoute.parentRefs[0].name=cilium-gateway \
@@ -125,7 +144,7 @@ spec:
           - name: securo-tls-secret
 ```
 
-## 5. Horizontal Pod Autoscaling (HPA)
+## 6. Horizontal Pod Autoscaling (HPA)
 
 To handle production load and scale your services dynamically, you should enable the Horizontal Pod Autoscaler (HPA). The Helm chart supports autoscaling for all stateless and worker components (Frontend, Backend, Celery Worker, and MCP Server), while keeping the Celery Beat scheduler as a single instance. Celery Beat must remain a singleton to prevent duplicate task execution (otherwise, multiple schedulers would send the same recurring tasks to the queue concurrently).
 

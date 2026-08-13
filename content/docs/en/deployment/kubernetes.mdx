@@ -3,17 +3,43 @@ title: Kubernetes Development
 description: Deploy Securo locally to a Kind cluster using the official Helm chart.
 ---
 
-Securo provides an official Helm chart (`charts/securo`) to easily deploy the application, its services, and its databases to any Kubernetes cluster.
+Securo provides an official Helm chart to easily deploy the application, its background workers, AI services, and databases to any Kubernetes cluster.
 
-If you are deploying to a live production cluster, please see the [Kubernetes Production](/docs/deployment/production/kubernetes) guide to learn about secrets management and external databases.
+The official chart is discoverable on **[Artifact Hub](https://artifacthub.io/packages/helm/securo/securo)** and distributed directly as an OCI artifact via the **GitHub Container Registry (GHCR)**.
 
-## 1. Prerequisites
+If you are deploying to a live production cluster, please see the [Kubernetes Production](/docs/deployment/kubernetes-prod) guide to learn about secrets management, external databases, and high availability.
 
-- `helm` installed on your local machine
+## 1. Installation Methods
+
+You can deploy the Securo Helm chart using either the pre-packaged OCI chart from GitHub Container Registry or from a local git checkout.
+
+### Option A: Direct OCI Registry (Recommended)
+Helm 3.8+ supports OCI registries natively. You do not need to run `helm repo add`:
+
+```bash
+# View default values from the published chart
+helm show values oci://ghcr.io/securo-finance/charts/securo --version <VERSION>
+
+# Install the chart directly
+helm install securo oci://ghcr.io/securo-finance/charts/securo --version <VERSION>
+```
+
+### Option B: Local Source Repository
+If you are modifying the chart or developing locally:
+
+```bash
+git clone https://github.com/securo-finance/securo.git
+cd securo
+helm install securo ./charts/securo
+```
+
+## 2. Prerequisites
+
+- `helm` 3.8+ installed on your local machine
 - [Kind](https://kind.sigs.k8s.io/) installed for local cluster creation
 - An Ingress Controller or Gateway API Controller (e.g., Cilium, NGINX)
 
-## 2. Configuring Application Features
+## 3. Configuring Application Features
 
 All application-level features (like AI Services, OIDC authentication, and Open Banking integrations) can be configured directly through Helm.
 The variables in the `config:` and `secret:` blocks of the `values.yaml` correspond directly to the environment variables used in the Docker setup.
@@ -29,7 +55,7 @@ If you want to know which variables are required for specific features, please r
 
 ---
 
-## 3. Local Testing with Kind (3 End-to-End Paths)
+## 4. Local Testing with Kind (3 End-to-End Paths)
 
 Kind (Kubernetes IN Docker) is the easiest way to test the Helm chart locally. Below are three different ways to deploy and test the application, ranging from a simple NodePort to a full Gateway API setup.
 

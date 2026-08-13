@@ -5,9 +5,28 @@ description: Implante o Securo com segurança em um cluster Kubernetes de produ�
 
 Ao implantar o Securo em um cluster Kubernetes de produção, recomendamos fortemente evitar segredos em texto simples no `values.yaml` e utilizar bancos de dados externos para maior confiabilidade e escalabilidade. Observe que a configuração de um banco de dados PostgreSQL externo é ligeiramente mais complexa, pois ele **deve** ter a extensão `pgvector` instalada para que os recursos de IA do Securo funcionem.
 
+O chart oficial é publicado no **[Artifact Hub](https://artifacthub.io/packages/helm/securo/securo)** e distribuído via **OCI** no GitHub Container Registry.
+
 Se você está apenas procurando testar o Helm chart localmente, consulte o guia [Desenvolvimento em Kubernetes](/pt-BR/docs/deployment/kubernetes) em vez deste.
 
-## 1. Gerenciando Segredos (existingSecret)
+## 1. Instalando a partir do Artifact Hub / Registro OCI
+
+Implantações em produção devem direcionar versões fixadas de release do chart OCI:
+
+```bash
+# Baixar e inspecionar os valores de uma versão específica
+helm show values oci://ghcr.io/securo-finance/charts/securo --version <VERSION>
+
+# Implantar usando um arquivo values-production.yaml customizado
+helm install securo oci://ghcr.io/securo-finance/charts/securo \
+  --version <VERSION> \
+  -f values-production.yaml
+```
+
+### Migrações Automáticas de Banco de Dados (Helm Hook)
+O chart inclui um `Job` integrado de migração de banco de dados configurado com hooks de `post-install` e `post-upgrade` do Helm. Sempre que você instala ou executa o `helm upgrade`, este job executa `alembic upgrade head` com retentativas automáticas integradas para garantir que as atualizações de esquema sejam aplicadas de forma limpa antes que o tráfego da aplicação seja direcionado aos novos pods.
+
+## 2. Gerenciando Segredos (existingSecret)
 
 **Não** envie chaves confidenciais diretamente para o seu `values.yaml` em produção. Em vez disso, crie um recurso `Secret` do Kubernetes fora da banda (ou através de ferramentas como External Secrets Operator / Sealed Secrets).
 
@@ -25,14 +44,14 @@ stringData:
 2. Aplique-o: `kubectl apply -f secret.yaml`
 3. Instrua o Helm chart a utilizá-lo passando `--set global.existingSecret=securo-secrets`.
 
-## 2. Utilizando Bancos de Dados Externos (PostgreSQL / Redis)
+## 3. Utilizando Bancos de Dados Externos (PostgreSQL / Redis)
 
 Por padrão, o chart implanta StatefulSets simples de instância única para o Postgres e o Redis. Em produção, é recomendado usar serviços gerenciados (como RDS/ElastiCache) ou implantações em cluster de alta disponibilidade.
 
 Para desabilitar os bancos de dados/redis integrados e usar os externos, execute o seguinte comando:
 
 ```bash
-helm install securo charts/securo \
+helm install securo oci://ghcr.io/securo-finance/charts/securo --version <VERSION> \
   --set postgresql.enabled=false \
   --set redis.enabled=false \
   --set config.redisUrl="redis://seu-redis-externo:6379/0" \
@@ -45,7 +64,7 @@ helm install securo charts/securo \
 > [!WARNING]
 > Se você trouxer seu próprio banco de dados PostgreSQL, ele **deve** ter a extensão `pgvector` instalada. O Securo depende do `pgvector` para seus modelos de embedding de IA e recursos de busca semântica.
 
-## 3. Alta Disponibilidade e Armazenamento Persistente
+## 4. Alta Disponibilidade e Armazenamento Persistente
 
 Por padrão, o Helm chart habilita o PersistentVolumeClaim para anexos (`persistence.attachments.enabled=true`) usando o modo de acesso `ReadWriteOnce` (RWO). Para rodar o Securo em um cluster de produção altamente disponível e multi-nó, o armazenamento persistente deve ser configurado com cuidado:
 
@@ -72,7 +91,7 @@ Embora a maior parte do Securo possa escalar horizontalmente, observe as seguint
 * **Bancos de Dados Integrados**: Os StatefulSets padrão do PostgreSQL e Redis implantados pelo chart são instâncias de réplica única e não são HA. Para produção altamente disponível, sempre use clusters de bancos de dados externos (`postgresql.enabled=false`, `redis.enabled=false`).
 * **Bases de Conhecimento de IA**: Se os recursos de IA estiverem ativados (`config.agentsEnabled=true`), o PVC `agentKnowledge` armazena os documentos de origem carregados. Se você escalar o backend e os trabalhadores do Celery em vários nós, precisará de uma StorageClass que suporte `ReadWriteMany` (RWX) para o `agentKnowledge` (ex: NFS, CephFS ou Longhorn RWX), ou restringir os componentes voltados para IA a um único nó usando restrições de afinidade de pod.
 
-## 4. Configurando Ingress / HTTPRoute
+## 5. Configurando Ingress / HTTPRoute
 
 O Securo roteia todo o tráfego de API internamente através do container de frontend, portanto você só precisa expor o caminho raiz (`/`) para o serviço de frontend. Você pode usar tanto o recurso padrão `Ingress` do Kubernetes quanto a nova `Gateway API` (`HTTPRoute`).
 
@@ -81,7 +100,7 @@ O Securo roteia todo o tráfego de API internamente através do container de fro
 Se você estiver usando um Ingress Controller tradicional como o NGINX, você pode habilitar os valores de `ingress` e, opcionalmente, configurar o TLS com o `cert-manager`.
 
 ```bash
-helm install securo charts/securo \
+helm install securo oci://ghcr.io/securo-finance/charts/securo --version <VERSION> \
   --set ingress.enabled=true \
   --set ingress.className=nginx \
   --set global.domain=app.securo.com \
@@ -94,7 +113,7 @@ helm install securo charts/securo \
 Se o seu cluster utiliza a Gateway API, você pode configurar um `HTTPRoute` em seu lugar. Por exemplo, se você usa o Cilium como seu controlador de Gateway, você pode facilmente proteger sua implantação usando `cert-manager` e `Let's Encrypt`.
 
 ```bash
-helm install securo charts/securo \
+helm install securo oci://ghcr.io/securo-finance/charts/securo --version <VERSION> \
   --set ingress.enabled=false \
   --set httpRoute.enabled=true \
   --set httpRoute.parentRefs[0].name=cilium-gateway \
@@ -125,7 +144,7 @@ spec:
           - name: securo-tls-secret
 ```
 
-## 5. Autoscaling de Pods (HPA)
+## 6. Autoscaling de Pods (HPA)
 
 Para lidar com a carga de produção e dimensionar seus serviços dinamicamente, você deve habilitar o Horizontal Pod Autoscaler (HPA). O Helm chart suporta autoscaling para todos os componentes sem estado (stateless) e trabalhadores (Frontend, Backend, Celery Worker e MCP Server), mantendo o agendador Celery Beat como uma instância única. O Celery Beat deve permanecer como um singleton para evitar a execução duplicada de tarefas (caso contrário, múltiplos agendadores enviariam as mesmas tarefas recorrentes para a fila simultaneamente).
 

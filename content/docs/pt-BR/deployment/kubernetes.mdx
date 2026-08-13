@@ -3,24 +3,50 @@ title: Desenvolvimento em Kubernetes
 description: Implante o Securo localmente em um cluster Kind usando o Helm chart oficial.
 ---
 
-O Securo fornece um Helm chart oficial (`charts/securo`) para implantar facilmente o aplicativo, seus serviços e seus bancos de dados em qualquer cluster Kubernetes.
+O Securo fornece um Helm chart oficial para implantar facilmente o aplicativo, seus workers em segundo plano, serviços de IA e bancos de dados em qualquer cluster Kubernetes.
 
-Se você estiver implantando em um cluster de produção real, consulte o guia [Produção em Kubernetes](/pt-BR/docs/deployment/kubernetes-prod) para saber mais sobre o gerenciamento de segredos e bancos de dados externos.
+O chart oficial pode ser encontrado no **[Artifact Hub](https://artifacthub.io/packages/helm/securo/securo)** e é distribuído diretamente como um artefato OCI através do **GitHub Container Registry (GHCR)**.
 
-## 1. Pré-requisitos
+Se você estiver implantando em um cluster de produção real, consulte o guia [Produção em Kubernetes](/pt-BR/docs/deployment/kubernetes-prod) para saber mais sobre o gerenciamento de segredos, bancos de dados externos e alta disponibilidade.
 
-- `helm` instalado em sua máquina local
+## 1. Métodos de Instalação
+
+Você pode implantar o Helm chart do Securo usando o chart OCI empacotado do GitHub Container Registry ou a partir de um clone local do repositório.
+
+### Opção A: Registro OCI Direto (Recomendado)
+O Helm 3.8+ suporta registros OCI nativamente. Você não precisa executar `helm repo add`:
+
+```bash
+# Visualizar os valores padrão do chart publicado
+helm show values oci://ghcr.io/securo-finance/charts/securo --version <VERSION>
+
+# Instalar o chart diretamente
+helm install securo oci://ghcr.io/securo-finance/charts/securo --version <VERSION>
+```
+
+### Opção B: Repositório de Código-Fonte Local
+Se você estiver modificando o chart ou desenvolvendo localmente:
+
+```bash
+git clone https://github.com/securo-finance/securo.git
+cd securo
+helm install securo ./charts/securo
+```
+
+## 2. Pré-requisitos
+
+- `helm` 3.8+ instalado em sua máquina local
 - [Kind](https://kind.sigs.k8s.io/) instalado para criação de cluster local
 - Um Controlador de Ingress ou Controlador de Gateway API (ex: Cilium, NGINX)
 
-## 2. Configurando Recursos do Aplicativo
+## 3. Configurando Recursos do Aplicativo
 
 Todos os recursos de nível de aplicativo (como Serviços de IA, autenticação OIDC e integrações de Open Banking) podem ser configurados diretamente através do Helm.
 As variáveis nos blocos `config:` e `secret:` do `values.yaml` correspondem diretamente às variáveis de ambiente usadas na configuração do Docker.
 
 Se você estiver usando um `existingSecret` para produção, basta adicionar suas chaves de API a esse segredo.
 
-Observe que as variáveis do Docker (que usam `UPPER_SNAKE_CASE`) são convertidas para `camelCase` no Helm. For exemplo, `AGENTS_OPENAI_API_KEY` torna-se `agentsOpenaiApiKey`.
+Observe que as variáveis do Docker (que usam `UPPER_SNAKE_CASE`) são convertidas para `camelCase` no Helm. Por exemplo, `AGENTS_OPENAI_API_KEY` torna-se `agentsOpenaiApiKey`.
 
 Se você quiser saber quais variáveis são necessárias para recursos específicos, consulte o [Readme do Securo](https://github.com/securo-finance/securo) ou o arquivo `values.yaml`.
 
@@ -29,7 +55,7 @@ Se você quiser saber quais variáveis são necessárias para recursos específi
 
 ---
 
-## 3. Testes Locais com Kind (3 Caminhos de Ponta a Ponta)
+## 4. Testes Locais com Kind (3 Caminhos de Ponta a Ponta)
 
 O Kind (Kubernetes IN Docker) é a maneira mais fácil de testar o Helm chart localmente. Abaixo estão três maneiras diferentes de implantar e testar o aplicativo, variando de um simples NodePort a uma configuração completa de Gateway API.
 
