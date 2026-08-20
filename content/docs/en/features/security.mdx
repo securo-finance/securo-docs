@@ -35,7 +35,19 @@ OIDC_CLIENT_ID=securo
 OIDC_CLIENT_SECRET=your-client-secret
 ```
 
-The login page gains a "Continue with ..." button named after your provider. Auto-registration of new users, linking to existing accounts, requiring verified emails, and mapping provider groups to roles are all configurable; see `.env.example` in the repository for the full list of `OIDC_*` options.
+The login page gains a "Continue with ..." button named after your provider. Auto-registration of new users, requiring verified emails, and mapping provider groups to roles are all configurable; see `.env.example` in the repository for the full list of `OIDC_*` options.
+
+### Linking existing accounts
+
+An account that already exists in Securo, created with a password, is never linked to an OIDC identity automatically. The first SSO login of such a user is rejected until you choose a linking policy with `OIDC_EXISTING_USER_LINK_MODE`:
+
+| Value | Behavior |
+|-------|----------|
+| `disabled` (default) | Never link. Existing accounts keep using password login. |
+| `verified_email` | Link the existing account when the provider sends `email_verified=true` for the same email. |
+| `email` | Link on a matching email alone, even without `email_verified`. |
+
+Use `verified_email` to move your existing users to SSO without recreating their accounts and data. Only pick `email` if you trust your provider to own every address it asserts, since anyone able to set an email there could claim the matching Securo account. An OIDC identity already linked to another account is always rejected, in every mode.
 
 ## Passwords
 

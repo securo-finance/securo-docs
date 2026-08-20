@@ -35,7 +35,19 @@ OIDC_CLIENT_ID=securo
 OIDC_CLIENT_SECRET=seu-client-secret
 ```
 
-A página de login ganha um botão "Continuar com ..." com o nome do seu provedor. Auto-registro de novos usuários, vínculo com contas existentes, exigência de email verificado e mapeamento de grupos do provedor para papéis são todos configuráveis; veja o `.env.example` no repositório para a lista completa de opções `OIDC_*`.
+A página de login ganha um botão "Continuar com ..." com o nome do seu provedor. Auto-registro de novos usuários, exigência de email verificado e mapeamento de grupos do provedor para papéis são todos configuráveis; veja o `.env.example` no repositório para a lista completa de opções `OIDC_*`.
+
+### Vinculando contas existentes
+
+Uma conta que já existe no Securo, criada com senha, nunca é vinculada a uma identidade OIDC automaticamente. O primeiro login por SSO desse usuário é recusado até você escolher uma política de vínculo com `OIDC_EXISTING_USER_LINK_MODE`:
+
+| Valor | Comportamento |
+|-------|---------------|
+| `disabled` (padrão) | Nunca vincula. Contas existentes continuam usando login com senha. |
+| `verified_email` | Vincula a conta existente quando o provedor envia `email_verified=true` para o mesmo email. |
+| `email` | Vincula só pelo email igual, mesmo sem `email_verified`. |
+
+Use `verified_email` para migrar seus usuários existentes para SSO sem recriar contas e dados. Só escolha `email` se você confia que o provedor é dono de todo endereço que ele afirma, já que qualquer pessoa que consiga definir um email lá poderia reivindicar a conta correspondente no Securo. Uma identidade OIDC já vinculada a outra conta é sempre recusada, em qualquer modo.
 
 ## Senhas
 
