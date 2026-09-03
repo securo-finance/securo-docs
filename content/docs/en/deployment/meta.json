@@ -4,6 +4,7 @@
     "index",
     "docker",
     "kubernetes",
-    "kubernetes-prod"
+    "kubernetes-prod",
+    "railway"
   ]
 }
