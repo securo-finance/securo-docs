@@ -20,7 +20,7 @@ Confira [a página de releases](https://github.com/securo-finance/securo/release
 
 ## O Que o Chart Implanta
 
-- **Backend** (FastAPI) com a migração do banco rodando na inicialização
+- **Backend** (FastAPI) e um Job automatizado de migração do banco
 - **Frontend** (nginx servindo o app compilado, com proxy de `/api` para o backend)
 - **Celery worker e beat** para os jobs em background
 - **PostgreSQL** e **Redis**, embutidos e habilitados por padrão
@@ -53,7 +53,11 @@ helm show values oci://ghcr.io/securo-finance/charts/securo --version 0.14.0
 helm upgrade securo oci://ghcr.io/securo-finance/charts/securo --version <NOVA_VERSAO>
 ```
 
-As migrações do banco rodam automaticamente quando o novo backend sobe. Faça backup do banco antes de atualizar, como em qualquer método de deploy.
+As migrações do banco rodam automaticamente por um hook do Helm na instalação e na atualização. Faça backup do banco antes de atualizar, como em qualquer método de deploy.
+
+## Deploys de Produção
+
+Para clusters de produção que precisam de PostgreSQL externo (com `pgvector`), Redis externo, gestão de segredos via `existingSecret`, TLS automatizado com Ingress ou Gateway API e `cert-manager`, e autoscaling horizontal de pods, veja o guia **[Kubernetes (Helm) Produção](/pt-BR/docs/deployment/kubernetes-prod)**.
 
 ## Código do Chart
 

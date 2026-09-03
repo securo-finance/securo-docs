@@ -1,0 +1,274 @@
+---
+title: Kubernetes (Helm) Produção
+description: Faça o deploy do Securo com segurança em um cluster Kubernetes de produção, com bancos externos, gestão de segredos, Ingress/TLS e autoscaling.
+---
+
+Ao levar o Securo para um cluster Kubernetes de produção, recomendamos fortemente não deixar segredos em texto puro no `values.yaml`, e sim usar gestão externa de segredos, bancos gerenciados ou em cluster, TLS automatizado com Ingress ou Gateway API, e autoscaling habilitado.
+
+Para testes locais ou uma visão geral do Helm chart, veja antes o guia [Kubernetes (Helm)](/pt-BR/docs/deployment/kubernetes).
+
+## 1. Gestão de Segredos (`existingSecret`)
+
+Em produção, evite colocar credenciais sensíveis (como `SECRET_KEY`, credenciais do banco ou chaves de API) direto no `values.yaml` ou no repositório Git. Em vez disso, crie um `Secret` do Kubernetes por fora, ou gerencie com ferramentas como **External Secrets Operator**, **Sealed Secrets** ou **HashiCorp Vault**.
+
+### Crie o Secret
+Crie um `securo-secrets.yaml` com as credenciais de produção:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: securo-secrets
+  namespace: default
+type: Opaque
+stringData:
+  SECRET_KEY: "sua-chave-secreta-aleatoria-e-forte"
+  DATABASE_URL: "postgresql+asyncpg://securo_user:senha_forte@postgres-ha.database.svc.cluster.local:5432/securo"
+  # Integrações opcionais
+  PLUGGY_CLIENT_ID: "seu-pluggy-client-id"
+  PLUGGY_CLIENT_SECRET: "seu-pluggy-client-secret"
+  OPENEXCHANGERATES_APP_ID: "seu-openexchangerates-app-id"
+  AGENTS_OPENAI_API_KEY: "sua-chave-de-api-da-openai"
+```
+
+Aplique no cluster:
+
+```bash
+kubectl apply -f securo-secrets.yaml
+```
+
+### Passe o Secret para o Helm
+Diga ao release do Helm para consumir o secret existente:
+
+```bash
+helm install securo oci://ghcr.io/securo-finance/charts/securo \
+  --version 0.14.0 \
+  --set global.existingSecret=securo-secrets \
+  --set global.domain=securo.seudominio.com
+```
+
+---
+
+## 2. Bancos Externos (PostgreSQL e Redis)
+
+Por padrão, o chart sobe StatefulSets de instância única para PostgreSQL e Redis. Para alta disponibilidade e gestão de backup em produção, desabilite os bancos internos e conecte o Securo a serviços gerenciados na nuvem (por exemplo AWS RDS / ElastiCache, GCP Cloud SQL / Memorystore) ou a operadores de alta disponibilidade dentro do cluster.
+
+```bash
+helm install securo oci://ghcr.io/securo-finance/charts/securo \
+  --version 0.14.0 \
+  --set postgresql.enabled=false \
+  --set redis.enabled=false \
+  --set config.redisUrl="redis://redis-ha.database.svc.cluster.local:6379/0" \
+  --set config.celeryBrokerUrl="redis://redis-ha.database.svc.cluster.local:6379/0" \
+  --set config.celeryResultBackend="redis://redis-ha.database.svc.cluster.local:6379/0" \
+  --set global.existingSecret=securo-secrets \
+  --set global.domain=securo.seudominio.com
+```
+
+*(Garanta que `DATABASE_URL` esteja definida dentro do seu secret `securo-secrets`.)*
+
+<Callout type="warn">
+### Requisito do `pgvector` no PostgreSQL
+
+O Securo depende da extensão `pgvector` para embeddings vetoriais, agentes financeiros e busca semântica em documentos. O seu PostgreSQL externo **precisa** ter a extensão `pgvector` instalada. Rode o comando abaixo no banco antes de subir o Securo:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+</Callout>
+
+<Callout>
+### Nota sobre a Arquitetura do Redis
+
+O Securo se conecta a um único endpoint Redis para cache, rate limiting e broker de tasks do Celery. Instâncias Redis standalone ou expostas por um único endpoint/proxy (como o AWS ElastiCache com Cluster Mode desabilitado) são suportadas. **Redis Sentinel e Redis Cluster (modo multi-shard) não são suportados.**
+</Callout>
+
+---
+
+## 3. Alta Disponibilidade e Armazenamento
+
+### Armazenamento Compartilhado (`ReadWriteMany` / RWX)
+
+Por padrão, o Helm chart habilita um PersistentVolumeClaim para anexos (`persistence.attachments.enabled=true`) usando armazenamento `ReadWriteOnce` (RWO).
+
+Os arquivos de anexo (assim como os arquivos da base de conhecimento dos agentes e os modelos de embedding, se o recurso de agentes de IA estiver habilitado) são compartilhados simultaneamente entre os pods do **Backend**, do **Celery Worker** e do **MCP Server**.
+
+Se os seus pods forem agendados em nós diferentes, você precisa configurar uma storage class que suporte o modo de acesso `ReadWriteMany` (RWX), como NFS, CephFS, AWS EFS ou GCP Filestore:
+
+```yaml
+# values-production.yaml
+persistence:
+  attachments:
+    enabled: true
+    storageClass: "nfs-client" # ex.: efs-sc, cephfs, ou a sua storage class RWX
+    accessMode: ReadWriteMany
+    size: 10Gi
+  agentKnowledge:
+    enabled: true
+    storageClass: "nfs-client"
+    accessMode: ReadWriteMany
+    size: 10Gi
+```
+
+<Callout type="warn">
+Armazenamento `ReadWriteOnce` (RWO) só funciona se todos os pods que montam o volume forem agendados no mesmo nó.
+</Callout>
+
+### Celery Beat como Instância Única
+
+Enquanto os pods de Backend e de Celery Worker escalam horizontalmente, o **Celery Beat precisa rodar como instância única** (exatamente 1 réplica) para evitar agendamentos duplicados em segundo plano, como jobs repetidos de sincronização bancária. O Helm chart aplica essa restrição automaticamente.
+
+---
+
+## 4. Exemplo Funcional de Ingress + cert-manager
+
+O Securo roteia todo o tráfego de API pelo contêiner do frontend internamente, então o seu controlador de Ingress só precisa expor o caminho raiz (`/`) para o serviço de frontend.
+
+### Passo 1: Configure o ClusterIssuer do cert-manager
+Se você usa o [cert-manager](https://cert-manager.io/), crie um `ClusterIssuer` de produção do Let's Encrypt:
+
+```yaml
+# cluster-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: admin@seudominio.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+```
+
+```bash
+kubectl apply -f cluster-issuer.yaml
+```
+
+### Passo 2: Faça o deploy do Securo com Ingress e TLS
+
+```bash
+helm install securo oci://ghcr.io/securo-finance/charts/securo \
+  --version 0.14.0 \
+  --set global.domain=securo.seudominio.com \
+  --set global.tls=true \
+  --set ingress.enabled=true \
+  --set ingress.className=nginx \
+  --set ingress.annotations."cert-manager\.io/cluster-issuer"=letsencrypt-prod \
+  --set ingress.tls[0].secretName=securo-tls-cert \
+  --set "ingress.tls[0].hosts[0]=securo.seudominio.com" \
+  --set global.existingSecret=securo-secrets
+```
+
+---
+
+## 5. Alternativa com Gateway API (`HTTPRoute`)
+
+Se o seu cluster usa a [Gateway API](https://gateway-api.sigs.k8s.io/) moderna do Kubernetes (por exemplo com Cilium, Envoy Gateway ou Istio), você pode configurar um `HTTPRoute` no lugar de um Ingress.
+
+### Passo 1: Configure o recurso Gateway com TLS
+Crie um `Gateway` configurado com o `cert-manager` para emissão automática de certificados:
+
+```yaml
+# gateway.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: external-gateway
+  namespace: default
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  gatewayClassName: cilium # ou a sua gateway class
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "securo.seudominio.com"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: securo-gateway-tls
+```
+
+```bash
+kubectl apply -f gateway.yaml
+```
+
+### Passo 2: Faça o deploy do Securo com `HTTPRoute`
+
+```bash
+helm install securo oci://ghcr.io/securo-finance/charts/securo \
+  --version 0.14.0 \
+  --set global.domain=securo.seudominio.com \
+  --set global.tls=true \
+  --set ingress.enabled=false \
+  --set httpRoute.enabled=true \
+  --set "httpRoute.parentRefs[0].name=external-gateway" \
+  --set "httpRoute.parentRefs[0].namespace=default" \
+  --set global.existingSecret=securo-secrets
+```
+
+---
+
+## 6. Horizontal Pod Autoscaling (HPA)
+
+Para lidar com picos de tráfego em produção de forma dinâmica, habilite o Horizontal Pod Autoscaling. O Helm chart cria recursos `HorizontalPodAutoscaler` para todos os componentes escaláveis (Frontend, Backend, Celery Worker e MCP Server), mantendo o agendador Celery Beat como instância única.
+
+<Callout>
+O HPA exige um `metrics-server` instalado no cluster (por exemplo via `kube-prometheus-stack` ou o `metrics-server` avulso).
+</Callout>
+
+### Habilite o HPA no `values-production.yaml`
+
+```yaml
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+```
+
+Faça o deploy com autoscaling habilitado:
+
+```bash
+helm install securo oci://ghcr.io/securo-finance/charts/securo \
+  --version 0.14.0 \
+  -f values-production.yaml
+```
+
+---
+
+## 7. Migrations Automatizadas do Banco
+
+O Helm chart inclui um `Job` de migration do banco já configurado, anotado com hooks de `post-install` e `post-upgrade`:
+
+```yaml
+annotations:
+  "helm.sh/hook": post-install,post-upgrade
+  "helm.sh/hook-weight": "5"
+  "helm.sh/hook-delete-policy": hook-succeeded
+```
+
+Como esse job é configurado como hook de `post-install` e `post-upgrade`, ele roda o `alembic upgrade head` com lógica de retry embutida depois que os novos pods sobem, tanto na instalação quanto nas atualizações.
+
+---
+
+## 8. Atualizando em Produção
+
+Para atualizar um deploy de produção existente para uma nova release:
+
+```bash
+# 1. Sempre faça backup do seu banco externo primeiro
+pg_dump -U securo_user -h postgres-ha -d securo > securo-pre-upgrade-$(date +%Y%m%d).sql
+
+# 2. Atualize o release do Helm
+helm upgrade securo oci://ghcr.io/securo-finance/charts/securo \
+  --version <NOVA_VERSAO> \
+  -f values-production.yaml
+```
