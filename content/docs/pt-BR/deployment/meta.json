@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "docker",
-    "kubernetes"
+    "kubernetes",
+    "railway"
   ]
 }

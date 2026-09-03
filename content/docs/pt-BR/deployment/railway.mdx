@@ -1,0 +1,243 @@
+---
+title: Railway
+description: Faça o deploy do Securo na Railway, um serviço para cada serviço do Compose.
+---
+
+A [Railway](https://railway.com) não executa arquivos `docker-compose.yml`. Cada serviço do `docker-compose.prod.yml` vira um serviço separado na Railway, todos construídos a partir do mesmo repositório. Você termina com cinco serviços, ou seis se também rodar o servidor MCP dos agentes.
+
+Dá para arrastar um arquivo Compose para o canvas do projeto, mas a importação ignora `command`, `depends_on`, `profiles`, âncoras YAML (`x-backend-env`) e interpolação `${VAR:-default}`, e a Railway permite apenas um volume por serviço. Com este arquivo Compose, sai mais rápido criar os serviços na mão.
+
+Ao longo deste guia, `${{service.VAR}}` é a sintaxe de referência da própria Railway, resolvida no momento do deploy. Usar referências em vez de valores colados é o que mantém os serviços consistentes quando uma senha ou um domínio muda.
+
+<Callout type="warn">
+  A rede privada da Railway é somente IPv6. Todo serviço que os outros precisam alcançar deve escutar em `::`, não em `0.0.0.0`. Esse é o motivo mais comum de um deploy na Railway parecer saudável mas não conseguir falar consigo mesmo.
+</Callout>
+
+## Passos de Deploy
+
+### 1. Bancos de Dados
+
+1. **New Project, depois Empty project**.
+2. **+ New, Template, "Postgres with pgvector"**. Este guia assume que o serviço se chama **`pgvector`**; se você usar outro nome, ajuste as referências `${{pgvector.*}}` abaixo. O Postgres padrão da Railway não traz extensões, e a migration `046_agents_foundation` exige o pgvector, então o backend não sobe contra ele.
+3. **+ New, Database, Redis**, com o nome `Redis`.
+
+O backend precisa do esquema `postgresql+asyncpg://`, mas a `DATABASE_URL` da própria Railway usa `postgresql://` puro. Em vez de reescrever isso em cada consumidor, defina as duas formas uma única vez **no próprio serviço `pgvector`** (aba Variables), onde os valores `POSTGRES_*` e `RAILWAY_*` estão em escopo sem prefixo de serviço:
+
+```
+DATABASE_URL="postgresql+asyncpg://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_TCP_PROXY_DOMAIN}}:${{RAILWAY_TCP_PROXY_PORT}}/railway"
+DATABASE_URL_PRIVATE="postgresql+asyncpg://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{RAILWAY_PRIVATE_DOMAIN}}:5432/${{POSTGRES_DB}}"
+```
+
+- `DATABASE_URL_PRIVATE` passa pela rede interna: sem custo de egress, sem exposição pública. Prefira essa.
+- `DATABASE_URL` passa pelo **proxy TCP público** da Railway. Exige que o banco tenha endpoint público habilitado e cobra egress. É o fallback para o que não alcança a rede privada.
+
+<Callout type="warn">
+  **As duas precisam apontar para o mesmo banco.** `railway` é o nome padrão do banco nos templates de Postgres da Railway, então `${{POSTGRES_DB}}` normalmente resolve exatamente para isso. Se você renomeou o banco, o `/railway` fixo acima passa a ser outro, e o backend e o worker vão ler e gravar em conjuntos de dados separados sem avisar.
+</Callout>
+
+### 2. Variáveis Compartilhadas
+
+Em **Project Settings, Shared Variables**, defina os valores com que todos os serviços devem concordar:
+
+```
+SECRET_KEY="(gere com: openssl rand -base64 32)"
+AGENTS_MCP_JWT_SECRET="(gere com: openssl rand -base64 32)"
+STORAGE_LOCAL_PATH="/app/data/attachments"
+AGENTS_KNOWLEDGE_STORAGE_PATH="/app/data/agent_knowledge"
+OIDC_ENABLED="true"
+OIDC_PROVIDER_NAME="OpenID"
+OIDC_DISCOVERY_URL="https://id.dominio.com/.well-known/openid-configuration"
+OIDC_CLIENT_ID="..."
+OIDC_CLIENT_SECRET="..."
+OIDC_SCOPES="openid email profile"
+OIDC_AUTO_REGISTER="true"
+OIDC_REQUIRE_VERIFIED_EMAIL="true"
+PLUGGY_CLIENT_ID="..."
+PLUGGY_CLIENT_SECRET="..."
+```
+
+Troque as linhas com `openssl` por valores realmente gerados, porque a Railway não executa comandos de shell dentro de variáveis.
+
+`DATABASE_URL` e `REDIS_URL` propositalmente **não** são compartilhadas: o backend e o worker apontam para endpoints diferentes, então cada serviço define a sua.
+
+Os blocos `OIDC_*` e `PLUGGY_*` são exemplos. Mantenha apenas as integrações que você realmente usa. Para o Enable Banking não há arquivo para montar na Railway, então use `ENABLE_BANKING_PRIVATE_KEY` com o PEM como texto (com `\n` escapado) em vez de `ENABLE_BANKING_PRIVATE_KEY_FILE`.
+
+Variáveis compartilhadas não são injetadas automaticamente. Cada serviço precisa referenciar as que usa, que é o papel das linhas `${{shared.*}}` abaixo.
+
+### 3. Backend
+
+- **Source:** seu repositório no GitHub. **Settings, Source, Root Directory:** `backend`.
+- **Custom Start Command:**
+
+  ```
+  sh -c "alembic upgrade head && uvicorn app.main:app --host :: --port 8000"
+  ```
+
+  O `--host ::` é obrigatório, porque um serviço escutando em `0.0.0.0` fica inalcançável pelos outros na rede privada IPv6 da Railway.
+- **Volume:** um, montado em `/app/data`. A Railway permite um volume por serviço, e os três caminhos de dados do backend (`attachments`, `agent_knowledge`, `embedding_models`) ficam abaixo dele.
+- **Sem domínio público.** O frontend faz proxy para ele pela rede privada.
+
+```
+DATABASE_URL="${{pgvector.DATABASE_URL_PRIVATE}}"
+REDIS_URL="${{Redis.REDIS_URL}}"
+FRONTEND_URL="https://${{frontend.RAILWAY_PUBLIC_DOMAIN}}"
+SECRET_KEY="${{shared.SECRET_KEY}}"
+STORAGE_LOCAL_PATH="${{shared.STORAGE_LOCAL_PATH}}"
+AGENTS_KNOWLEDGE_STORAGE_PATH="${{shared.AGENTS_KNOWLEDGE_STORAGE_PATH}}"
+AGENTS_MCP_JWT_SECRET="${{shared.AGENTS_MCP_JWT_SECRET}}"
+OIDC_ENABLED="${{shared.OIDC_ENABLED}}"
+OIDC_PROVIDER_NAME="${{shared.OIDC_PROVIDER_NAME}}"
+OIDC_DISCOVERY_URL="${{shared.OIDC_DISCOVERY_URL}}"
+OIDC_CLIENT_ID="${{shared.OIDC_CLIENT_ID}}"
+OIDC_CLIENT_SECRET="${{shared.OIDC_CLIENT_SECRET}}"
+OIDC_SCOPES="${{shared.OIDC_SCOPES}}"
+OIDC_AUTO_REGISTER="${{shared.OIDC_AUTO_REGISTER}}"
+OIDC_REQUIRE_VERIFIED_EMAIL="${{shared.OIDC_REQUIRE_VERIFIED_EMAIL}}"
+PLUGGY_CLIENT_ID="${{shared.PLUGGY_CLIENT_ID}}"
+PLUGGY_CLIENT_SECRET="${{shared.PLUGGY_CLIENT_SECRET}}"
+```
+
+`FRONTEND_URL` referencia o domínio gerado do serviço de frontend em vez de uma string colada, então continua funcionando se esse domínio mudar. O backend usa esse valor para CORS, para o callback OAuth dos bancos e para o redirect do OIDC.
+
+### 4. Worker
+
+Mesmo repositório, **Root Directory `backend`**, sem volume e sem domínio.
+
+**Custom Start Command:**
+
+```
+celery -A app.worker worker -B --loglevel=info --concurrency=2
+```
+
+O `-B` roda o beat dentro do worker, então os serviços `celery-worker` e `celery-beat` do Compose viram um único serviço na Railway.
+
+```
+DATABASE_URL="${{pgvector.DATABASE_URL}}"
+REDIS_URL="${{Redis.REDIS_URL}}"
+SECRET_KEY="${{shared.SECRET_KEY}}"
+STORAGE_LOCAL_PATH="${{shared.STORAGE_LOCAL_PATH}}"
+AGENTS_KNOWLEDGE_STORAGE_PATH="${{shared.AGENTS_KNOWLEDGE_STORAGE_PATH}}"
+AGENTS_MCP_JWT_SECRET="${{shared.AGENTS_MCP_JWT_SECRET}}"
+PLUGGY_CLIENT_ID="${{shared.PLUGGY_CLIENT_ID}}"
+PLUGGY_CLIENT_SECRET="${{shared.PLUGGY_CLIENT_SECRET}}"
+```
+
+Três coisas diferem do backend, todas propositais:
+
+- **`DATABASE_URL` usa a forma do proxy TCP público**, não a `DATABASE_URL_PRIVATE`. Troque pela privada se o worker alcançar o banco pela rede interna no seu projeto, já que é mais rápido e evita cobrança de egress. Mantenha a pública como fallback.
+- **Sem `FRONTEND_URL`.** O worker não precisa. Suas tasks do Celery só chegam até a sincronização de conexões, e todo caminho de código que deriva uma URL a partir de `FRONTEND_URL` (CORS, as URLs de OAuth e de reautenticação dos bancos, o callback do OIDC) é acionado por requisição e vive no serviço de API.
+- **Sem volume.** Volumes da Railway não podem ser compartilhados entre serviços, então o worker não enxerga `/app/data`. Isso não é problema para as tasks agendadas como estão hoje.
+
+`PLUGGY_*` é realmente necessário aqui, porque este é o serviço que de fato sincroniza as conexões.
+
+### 5. Frontend
+
+- Mesmo repositório, **Root Directory:** `frontend`.
+- **Networking, Generate Domain**, e então **defina a porta alvo como 8080**.
+
+<Callout type="warn">
+  A porta alvo é a configuração mais fácil de errar. `8080` é a porta do contêiner. O `3000` do `docker-compose.prod.yml` é uma porta de *host*, que não existe na Railway, e apontar o domínio para ela faz a borda da Railway retornar **502 Bad Gateway em todos os caminhos**, inclusive em `/`, mesmo com os logs do nginx parecendo perfeitamente saudáveis.
+</Callout>
+
+```
+BACKEND_URL="http://${{backend.RAILWAY_PRIVATE_DOMAIN}}:8000"
+FRONTEND_URL="https://${{RAILWAY_PUBLIC_DOMAIN}}"
+```
+
+`RAILWAY_PUBLIC_DOMAIN` sem prefixo de serviço é o domínio do próprio serviço.
+
+Você não precisa definir `NGINX_RESOLVER`. A imagem do frontend deriva o resolver de DNS do próprio `/etc/resolv.conf` do contêiner na inicialização, que na Railway já resulta em `[fd12::10]`. Defina explicitamente apenas para sobrepor essa detecção, ou ao rodar uma imagem publicada mais antiga que ainda fixa o `127.0.0.11` do Docker, o que retorna 502 em toda requisição `/api/` na Railway:
+
+```
+NGINX_RESOLVER="[fd12::10] ipv6=on"
+```
+
+### 6. Ordem de Subida e Verificação
+
+Suba `pgvector` e `Redis`, depois o `backend`, cujo comando de start roda as migrations. Uma falha de `pgvector is not installed` aqui significa template de Postgres errado. Em seguida suba `worker` e `frontend`.
+
+- `https://<dominio>/` mostra a tela de login.
+- `https://<dominio>/api/docs` mostra a documentação do FastAPI, provando que o proxy do nginx alcança o backend.
+
+Um 502 em `/` é problema de borda ou de porta alvo, não do nginx: aquele location é um `try_files` simples, sem upstream, e não consegue emitir um 502 sozinho. Um 502 apenas em `/api/` aponta para `BACKEND_URL`, ou para o backend não estar escutando em `::`.
+
+## Opcional: Servidor MCP dos Agentes
+
+O servidor MCP é uma segunda aplicação FastAPI dentro da mesma imagem do backend: JSON-RPC 2.0 em `POST /mcp`, mais `GET /health`. Ele expõe cerca de 30 ferramentas do Securo, tanto de leitura (`list_transactions`, `get_net_worth`, `get_dashboard_snapshot`, `search_all`, `aggregate`, `get_group_balances`) quanto de escrita, que apenas criam uma proposta para você aprovar na interface (`propose_create_transaction`, `propose_categorize`, `propose_create_budget`).
+
+Ele não tem sessão nem cookie. Toda chamada carrega `Authorization: Bearer <JWT>`, verificado contra `AGENTS_MCP_JWT_SECRET` (HS256, `iss=securo-backend`, `aud=securo-mcp`), e as claims `sub` e `ws_id` do token são o que delimita os dados. Duas coisas emitem esse token, ambas no backend: o runtime dos agentes, por chamada, com TTL de 600 segundos; e **Agentes, Conexões, Acesso MCP externo** na interface, com TTL de 90 dias (`AGENTS_MCP_EXTERNAL_TTL_DAYS`) para Claude Desktop, Claude Code, Cursor, n8n ou a API de Responses da OpenAI.
+
+### O Serviço
+
+Mesmo repositório, **Root Directory `backend`**, sem volume.
+
+**Custom Start Command:**
+
+```
+uvicorn mcp_server.main:app --host :: --port 8765
+```
+
+**Networking, Generate Domain, porta alvo 8765.** O domínio só é necessário para clientes externos, já que o próprio backend alcança este serviço pela rede privada. Mesma armadilha do frontend: `8765` é a porta do *contêiner*, e a borda da Railway continua servindo o domínio na 443, então clientes externos usam `https://<dominio-mcp>/mcp`, nunca `:8765`.
+
+```
+DATABASE_URL="${{pgvector.DATABASE_URL_PRIVATE}}"
+REDIS_URL="${{Redis.REDIS_URL}}"
+AGENTS_ENABLED="true"
+AGENTS_MCP_JWT_SECRET="${{shared.AGENTS_MCP_JWT_SECRET}}"
+AGENTS_KNOWLEDGE_STORAGE_PATH="${{shared.AGENTS_KNOWLEDGE_STORAGE_PATH}}"
+SECRET_KEY="${{shared.SECRET_KEY}}"
+```
+
+As ferramentas consultam o banco diretamente, e por isso `DATABASE_URL` não é opcional aqui. Um secret diferente do secret do backend é a falha mais comum: produz 401 em toda chamada, sem mais nada de errado.
+
+### O Que o Backend e o Worker Precisam
+
+No **`backend`**:
+
+```
+AGENTS_ENABLED="true"
+AGENTS_BUILTIN_MCP_URL="http://${{mcp-server.RAILWAY_PRIVATE_DOMAIN}}:8765/mcp"
+AGENTS_EXTERNAL_MCP_URL="https://${{mcp-server.RAILWAY_PUBLIC_DOMAIN}}/mcp"
+```
+
+`AGENTS_ENABLED` é a chave mestra: todo o router `/api/agents` só é montado quando ela está ligada, então sem ela o endpoint de token retorna 404 e a página de Conexões não tem com quem conversar.
+
+`AGENTS_EXTERNAL_MCP_URL` é a que falha em silêncio. Ela é apenas um valor de exibição, a URL que o painel de token coloca nos trechos de configuração que entrega para você. Vazia, o frontend cai no fallback de derivar `<protocolo>//<hostname>:8765/mcp` a partir da URL do navegador, o que está certo para Docker Compose e errado na Railway, onde nada escuta na 8765 na borda. A configuração copiada então aponta para lugar nenhum enquanto o servidor está perfeitamente saudável.
+
+<Callout>
+  Não há como servir o MCP a partir do domínio do frontend. O nginx dele faz proxy apenas de `/api/`, então o serviço MCP precisa de um domínio próprio.
+</Callout>
+
+No **`worker`**, apenas `AGENTS_ENABLED="true"`. Sua única task de agentes é a ingestão da base de conhecimento, que nunca chama o servidor MCP, então `AGENTS_BUILTIN_MCP_URL` ali seria configuração morta.
+
+### Verificando o Servidor MCP
+
+`https://<dominio-mcp>/health` deve retornar algo como `{"status":"ok","tools":29}`.
+
+Depois emita um token na interface (**Agentes, Conexões, Acesso MCP externo**, que exige acesso de escrita ao workspace, porque o conjunto de ferramentas pode criar propostas) e chame o servidor com ele:
+
+```bash
+curl -X POST https://<dominio-mcp>/mcp \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+O painel também imprime uma configuração pronta para cada cliente. Para Claude Desktop, Claude Code e Cursor, é:
+
+```json
+{
+  "mcpServers": {
+    "securo": {
+      "url": "https://<dominio-mcp>/mcp",
+      "headers": { "Authorization": "Bearer <token>" }
+    }
+  }
+}
+```
+
+Um token fica vinculado ao workspace que estava ativo quando ele foi emitido. Para um segundo workspace, troque na interface e emita de novo.
+
+### Limitações Conhecidas na Railway
+
+- **A ingestão da base de conhecimento não funciona com o arranjo acima.** O endpoint de upload grava o arquivo no volume do backend (`/app/data/agent_knowledge`) e despacha a task de ingestão para o worker, que tenta lê-lo de volta pelo caminho. O worker não tem volume, então a leitura falha e o documento fica em `failed`. O chat e todas as ferramentas que não são de conhecimento seguem funcionando. Resolver isso passa por dar à ingestão um armazenamento que os dois serviços enxerguem.
+- **Sem volume no serviço MCP**, `AGENTS_EMBEDDING_PROVIDER=native` rebaixa o modelo do fastembed (cerca de 100 MB) para `/app/data/embedding_models` a cada cold start. Isso afeta apenas `search_knowledge_base`, que por sua vez só roda dentro de uma conversa com agente, já que um token externo nunca chega até ela. Monte um volume em `/app/data` aqui também, ou troque para `openai` ou `ollama`, se isso te incomodar.
