@@ -20,7 +20,7 @@ Check [the releases page](https://github.com/securo-finance/securo/releases) for
 
 ## What the Chart Deploys
 
-- **Backend** (FastAPI) with the database migration run as part of startup
+- **Backend** (FastAPI) and automated database migration Job
 - **Frontend** (nginx serving the built app, proxying `/api` to the backend)
 - **Celery worker and beat** for background jobs
 - **PostgreSQL** and **Redis**, bundled and enabled by default
@@ -53,7 +53,11 @@ helm show values oci://ghcr.io/securo-finance/charts/securo --version 0.14.0
 helm upgrade securo oci://ghcr.io/securo-finance/charts/securo --version <NEW_VERSION>
 ```
 
-Database migrations run automatically when the new backend starts. Back up your database before upgrading, as with any deployment method.
+Database migrations run automatically via a Helm hook on install and upgrade. Back up your database before upgrading, as with any deployment method.
+
+## Production Deployments
+
+For production clusters requiring external PostgreSQL (`pgvector`), external Redis, secrets management via `existingSecret`, automated Ingress / Gateway API TLS with `cert-manager`, and horizontal pod autoscaling, see the **[Kubernetes (Helm) Production](/docs/deployment/kubernetes-prod)** guide.
 
 ## Chart Source
 
