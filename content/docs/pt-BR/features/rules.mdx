@@ -11,8 +11,8 @@ As regras são um dos recursos mais poderosos do Securo. Elas atribuem categoria
 
 Cada regra é composta de:
 
-1. **Uma ou mais condições**, combinadas com **E** (todas precisam corresponder) ou **OU** (qualquer uma basta)
-2. **Ações**: definir uma categoria, definir um beneficiário, ou ambos
+1. **Uma ou mais condições**, combinadas com **E** (todas precisam corresponder) ou **OU** (qualquer uma basta), opcionalmente organizadas em **grupos** com operador próprio
+2. **Ações**: definir uma categoria, definir uma pessoa, definir a descrição, adicionar tags ou notas, ou marcar a transação como ignorada
 3. **Uma prioridade**: regras com número de prioridade **menor** rodam primeiro
 
 Quando uma transação é adicionada (manualmente, via importação ou pela sincronização bancária), o Securo a avalia contra todas as regras **ativas** em ordem de prioridade. Todas as regras que corresponderem aplicam suas ações, com uma proteção: a **categoria só é definida uma vez**. A primeira regra que atribuir uma categoria vence e as seguintes nunca a sobrescrevem; ações de beneficiário de regras posteriores ainda se aplicam.
@@ -21,11 +21,22 @@ Quando uma transação é adicionada (manualmente, via importação ou pela sinc
 
 Uma condição mira um campo da transação e o compara com um operador:
 
-- **Campos**: Descrição, Notas, Valor, Tipo (receita/despesa), Conta, Beneficiário, Data
+- **Campos**: Descrição, Pessoa importada (a contraparte exatamente como o banco enviou), Notas, Valor, Tipo (receita/despesa), Conta, Pessoa, Data
 - **Operadores de texto**: contém, não contém, começa com, termina com, é igual a, é diferente de, e regex para padrões complexos (ex.: `descrição regex "SALARIO|PAGAMENTO|FOLHA"`). A correspondência de texto ignora maiúsculas/minúsculas e acentos.
 - **Operadores de valor e data**: igual, maior que, maior ou igual, menor que, menor ou igual
 
-Valores de condição em branco são rejeitados ao salvar: um padrão vazio corresponderia a todas as transações, o que nunca é o que você quer.
+Valores de condição em branco são rejeitados ao salvar: um padrão vazio corresponderia a todas as transações, o que nunca é o que você quer. Um regex que não compila, ou que casa com a string vazia, é recusado pelo mesmo motivo.
+
+### Grupos de Condições
+
+Quando E e OU têm cada um o seu papel, clique em **Adicionar grupo**. Um grupo junta suas próprias condições com E ou OU, e a regra junta os grupos do outro jeito, então `contém "UBER" E (contém "EATS" OU contém "FOOD")` é uma regra em vez de três. Grupos podem ser aninhados.
+
+### Ações
+
+- **Definir categoria** e **Definir pessoa** são as do dia a dia
+- **Definir descrição** substitui o texto importado por algo legível (`PAG*NetflixCom 4823` vira `Netflix`). O texto original do banco fica guardado na transação, então uma condição sobre *Pessoa importada* continua casando no mês seguinte
+- **Adicionar tags/notas** acrescenta hashtags ou uma nota (`#trabalho #reembolsavel`)
+- **Ignorar transação** marca a transação como ignorada, fora dos totais e relatórios mas ainda visível
 
 ## Criando uma Regra
 
@@ -34,9 +45,14 @@ Valores de condição em branco são rejeitados ao salvar: um padrão vazio corr
 3. Adicione uma ou mais condições (campo, operador, valor) e escolha **E** ou **OU** para combiná-las
 4. Defina as ações (atribuição de categoria, de beneficiário, ou ambas)
 5. Defina a prioridade (números menores são avaliados primeiro)
-6. Clique em **Salvar**. O Securo pergunta se você quer aplicar a regra também às transações existentes imediatamente
+6. Confira a **Pré-visualização**: o diálogo conta todas as transações que as condições alcançam, diz quantas de fato mudariam e lista as mais recentes com a categoria que receberiam, então uma regra larga demais é pega antes de rodar
+7. Clique em **Salvar**. O Securo pergunta se você quer aplicar a regra também às transações existentes imediatamente, e se deve substituir categorias já definidas
 
 Cada regra tem um botão de **ativa/inativa**, então você pode desabilitar uma temporariamente sem excluí-la.
+
+### A Partir de uma Transação
+
+O jeito mais rápido de escrever uma regra é a partir da transação que deveria ter casado com uma. No diálogo da transação, **Criar regra** abre o editor já com uma condição de descrição, e **Adicionar a regra existente** abre a regra escolhida no mesmo editor completo com a nova condição incluída, para você ajustar grupos, ações e prioridade antes de salvar.
 
 ## Pacotes de Regras
 
@@ -57,7 +73,11 @@ Isso é especialmente útil quando você:
 
 As regras são avaliadas do menor número de prioridade para o maior. Como a categoria fica com a primeira regra que corresponder, coloque as regras mais específicas em números baixos e as genéricas em números altos, para que uma regra genérica nunca reivindique uma transação antes de a mais precisa ter a chance.
 
-A página de regras permite ordenar por **Prioridade**, **Nome** ou **Categoria** para organizar sua lista.
+A página de regras permite ordenar por **Prioridade**, **Nome** ou **Categoria**, e uma lista longa pode ser reduzida buscando pelo nome ou filtrando por categoria, situação (ativa ou inativa) e ação.
+
+## Regras de Conciliação, Fila e Histórico
+
+A página de Regras tem mais duas abas, **Esperando você** e **Histórico**, e uma seção **Regras de conciliação** abaixo das regras de categorização. Elas pertencem à [conciliação de pagamentos](/pt-BR/docs/features/reconciliation): as regras que ligam um pagamento que entra à cobrança ou recorrente que ele quita, as perguntas que ela não conseguiu responder sozinha e o registro do que fez.
 
 ## Exemplos de Regras
 

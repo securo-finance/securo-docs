@@ -35,8 +35,9 @@ A persistência vem habilitada por padrão para o banco, os anexos e a base de c
 | `global.domain` | `securo.local` | Domínio público do app; as URLs de callback OAuth derivam dele |
 | `global.tls` | `false` | Se as URLs derivadas usam `https://` |
 | `secret.secretKey` | placeholder de dev | Chave de assinatura JWT. **Sempre defina a sua** |
-| `ingress.enabled` | `false` | Cria um Ingress para o frontend |
-| `httpRoute.enabled` | `false` | HTTPRoute da Gateway API, alternativa ao Ingress |
+| `ingress.enabled` | `false` | Cria um Ingress; `/api` vai direto para o backend, o resto para o frontend |
+| `httpRoute.enabled` | `false` | HTTPRoute da Gateway API, alternativa ao Ingress, com a mesma divisão de `/api` |
+| `frontend.backendUrl` | derivado | Para onde o nginx do frontend encaminha `/api`. O padrão é o nome completo do serviço do backend (`<release>-backend.<namespace>.svc.cluster.local`); sobrescreva num cluster com domínio fora do padrão |
 | `persistence.*` | habilitada | PVCs para banco, anexos e conhecimento dos agentes |
 | `config.agentsEnabled` | `"false"` | Recurso opcional de agentes de IA |
 | `postgresql.enabled` / `redis.enabled` | `true` | Desabilite para usar seu próprio banco ou Redis |

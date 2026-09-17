@@ -57,7 +57,11 @@ Clique em **+ Adicionar Transação** no canto superior direito. Preencha:
 
 As transações também suportam **anexos**: você pode anexar recibos ou notas fiscais a qualquer transação para fins de registro. Transações com anexo mostram um ícone de clipe na lista. O diálogo também pode **tornar a transação recorrente** na hora, criando uma agenda a partir do que você acabou de preencher.
 
-Transações individuais podem ser marcadas como **ignoradas**: elas continuam na lista com o valor acinzentado e um selo "Ignorada", mas ficam fora dos totais e relatórios, útil para reembolsos ou correções que você quer manter visíveis.
+Transações individuais podem ser marcadas como **ignoradas**: elas continuam na lista com o valor acinzentado e um selo "Ignorada", mas ficam fora dos totais e relatórios, útil para reembolsos ou correções que você quer manter visíveis. Uma opção mais leve é **Excluir dos relatórios**: a linha continua contando no saldo da conta, só deixa de ser receita ou despesa no dashboard e nos relatórios, para uma despesa do trabalho paga no cartão pessoal ou qualquer outra coisa que não é de fato um gasto seu.
+
+### Parcelas
+
+Uma compra parcelada pode ser registrada como uma só: informe o total, defina o **número de parcelas** (2 a 360) e a **frequência** (semanal, mensal, trimestral ou anual), e o Securo cria a série com cada parcela na sua data e o contador `3/12` na lista. Editar ou excluir uma delas pergunta até onde a mudança vai: **apenas esta**, **esta e as futuras** ou **todas as parcelas**.
 
 ### Duplicando uma Transação
 
@@ -72,7 +76,7 @@ Clicar no botão **Transferência** cria uma transação pareada especial entre 
 
 Transações de transferência ficam automaticamente vinculadas e marcadas com um selo de transferência. Elas não contam como receita nem despesa nos seus relatórios — é apenas dinheiro circulando entre suas próprias contas. Ao editar qualquer uma das pernas, o diálogo mostra exatamente qual transação está do outro lado (conta, data e valor), então um vínculo automático pode ser conferido de relance.
 
-Para **transferências entre moedas** (ex.: BRL para USD), o Securo pede os dois valores para registrar os valores corretos em cada moeda.
+Para **transferências entre moedas** (ex.: BRL para USD), o Securo pede os dois valores para registrar os valores corretos em cada moeda. Quando você já sabe quanto caiu do outro lado, digite o valor de destino em vez de deixar uma taxa de câmbio derivá-lo; cada perna passa a carregar o número exato que o banco mostrou.
 
 ### Vinculando e Desvinculando Transferências
 
@@ -94,6 +98,7 @@ A barra de filtros no topo oferece várias formas de refinar suas transações:
 - **Beneficiário**: filtre por estabelecimento ou pessoa
 - **Tipo**: mostre só entradas ou só despesas
 - **Status**: todas, só lançadas ou só pendentes
+- **Ocultar ignoradas**: tira as linhas ignoradas da lista
 - **Valor**: defina um valor mínimo e/ou máximo
 - **Período**: defina datas inicial e final com o seletor
 - **Tags**: filtre por hashtags usadas nas notas
@@ -113,4 +118,8 @@ Selecione várias transações com os checkboxes para mostrar a barra de ações
 - **Adicionar tags** à seleção
 - **Adicionar a um grupo** com uma regra de divisão
 - **Vincular** duas transações como um par de transferência
-- **Excluir** várias transações de uma vez
+- **Excluir** várias transações de uma vez, atrás de uma confirmação que diz o que vai embora. As contrapartes de transferência e os anexos são limpos junto
+
+## Perguntas da Conciliação
+
+Uma transação que pode quitar uma cobrança ou uma recorrente, mas que as [regras de conciliação](/pt-BR/docs/features/reconciliation) não conseguiram ligar sozinhas, carrega um selo **Pergunta**. Abra a fila em Regras para responder; uma transação que foi conciliada mostra a cobrança que quitou no lugar.

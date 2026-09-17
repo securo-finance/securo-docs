@@ -114,7 +114,15 @@ FRONTEND_URL=https://securo.seudominio.com
 
 Em seguida, reinicie o Securo: `docker compose -f docker-compose.prod.yml up -d`
 
+### Proxies e Limite de Requisições
+
+O backend limita por endereço do cliente o login e outros endpoints sensíveis. Atrás de um proxy reverso toda requisição chega vinda do proxy, então o backend precisa saber quantos proxies confiar antes de ler o endereço real do cliente em `X-Forwarded-For`. O Compose de produção já define `TRUSTED_PROXY_HOPS=1` para o nginx embutido; some um para cada proxy extra na frente dele (Caddy na frente do nginx embutido é `2`). Um valor maior que o número real de saltos deixa um cliente forjar o próprio endereço, então conte com cuidado.
+
+O nginx embutido resolve o backend pelo DNS da plataforma na inicialização, o que funciona igual em Docker, Podman e Kubernetes. Se a sua plataforma precisar de um resolvedor específico, defina `NGINX_RESOLVER` no serviço do frontend.
+
 ## Backups
+
+De dentro do app, **Backup** (no menu do usuário) baixa o workspace ativo como um zip de JSON puro, cada conta, transação e regra, opcionalmente **criptografado com senha** (AES-256, abre em qualquer compactador comum). Os passos abaixo são o backup do servidor da instância inteira, que é de onde você restaura.
 
 ### Backup do Banco de Dados
 

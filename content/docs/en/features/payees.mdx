@@ -9,11 +9,11 @@ Payees represent the merchants, companies, or people you transact with. Linking 
 
 ## Payee Types
 
-Securo supports three payee types:
+A payee is a **Person** (your landlord, a client who is an individual) or a **Company** (a store, a supplier, a business client). The type is optional; payees created by sync or import arrive without one.
 
-- **Merchant**: Stores, restaurants, and shops (e.g., Starbucks)
-- **Person**: People you pay or receive from (e.g., your landlord)
-- **Company**: Businesses and organizations (e.g., Amazon Prime)
+## Contacts and Tax IDs
+
+Beyond the name, a payee can hold the details that make it a real counterparty: **email**, **phone**, **address**, **website**, and any number of **tax IDs** typed by kind (CNPJ, CPF, NIF, VAT number, EIN, and the other registrations the workspace's tax jurisdiction offers). In a Business workspace these flow onto the [invoices](/docs/features/invoices) you issue to that payee.
 
 ## Viewing Payees
 
@@ -22,18 +22,18 @@ Navigate to **Payees** in the sidebar to see a searchable table of all your paye
 - **Favorite star**: Starred payees appear at the top
 - **Name**: The payee's display name
 - **Description**: Optional notes about the payee
-- **Type**: Merchant, Person, or Company
+- **Type**: Person or Company
 - **Transactions**: How many transactions are linked to this payee
 - **Actions**: Edit or delete the payee
 
-The list can be filtered by type and by favorites.
+The list can be sorted by name, type or transaction count (the choice is remembered), filtered by type and by favorites, and is paginated so a workspace with thousands of synced counterparties stays usable. Long names truncate rather than widen the table; hover to read the whole thing.
 
 ## Adding a Payee
 
 1. Click **+ Add Payee**
 2. Enter the payee name
 3. Add an optional description
-4. Select the type (Merchant, Person, or Company)
+4. Select the type (Person or Company) and, if you need them, the contact details and tax IDs
 5. Click **Save**
 
 ## Cleaning Up Payees
@@ -41,7 +41,9 @@ The list can be filtered by type and by favorites.
 Imports and bank sync can accumulate payees you'll never use. Two tools keep the list tidy:
 
 - **Bulk delete**: Select multiple rows with the checkboxes and a **Delete (N)** button appears; each row also has its own delete icon
-- **Merge**: Combine duplicate payees into one, moving all linked transactions to the payee you keep
+- **Merge**: Combine duplicate payees into one, moving all linked transactions to the payee you keep. Merging also works on a selection
+
+Names are unique per workspace, ignoring case and surrounding whitespace, so the same person cannot be created twice.
 
 ## Using Payees with Rules
 

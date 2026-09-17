@@ -114,7 +114,15 @@ FRONTEND_URL=https://securo.yourdomain.com
 
 Then restart Securo: `docker compose -f docker-compose.prod.yml up -d`
 
+### Proxies and Rate Limiting
+
+The backend rate-limits login and other sensitive endpoints per client address. Behind a reverse proxy every request arrives from the proxy, so the backend has to be told how many proxies to trust before reading the real client address from `X-Forwarded-For`. The production Compose file already sets `TRUSTED_PROXY_HOPS=1` for the bundled nginx; add one per extra proxy in front of it (Caddy in front of the bundled nginx is `2`). Setting it higher than the real number of hops lets a client forge its address, so count carefully.
+
+The bundled nginx resolves the backend through the platform's DNS at startup, which works on Docker, Podman and Kubernetes alike. If your platform needs a specific resolver, set `NGINX_RESOLVER` on the frontend service.
+
 ## Backups
+
+From inside the app, **Backup** (in the user menu) downloads the active workspace as a zip of plain JSON, every account, transaction and rule, optionally **encrypted with a password** (AES-256, opens in any standard archiver). The steps below are the server-side backup of the whole instance, which is what you restore from.
 
 ### Database Backup
 

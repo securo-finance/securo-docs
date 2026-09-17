@@ -7,7 +7,7 @@ Your Securo instance holds your complete financial history, so the login deserve
 
 ## Passkeys
 
-Passkeys let you sign in with your device's fingerprint reader, face unlock, or a hardware security key, no password typed. Register one from your account settings and the login page gains a **Continue with passkey** button.
+Passkeys let you sign in with your device's fingerprint reader, face unlock, or a hardware security key, no password typed. Register one from your account settings and the login page gains a **Continue with passkey** button; the browser also offers a saved passkey straight from the email field, the way it offers a saved password.
 
 - You can register multiple passkeys (laptop, phone, a backup hardware key) and remove any of them later
 - A passkey can also serve as the **second factor** for password logins, instead of an authenticator code
@@ -49,6 +49,10 @@ An account that already exists in Securo, created with a password, is never link
 
 Use `verified_email` to move your existing users to SSO without recreating their accounts and data. Only pick `email` if you trust your provider to own every address it asserts, since anyone able to set an email there could claim the matching Securo account. An OIDC identity already linked to another account is always rejected, in every mode.
 
+### OIDC Only
+
+To make the identity provider the only way in, set `LOCAL_AUTH_ENABLED=false`. Password and passkey sign-in are switched off along with every local-auth route behind them, and the login page shows only the provider button. Securo refuses to start with this setting unless OIDC is enabled, so a typo cannot lock everyone out. Users who had enrolled 2FA or passkeys before the switch can still remove them from their account settings; they just cannot add new ones.
+
 ## Passwords
 
-Password login is always available (unless you disable it via OIDC-only policies at your proxy). You can change your password from account settings, and workspace owners who create accounts for new members set only an initial password, which the member can change after their first login.
+Password login is available whenever local auth is on. You can change your password from account settings, and workspace owners who create accounts for new members set only an initial password, which the member can change after their first login.

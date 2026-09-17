@@ -5,6 +5,8 @@ description: Importe extratos bancários e histórico de transações de arquivo
 
 O recurso de importação do Securo permite trazer transações de extratos bancários e de outros softwares financeiros. É o jeito mais rápido de popular seu histórico, especialmente quando você está configurando o Securo pela primeira vez ou quando não tem a sincronização bancária ativada.
 
+A página de Importar tem duas abas: **Transações**, para extratos, e **Investimentos**, para exportações de ordens da corretora (veja [Ativos](/pt-BR/docs/features/assets)). Cada uma tem seu próprio histórico e seu próprio desfazer.
+
 ![Importar](/screenshots/import.png)
 
 ## Formatos Suportados
@@ -23,7 +25,7 @@ O Securo aceita quatro formatos de arquivo:
 1. Navegue até **Importar** na barra lateral
 2. **Arraste e solte** um arquivo na área de upload, ou clique para escolher o arquivo
 3. O Securo vai interpretar o arquivo e mostrar uma prévia das transações
-4. Revise as transações: atribua ou ajuste a **categoria linha a linha** (com sugestões das suas regras) e desmarque as linhas que não quiser
+4. Revise as transações: atribua ou ajuste a **categoria linha a linha** e desmarque as linhas que não quiser. Uma coluna de categoria do CSV que bate com uma categoria sua pelo nome já vem selecionada, e uma [regra](/pt-BR/docs/features/rules) que case com a linha tem precedência sobre ela
 5. Confirme a importação
 
 ## Mapeamento de Colunas do CSV
@@ -45,6 +47,8 @@ Abaixo da área de upload, a seção **Histórico de Importação** mostra todas
 ## Tratamento de Duplicatas
 
 O Securo verifica duplicatas durante a importação, comparando pelo ID da transação quando o arquivo tem um, e por data, valor e descrição quando não tem. Duplicatas são puladas automaticamente e o resumo da importação informa quantas ficaram de fora.
+
+Linhas cuja data ou valor não podem ser lidos também são puladas, e informadas com o número da linha e o motivo, em vez de derrubar o arquivo inteiro. Uma linha com uma célula faltando ainda é importada.
 
 ## Dicas para Importar
 

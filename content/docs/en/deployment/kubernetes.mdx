@@ -35,8 +35,9 @@ Persistence is enabled by default for the database, attachments, and the agents 
 | `global.domain` | `securo.local` | Public domain of the app; OAuth callback URLs are derived from it |
 | `global.tls` | `false` | Whether derived URLs use `https://` |
 | `secret.secretKey` | dev placeholder | JWT signing key. **Always set your own** |
-| `ingress.enabled` | `false` | Create an Ingress for the frontend |
-| `httpRoute.enabled` | `false` | Gateway API HTTPRoute, as an alternative to Ingress |
+| `ingress.enabled` | `false` | Create an Ingress; `/api` is routed straight to the backend, everything else to the frontend |
+| `httpRoute.enabled` | `false` | Gateway API HTTPRoute, as an alternative to Ingress, with the same `/api` split |
+| `frontend.backendUrl` | derived | Where the frontend's nginx proxies `/api`. Defaults to the backend service's fully qualified name (`<release>-backend.<namespace>.svc.cluster.local`); override for a non-standard cluster domain |
 | `persistence.*` | `enabled` | PVCs for database, attachments, agents knowledge |
 | `config.agentsEnabled` | `"false"` | Optional AI agents feature |
 | `postgresql.enabled` / `redis.enabled` | `true` | Disable to bring your own database or Redis |

@@ -7,7 +7,7 @@ Sua instância do Securo guarda todo o seu histórico financeiro, então o login
 
 ## Passkeys
 
-As passkeys permitem entrar com a digital do dispositivo, o desbloqueio facial ou uma chave de segurança física, sem digitar senha. Registre uma nas configurações da sua conta e a página de login ganha um botão **Continuar com passkey**.
+As passkeys permitem entrar com a digital do dispositivo, o desbloqueio facial ou uma chave de segurança física, sem digitar senha. Registre uma nas configurações da sua conta e a página de login ganha um botão **Continuar com passkey**; o navegador também oferece uma passkey salva direto no campo de e-mail, do jeito que oferece uma senha salva.
 
 - Você pode registrar várias passkeys (notebook, celular, uma chave física de reserva) e remover qualquer uma depois
 - Uma passkey também pode servir de **segundo fator** para logins com senha, no lugar do código do autenticador
@@ -49,6 +49,10 @@ Uma conta que já existe no Securo, criada com senha, nunca é vinculada a uma i
 
 Use `verified_email` para migrar seus usuários existentes para SSO sem recriar contas e dados. Só escolha `email` se você confia que o provedor é dono de todo endereço que ele afirma, já que qualquer pessoa que consiga definir um email lá poderia reivindicar a conta correspondente no Securo. Uma identidade OIDC já vinculada a outra conta é sempre recusada, em qualquer modo.
 
+### Somente OIDC
+
+Para tornar o provedor de identidade o único caminho de entrada, defina `LOCAL_AUTH_ENABLED=false`. O login por senha e por passkey é desligado junto com todas as rotas de autenticação local por trás dele, e a página de login mostra só o botão do provedor. O Securo se recusa a iniciar com essa configuração se o OIDC não estiver ativado, então um erro de digitação não tranca todo mundo do lado de fora. Quem tinha 2FA ou passkeys cadastrados antes da troca ainda pode removê-los nas configurações da conta; só não pode adicionar novos.
+
 ## Senhas
 
-O login com senha está sempre disponível (a menos que você o desative com políticas de OIDC-only no seu proxy). Você pode trocar sua senha nas configurações da conta, e proprietários de workspace que criam contas para novos membros definem apenas uma senha inicial, que o membro pode trocar depois do primeiro login.
+O login com senha está disponível sempre que a autenticação local estiver ligada. Você pode trocar sua senha nas configurações da conta, e proprietários de workspace que criam contas para novos membros definem apenas uma senha inicial, que o membro pode trocar depois do primeiro login.

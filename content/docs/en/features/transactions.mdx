@@ -57,7 +57,11 @@ Click **+ Add Transaction** in the top right corner. Fill in:
 
 Transactions also support **file attachments**: you can attach receipts or invoices to any transaction for record keeping. Attached transactions show a paperclip icon in the list. The dialog can also **make the transaction recurring** on the spot, creating a schedule from what you just entered.
 
-Individual transactions can be marked as **ignored**: they stay in the list with a greyed amount and an "Ignored" badge but are left out of totals and reports, useful for reimbursements or corrections you want to keep visible.
+Individual transactions can be marked as **ignored**: they stay in the list with a greyed amount and an "Ignored" badge but are left out of totals and reports, useful for reimbursements or corrections you want to keep visible. A gentler option is **Exclude from reports**: the row still counts toward the account balance, it just stops being income or expense in the dashboard and reports, for a work expense put on a personal card or anything else that is not really your spending.
+
+### Installments
+
+A purchase paid in installments can be recorded as one: enter the total, set the **number of installments** (2 to 360) and the **frequency** (weekly, monthly, quarterly or yearly), and Securo creates the series with each charge on its date and the `3/12` counter in the list. Editing or deleting one of them asks how far the change should go: **this one**, **this and future**, or **all installments**.
 
 ### Duplicating a Transaction
 
@@ -72,7 +76,7 @@ Clicking the **Transfer** button creates a special paired transaction between tw
 
 Transfer transactions are automatically linked and marked with a transfer badge. They don't count as income or expenses in your reports — they're just money moving between your own accounts. When you edit either leg, the dialog shows exactly which transaction sits on the other side (account, date, and amount), so an automatic link can be verified at a glance.
 
-For **cross-currency transfers** (e.g., BRL to USD), Securo asks for both amounts so it can record the correct values in each currency.
+For **cross-currency transfers** (e.g., BRL to USD), Securo asks for both amounts so it can record the correct values in each currency. When you already know what landed on the other side, type the destination amount instead of letting an exchange rate derive it; each leg then carries the exact figure the bank showed.
 
 ### Linking and Unlinking Transfers
 
@@ -94,6 +98,7 @@ The filter bar at the top provides multiple ways to narrow down your transaction
 - **Payee**: Filter by merchant or person
 - **Type**: Show only income or only expenses
 - **Status**: All, posted only, or pending only
+- **Hide ignored**: drop ignored rows from the list
 - **Amount**: Set a minimum and/or maximum value
 - **Date range**: Set start and end dates with the date picker
 - **Tags**: Filter by hashtags used in transaction notes
@@ -113,4 +118,8 @@ Select multiple transactions using the checkboxes to reveal the bulk action bar.
 - **Add tags** to the selection
 - **Add to a group** with a split rule
 - **Link** two transactions as a transfer pair
-- **Delete** multiple transactions at once
+- **Delete** multiple transactions at once, behind a confirmation that names what is about to go. Transfer counterparts and attachments are cleaned up with them
+
+## Questions From Payment Matching
+
+A transaction that may settle an invoice or a recurring bill, but that the [matching rules](/docs/features/reconciliation) could not bind on their own, carries a **Question** badge. Open the queue under Rules to answer it; a transaction that was matched shows the invoice it settled instead.

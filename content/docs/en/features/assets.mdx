@@ -53,7 +53,11 @@ For market-priced holdings, the transactions are the source of truth: record eac
 - Your **weighted-average price** and **cost basis**
 - The **realized gain** from sales, kept separate from unrealized gains
 
-Editing a past entry (including its date) recomputes everything in the new order, so a correction never leaves stale numbers behind.
+Editing a past entry (including its date) recomputes everything in the new order, so a correction never leaves stale numbers behind. Holdings you price yourself and positions you have already closed report their return too, in currency and percent.
+
+### Importing Orders From a Broker
+
+Instead of typing each order, go to **Import → Investments** and upload your broker's CSV: one row per order with **ticker, date, quantity and price**, a negative quantity read as a sale. Map the columns like a statement import (a template with the expected structure is available), tickers are resolved against the price provider, and orders for a ticker already in your portfolio land on the existing holding. Every run is listed with its own history and can be undone.
 
 ## Value History
 

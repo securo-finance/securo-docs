@@ -53,7 +53,11 @@ Para posições com preço de mercado, as transações são a fonte da verdade: 
 - Seu **preço médio** ponderado e **custo de aquisição**
 - O **ganho realizado** nas vendas, separado dos ganhos não realizados
 
-Editar um lançamento antigo (inclusive a data) recalcula tudo na nova ordem, então uma correção nunca deixa números defasados para trás.
+Editar um lançamento antigo (inclusive a data) recalcula tudo na nova ordem, então uma correção nunca deixa números defasados para trás. Posições que você mesmo precifica e posições já encerradas também informam o retorno, em moeda e em percentual.
+
+### Importando Ordens da Corretora
+
+Em vez de digitar cada ordem, vá em **Importar → Investimentos** e envie o CSV da sua corretora: uma linha por ordem com **ticker, data, quantidade e preço**, quantidade negativa lida como venda. Mapeie as colunas como numa importação de extrato (há um modelo com a estrutura esperada), os tickers são resolvidos no provedor de preços, e ordens de um ticker que já está na carteira caem na posição existente. Cada execução fica listada com seu próprio histórico e pode ser desfeita.
 
 ## Histórico de Valor
 

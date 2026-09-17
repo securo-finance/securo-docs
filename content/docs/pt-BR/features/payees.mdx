@@ -9,11 +9,11 @@ Os beneficiários representam os estabelecimentos, empresas ou pessoas com quem 
 
 ## Tipos de Beneficiário
 
-O Securo suporta três tipos de beneficiário:
+Um beneficiário é **Pessoa Física** (quem aluga seu apartamento, um cliente que é uma pessoa) ou **Pessoa Jurídica** (uma loja, um fornecedor, um cliente empresa). O tipo é opcional; beneficiários criados pela sincronização ou por importação chegam sem um.
 
-- **Estabelecimento**: lojas, restaurantes e comércios (ex.: Starbucks)
-- **Pessoa**: pessoas para quem você paga ou de quem recebe (ex.: quem aluga seu apartamento)
-- **Empresa**: negócios e organizações (ex.: Amazon Prime)
+## Contatos e Dados Fiscais
+
+Além do nome, um beneficiário pode guardar o que o torna uma contraparte de verdade: **e-mail**, **telefone**, **endereço**, **site** e quantos **dados fiscais** forem necessários, tipados (CNPJ, CPF, inscrição estadual, NIF, VAT, EIN e os demais registros que a jurisdição fiscal do workspace oferece). Num workspace de Negócios, eles vão para as [cobranças](/pt-BR/docs/features/invoices) que você emite para esse beneficiário.
 
 ## Visualizando Beneficiários
 
@@ -22,18 +22,18 @@ Navegue até **Beneficiários** na barra lateral para ver uma tabela pesquisáve
 - **Estrela de favorito**: beneficiários favoritos aparecem no topo
 - **Nome**: o nome de exibição do beneficiário
 - **Descrição**: notas opcionais sobre o beneficiário
-- **Tipo**: Estabelecimento, Pessoa ou Empresa
+- **Tipo**: Pessoa Física ou Pessoa Jurídica
 - **Transações**: quantas transações estão vinculadas a este beneficiário
 - **Ações**: editar ou excluir o beneficiário
 
-A lista pode ser filtrada por tipo e por favoritos.
+A lista pode ser ordenada por nome, tipo ou número de transações (a escolha fica salva), filtrada por tipo e por favoritos, e é paginada, para um workspace com milhares de contrapartes sincronizadas continuar usável. Nomes longos são truncados em vez de alargar a tabela; passe o mouse para ler inteiro.
 
 ## Adicionando um Beneficiário
 
 1. Clique em **+ Adicionar Beneficiário**
 2. Informe o nome do beneficiário
 3. Adicione uma descrição opcional
-4. Selecione o tipo (Estabelecimento, Pessoa ou Empresa)
+4. Selecione o tipo (Pessoa Física ou Pessoa Jurídica) e, se precisar, os contatos e dados fiscais
 5. Clique em **Salvar**
 
 ## Limpando Beneficiários
@@ -41,7 +41,9 @@ A lista pode ser filtrada por tipo e por favoritos.
 Importações e sincronização bancária acumulam beneficiários que você nunca vai usar. Duas ferramentas mantêm a lista em ordem:
 
 - **Exclusão em massa**: selecione várias linhas com as caixas de seleção e um botão **Excluir (N)** aparece; cada linha também tem seu próprio ícone de excluir
-- **Mesclar**: combine beneficiários duplicados em um só, movendo todas as transações vinculadas para o beneficiário que ficar
+- **Mesclar**: combine beneficiários duplicados em um só, movendo todas as transações vinculadas para o beneficiário que ficar. Mesclar também funciona sobre uma seleção
+
+Os nomes são únicos por workspace, ignorando maiúsculas e espaços nas pontas, então a mesma pessoa não pode ser criada duas vezes.
 
 ## Usando Beneficiários com Regras
 

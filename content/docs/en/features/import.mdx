@@ -5,6 +5,8 @@ description: Import bank statements and transaction history from OFX, CSV, QIF, 
 
 Securo's import feature lets you bring in transactions from bank statements and other financial software. This is the fastest way to populate your transaction history, especially when first setting up Securo or when you don't have bank sync enabled.
 
+The Import page has two tabs: **Transactions**, for bank statements, and **Investments**, for broker order exports (see [Assets](/docs/features/assets)). Each keeps its own history and its own undo.
+
 ![Import](/screenshots/import.png)
 
 ## Supported Formats
@@ -23,7 +25,7 @@ Securo accepts four file formats:
 1. Navigate to **Import** in the sidebar
 2. **Drag and drop** a file onto the upload area, or click to browse your files
 3. Securo will parse the file and show a preview of the transactions
-4. Review the transactions: assign or adjust the **category per row** (with suggestions from your rules), and untick any rows you don't want
+4. Review the transactions: assign or adjust the **category per row**, and untick any rows you don't want. A CSV category column that matches one of your categories by name comes preselected, and a [rule](/docs/features/rules) that matches the row takes precedence over it
 5. Confirm the import
 
 ## CSV Column Mapping
@@ -45,6 +47,8 @@ Below the upload area, the **Import History** section shows all previous imports
 ## Duplicate Handling
 
 Securo checks for duplicates during import, matching on transaction ID when your file has one and on date, amount, and description otherwise. Duplicates are skipped automatically and the import summary reports how many were left out.
+
+Rows whose date or amount cannot be read are skipped too, and reported with their line number and the reason, instead of failing the whole file. A row with a missing cell still imports.
 
 ## Tips for Importing
 

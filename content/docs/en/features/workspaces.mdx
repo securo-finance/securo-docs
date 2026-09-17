@@ -7,7 +7,16 @@ A workspace holds a complete, independent set of financial data: its own account
 
 ## Creating and Switching
 
-The **workspace switcher** in the sidebar shows all your workspaces and lets you jump between them; everything in the app always operates on the active one. Click **New workspace** to create another, each has its own name, icon, type (Personal, Freelancer, Small business, or Accountant firm), default currency, and language.
+The **workspace switcher** in the sidebar shows all your workspaces and lets you jump between them; everything in the app always operates on the active one. Click **New workspace** to create another; each has its own name, icon, type, default currency, language, and tax jurisdiction.
+
+The **type** is chosen once, at creation, and cannot be changed afterwards:
+
+| Type | What it offers |
+| --- | --- |
+| **Personal** | Everything described in these docs except invoicing |
+| **Business** | The same, plus [Invoices](/docs/features/invoices) (receivables and payables) and invoice [payment matching](/docs/features/reconciliation) |
+
+The **tax jurisdiction** decides which fiscal documents the workspace is offered (CNPJ and CPF in Brazil, NIF in Portugal, EIN in the US, and so on) and, for India, an April to March financial year in reports. It is separate from the interface language.
 
 A workspace you no longer use can be **archived** from its settings page: it disappears from the switcher but all data is preserved.
 

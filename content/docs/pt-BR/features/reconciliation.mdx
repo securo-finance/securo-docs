@@ -1,0 +1,98 @@
+---
+title: Conciliação de Pagamentos
+description: Deixe o dinheiro que entra se ligar sozinho à cobrança ou à recorrente que ele quita, revise o que ficou em dúvida e ajuste as regras que decidem.
+---
+
+Conciliar pagamentos é a parte da contabilidade que antes significava segurar o extrato do banco ao lado da lista de cobranças em aberto e descobrir qual linha pagou qual. O Securo faz essa parte: cada transação que chega, seja pela [sincronização bancária](/pt-BR/docs/features/bank-sync), por uma [importação](/pt-BR/docs/features/import) ou digitada à mão, é comparada com o que você estava esperando, ligada quando a evidência é clara e enfileirada para você quando não é.
+
+![Esperando você](/screenshots/reconciliation-queue.png)
+
+## Onde se Aplica
+
+A conciliação compara o dinheiro que se moveu com dois tipos de expectativa:
+
+| Expectativa | Disponível em | O que um casamento faz |
+| --- | --- | --- |
+| **Cobranças** (a receber e a pagar) | Somente workspaces de **Negócios** | Registra o pagamento na cobrança, no todo ou em parte, e a leva em direção a *Recebida* |
+| **Recorrentes** | Todos os workspaces | Liga a transação à [recorrente](/pt-BR/docs/features/recurring) em vez de deixar um placeholder gerado ao lado do pagamento real |
+
+A conciliação de cobranças faz parte do módulo de [Cobranças](/pt-BR/docs/features/invoices), que só existe em workspaces criados como **Negócios**. Um workspace pessoal ainda vê a seção **Regras de conciliação** em Regras, mas apenas com o conjunto de *Recorrentes*. A conciliação roda do mesmo jeito independentemente de como a transação entrou: um Pix que você digita à mão quita uma cobrança exatamente como um sincronizado.
+
+## O Que Acontece Quando o Dinheiro Chega
+
+Cada transação que entra passa pelas regras de conciliação, em ordem. A primeira regra que casa decide, e só existem dois desfechos:
+
+- **Ligar.** A evidência é forte o suficiente (mesma pessoa, valor exato, dentro da janela de datas) e o pagamento é vinculado à cobrança sozinho. A cobrança mostra *Conciliado automaticamente* ao lado do recebimento, com o nome da regra que decidiu.
+- **Sugerir.** O casamento é plausível, mas não é certo. Nada é gravado; o par vai para uma fila para você confirmar ou descartar.
+
+Uma transação que já quita alguma coisa nunca é conciliada de novo, então um pagamento não pode ser espalhado por duas dívidas. Um pagamento pode, porém, quitar **várias cobranças** de uma vez (um cliente liquidando três faturas numa transferência só), e uma cobrança pode ser paga em **partes**: o que sobra continua em aberto e o próximo pagamento é comparado com o saldo, não com o total original.
+
+A conciliação também roda no sentido inverso. Quando você **emite uma cobrança**, o Securo olha para trás, no dinheiro que já chegou daquele cliente, para o caso de quem paga primeiro e deixa a nota vir depois. Olhar para trás é uma afirmação mais fraca do que olhar para frente, então exige uma pessoa conhecida e recusa quando dois pagamentos encaixam igualmente bem.
+
+Um pagamento em **moeda diferente** da cobrança nunca é conciliado. Converter exigiria uma taxa, uma data para tomá-la e um lugar para lançar a diferença, então o Securo deixa para você vincular à mão.
+
+## A Fila: Esperando Você
+
+Tudo o que as regras não conseguiram decidir sozinhas espera em **Regras → Esperando você**. A aba mostra um contador com o número de perguntas abertas, e cada item expõe a evidência em vez de uma pontuação: *esperado 6400,00, movimentado 3200,00 · pessoa conhecida · 21 dias de diferença*.
+
+- **Ligar** aplica o pagamento. Quando a sugestão cobre várias cobranças, elas são aceitas ou descartadas como uma coisa só, para um pagamento nunca ser espalhado entre duas dívidas e ficar faltando numa terceira.
+- **Descartar** (o ✕) registra que este par não é um casamento. O Securo lembra a resposta e não pergunta sobre o mesmo par de novo na próxima sincronização.
+
+Você não precisa visitar a fila para saber que algo está esperando. A mesma pergunta aparece na **cobrança** a que se refere (*Um pagamento pode quitar esta cobrança*, respondível ali mesmo) e na **linha da transação**, que carrega um selo *Pergunta* até ser respondida.
+
+## Histórico
+
+**Regras → Histórico** é o registro cronológico do que a conciliação fez, do mais recente para o mais antigo: ligado, sugerido, aceito, descartado, expirado e desvinculado. Cada entrada diz de qual cobrança ou recorrente se trata, o valor e, antes de tudo, se foi feito **por você** ou **pelas regras**. Desvincular um pagamento de uma cobrança também fica registrado aqui, então um casamento feito e depois desfeito nunca se confunde com um que nunca aconteceu.
+
+## Regras de Conciliação
+
+Os limites que decidem tudo isso não ficam enterrados no código. São uma lista em **Regras → Regras → Regras de conciliação**, um conjunto para *Faturas* e outro para *Recorrentes*, e cada linha é sua para ler, reordenar, editar, desativar ou excluir.
+
+![Regras de conciliação](/screenshots/reconciliation-rules.png)
+
+O Securo vem com estas para cobranças, tentadas nesta ordem:
+
+| # | Regra | Desfecho | Quando dispara |
+| --- | --- | --- | --- |
+| 1 | Pessoa conhecida, valor exato | Liga sozinho | Quem pagou é a pessoa da cobrança e o valor bate exatamente com o devido, até 10 dias adiantado ou 60 dias atrasado |
+| 2 | Pessoa conhecida, pago com retenção | Liga sozinho | Mesma pessoa, valor bate descontado o imposto retido. Inerte até existirem alíquotas de retenção para a sua jurisdição |
+| 3 | Valor exato, qualquer pessoa | Liga sozinho | O valor bate exatamente com uma cobrança em aberto, mesmo de pagador não identificado, até 3 dias adiantado ou 15 atrasado |
+| 4 | Pessoa conhecida, várias faturas de uma vez | Liga sozinho | Mesma pessoa, e até 6 cobranças em aberto somam o pagamento |
+| 5 | Pessoa conhecida, parte do valor | Sugere | Mesma pessoa, o pagamento cobre parte do que se deve |
+| 6 | Valor próximo e descrição parecida | Sugere | Valor dentro de 2%, descrição pelo menos 0,6 parecida |
+
+E uma para recorrentes: **Mesma conta, valor exato**, que liga uma transação a uma recorrente na mesma conta quando o valor bate exatamente, até 3 dias adiantado ou 5 atrasado, e a descrição é parecida.
+
+### A ordem é como você expressa uma faixa
+
+A primeira regra que casa vence, então *ligar abaixo de 2%, perguntar entre 2% e 5%* é uma regra colocada acima da outra. Use as setas de cada linha (**Tentar esta antes** / **Tentar esta depois**) para reordenar, e o interruptor para desativar uma regra sem perdê-la.
+
+### Editando uma regra padrão
+
+Clique numa regra para alterar qualquer um dos seus limites. Uma regra que você alterou é marcada como **Alterada**; **Voltar ao padrão** a restaura. As regras padrão nunca são copiadas para o seu workspace: uma regra intocada continua melhorando com as novas versões do Securo, e o Securo guarda só a diferença que você decidiu.
+
+### Escrevendo a sua
+
+**Adicionar** abre o mesmo editor para uma regra nova, em três passos:
+
+1. **O que é esta regra**: um nome, e se um casamento **Liga sozinho** ou **Sugere** para você confirmar.
+2. **Que dinheiro ela olha**: deixe tudo vazio e ela olha todo o dinheiro, ou restrinja a contas bancárias específicas, pessoas específicas, dinheiro entrando ou saindo, certas moedas (ou só as estrangeiras), uma faixa de valor e palavras que o extrato deve ou não deve conter. Várias palavras separadas por vírgula significam *qualquer uma delas*, então quem recebe por três adquirentes escreve uma regra em vez de três.
+3. **Quando conta como casamento**: quem pagou (qualquer um, ou a pessoa da fatura), o quão perto o valor precisa estar (exatamente o devido, dentro de uma margem, descontada a retenção, parte do que se deve, ou várias faturas somadas), quantos dias de diferença as datas podem ter, e quão parecida a descrição precisa ser.
+
+Dois detalhes que vale saber. **Os valores são comparados com o que ainda se deve**, não com o total original, e é isso que faz o pagamento parcelado funcionar. E **uma cobrança tem duas datas**: atraso conta a partir do vencimento, adiantamento a partir do dia em que a cobrança foi emitida, então um cliente que paga no dia seguinte à emissão não está "quatro semanas adiantado".
+
+Você também escolhe **quando** a regra vale: quando o dinheiro entra, quando a cobrança é emitida (olhando para trás, no dinheiro que já estava lá), ou nos dois momentos.
+
+### Excluir, exportar e importar
+
+Qualquer regra pode ser excluída, inclusive as que o Securo entrega. Uma regra padrão excluída fica listada pelo nome abaixo do conjunto, para você trazê-la de volta. **Exportar** baixa o conjunto inteiro como arquivo; **Importar** substitui as regras do workspace pelo conteúdo do arquivo, inclusive a ordem, que é como você leva um conjunto ajustado para outro workspace ou outro servidor.
+
+## Previsão de Caixa
+
+Uma cobrança em aberto é dinheiro que você espera, então o **saldo não alocado** dela entra no saldo projetado do dashboard. No momento em que um pagamento é vinculado, a cobrança encolhe naquele valor e a transação passa a carregar a previsão sozinha, então o mesmo dinheiro nunca é contado duas vezes.
+
+## Dicas
+
+- Dê uma **pessoa** a cada cliente e mantenha-a nas cobranças: *pessoa conhecida* é o sinal mais forte que uma regra pode usar, e é o que permite oferecer um pagamento parcial com confiança.
+- Se o extrato identifica o pagador num campo próprio em vez de na descrição (um Pix faz isso), a conciliação lê esse campo também. Uma regra que diz "o extrato contém ACME" funciona nos dois.
+- Quando a fila fica repetindo o mesmo tipo de pergunta, a resposta costuma ser uma regra: copie a padrão que chega mais perto, alargue a janela ou a margem, e coloque-a onde quiser na ordem.

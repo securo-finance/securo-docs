@@ -1,0 +1,78 @@
+---
+title: Cobranças
+description: Acompanhe o que seus clientes devem e o que você deve a fornecedores, emita cobranças como documento e siga cada uma até o dinheiro cair.
+---
+
+Cobranças dão ao workspace um lado de recebíveis: o que você cobrou, o que foi pago e o que está atrasado. Monte uma cobrança a partir de itens ou registre só um valor, emita para receber um número, acompanhe por parcial, recebida, vencida, cancelada ou incobrável, e liquide contra a transação real que a pagou, para o livro e o banco nunca discordarem. Contas de fornecedores funcionam do mesmo jeito, na outra direção.
+
+## Disponibilidade
+
+Cobranças pertencem a workspaces criados como **Negócios**. O tipo é escolhido uma vez, na criação, e não pode ser alterado depois; um workspace pessoal não mostra a seção. Veja [Workspaces](/pt-BR/docs/features/workspaces).
+
+## Dois Jeitos de Usar
+
+Abra **Cobranças → Configurações de cobrança** e escolha um **Modo**. É um ponto de partida, não uma trava: ele preenche três comportamentos que você ainda pode mudar um a um.
+
+| Modo | Para quem | O que define |
+| --- | --- | --- |
+| **Acompanhar recebimentos** (padrão) | Você emite a nota em outro lugar e só quer acompanhar quem te deve e se o dinheiro chegou | Cobranças novas já nascem **Em aberto**, nenhum documento é exigido, campos de imposto ficam ocultos |
+| **Emitir documentos** | O Securo escreve a fatura que o cliente recebe | Cobranças novas nascem como **Rascunho**, os itens são esperados, campos de imposto ficam disponíveis |
+
+## A Receber e A Pagar
+
+A página tem duas abas. **A receber** é o que os clientes devem a você: cada cobrança tem um cliente, um vencimento, um valor ou uma lista de itens. **A pagar** é o que você deve a fornecedores: uma **conta a pagar** com fornecedor e vencimento, para nada ser pago em atraso ou duas vezes. Tudo abaixo vale para as duas; uma conta a pagar é simplesmente quitada por dinheiro saindo em vez de entrando.
+
+O resumo no topo responde ao que importa: **A receber**, **Vencido** (e em quantas cobranças), **Recebido no mês**, **A vencer**, e a distribuição por idade (*A vencer*, *1 a 30 dias*, *31 a 60*, *61 a 90*, *90+*). A lista pode ser filtrada por **Em aberto**, **Vencidas**, **Recebidas** ou **Rascunhos**, e restrita a um exercício fiscal.
+
+## Criando uma Cobrança
+
+1. Clique em **Nova cobrança** (ou **Nova conta a pagar** na aba A pagar)
+2. Escolha o **cliente** entre as suas [pessoas](/pt-BR/docs/features/payees). Contatos e dados fiscais guardados na pessoa vão para o documento
+3. Defina o **vencimento**. O Securo sugere um a partir do prazo de pagamento das configurações
+4. Digite o **valor**, ou adicione **itens**: descrição, quantidade, unidade (horas, dias, peças), valor unitário e uma alíquota opcional. Os itens são o que o cliente vê que está pagando
+5. Adicione observações, se quiser que apareçam no documento
+6. **Salvar rascunho** ou **Emitir**
+
+## Ciclo de Vida
+
+| Situação | Significado |
+| --- | --- |
+| **Rascunho** | Ainda pode ser editada ou excluída. Não tem número |
+| **Em aberto** | Emitida e esperando o dinheiro. Emitir atribui o próximo número da sequência |
+| **Parcial** | Parte do dinheiro foi vinculada, ainda há saldo |
+| **Recebida** | Os recebimentos vinculados cobrem o total |
+| **Vencida** | Em aberto e passada do vencimento |
+| **Cancelada** | Uma cobrança emitida nunca é excluída, só cancelada, para a numeração continuar contínua |
+| **Incobrável** | Baixada como perda. O saldo deixa de contar como a receber |
+
+*Parcial*, *Recebida* e *Vencida* são derivadas dos recebimentos e do calendário, nunca definidas à mão. **Marcar como recebida** abre o mesmo diálogo de *Vincular pagamento*: você escolhe a transação que pagou. **Reabrir** traz uma cobrança baixada como perda de volta para em aberto; uma cancelada continua cancelada.
+
+## Recebimentos
+
+Uma cobrança é quitada pela transação que de fato a pagou, nunca por um número digitado numa caixa. A seção **Recebimentos** da cobrança lista cada transação vinculada com data e valor aplicado, e diz se foi **vinculado manualmente** ou **conciliado automaticamente**.
+
+- **Vincular pagamento** deixa você escolher uma transação de entrada na moeda da cobrança e aplicar o quanto couber, ou um valor específico para um pagamento parcial. A mesma transação pode quitar várias cobranças
+- **Desvincular** remove o vínculo e reabre o saldo. A transação em si não muda
+- A maioria dos vínculos você nunca vai fazer à mão: a [conciliação de pagamentos](/pt-BR/docs/features/reconciliation) observa cada transação que entra e a liga à cobrança que ela quita, ou pergunta quando não tem certeza. Uma pergunta pendente aparece na própria cobrança
+
+## O Documento e o PDF
+
+Uma cobrança emitida vira um documento com o bloco do seu negócio, o bloco do cliente, os itens, os dados para pagamento e um rodapé, e pode ser baixada em **PDF**. Tudo nele vem de um **retrato congelado na emissão**: troque o logo ou o endereço depois e as cobranças já enviadas mantêm o que levaram, e um recebimento posterior não altera a página que o cliente tem. Baixe o PDF antes e depois de um pagamento e o arquivo é o mesmo.
+
+**Compartilhar** cria um link único e revogável que mostra o documento e oferece o PDF a quem abrir, sem exigir login. **Revogar link** desliga; a cobrança continua sua.
+
+A aba **Documentos** guarda a papelada que pertence a uma cobrança: a fatura, a nota fiscal, o comprovante, um contrato. Anexe os arquivos conforme chegam. Para uma conta que você recebeu em vez de emitir, anexe o documento do fornecedor e ele é exibido exatamente como veio, marcado como documento recebido.
+
+## Configurações de Cobrança
+
+Tudo sobre como a cobrança se comporta e como o documento fica está em **Configurações de cobrança**, na página de Cobranças:
+
+- **Como a cobrança se comporta**: o modo acima, o **prefixo da numeração** (`AUR` gera `AUR1`, `AUR2`, ...) e o **prazo de pagamento** em dias, usado para sugerir vencimentos
+- **Dados do seu negócio**: nome e razão social exibidos como remetente, endereço e seus dados fiscais. Vale para as cobranças emitidas de agora em diante
+- **Como o documento fica**: um **logo**, uma **cor de destaque**, os **dados para pagamento** de que o cliente precisa (chave Pix, IBAN, conta bancária), um **rodapé**, e os **rótulos do documento**, se quiser que ele chame algum campo de outro nome
+
+## Dicas
+
+- Mantenha uma pessoa por cliente e coloque o CNPJ ou CPF nela uma vez; toda cobrança o aproveita
+- No modo *Emitir documentos*, o rascunho é o lugar de acertar as coisas. Depois que o cliente tem o documento, cancele e emita outro em vez de editar o passado
+- A distribuição por idade é o jeito mais rápido de ver quem cobrar: qualquer coisa em *31 a 60 dias* está vencida há um mês

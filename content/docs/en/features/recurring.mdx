@@ -13,14 +13,15 @@ A recurring transaction is a template that defines:
 
 - **Description**: What the payment is for (e.g., "Spotify", "Netflix USD")
 - **Amount**: The transaction value, including currency
-- **Frequency**: How often it repeats (weekly, monthly, quarterly, or yearly)
+- **Frequency**: How often it repeats (weekly, biweekly, monthly, quarterly, twice a year, or yearly)
+- **Weekend adjustment**: leave the date alone, or move an occurrence that lands on a weekend to the **Friday before** or the **Monday after**, the way a bank or an employer would
 - **Next date**: When the next occurrence is due
 - **End date** (optional): When the schedule stops generating occurrences
 - **Status**: Active or paused
 
 When the scheduled date arrives, Securo creates an actual transaction in the appropriate account based on the template. Generation runs automatically in the background every hour; each schedule also has an **auto-generate** toggle, and schedules with it off only create transactions when you click **Generate Pending**.
 
-Monthly, quarterly, and yearly schedules preserve your intended day of the month: a subscription anchored to the 31st lands on April 30 and comes back to July 31.
+Monthly, quarterly, twice-yearly and yearly schedules preserve your intended day of the month: a subscription anchored to the 31st lands on April 30 and comes back to July 31. Editing the start date, day of month or frequency of an existing schedule moves its next occurrence to the first date of the new schedule, so projections follow the edit.
 
 ## Creating a Recurring Transaction
 
@@ -29,7 +30,7 @@ Monthly, quarterly, and yearly schedules preserve your intended day of the month
 3. Enter the description
 4. Set the amount and currency
 5. Choose the account
-6. Select the frequency (weekly, monthly, quarterly, or yearly)
+6. Select the frequency (weekly, biweekly, monthly, quarterly, twice a year, or yearly) and, if it matters, the weekend adjustment
 7. Set the start date (and optionally an end date)
 8. Click **Save**
 
@@ -52,7 +53,9 @@ Click **Generate Pending** to create all overdue recurring transactions at once.
 
 ## Linking to Real Transactions
 
-Recurring bills connect to the transactions that actually pay them. When a synced or imported transaction matches an upcoming occurrence with high confidence (same account, similar description and amount, close date), Securo links it to the schedule instead of creating a duplicate, replacing the generated placeholder if one exists. A linked transaction can be unlinked from its edit dialog.
+Recurring bills connect to the transactions that actually pay them. When a transaction (synced, imported or typed in) matches an upcoming occurrence on the same account with the exact amount, a similar description and a close date, Securo links it to the schedule instead of creating a duplicate, replacing the generated placeholder if one exists. A linked transaction can be unlinked from its edit dialog.
+
+The threshold is a **matching rule** you can read and change: *Same account, exact amount* under **Rules → Matching rules → Recurring**. Widen its date window, lower the description similarity, or add a rule of your own that only suggests instead of linking. See [Payment Matching](/docs/features/reconciliation).
 
 The **recurring badge** in the transaction list appears only on transactions actually linked to a schedule, so two purchases that merely share a description are never both marked as recurring.
 

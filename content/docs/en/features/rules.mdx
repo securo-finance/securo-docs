@@ -11,8 +11,8 @@ Rules are one of Securo's most powerful features. They automatically assign cate
 
 Each rule consists of:
 
-1. **One or more conditions**, combined with **AND** (all must match) or **OR** (any may match)
-2. **Actions**: set a category, set a payee, or both
+1. **One or more conditions**, combined with **AND** (all must match) or **OR** (any may match), optionally arranged in **groups** with their own operator
+2. **Actions**: set a category, set a payee, set the description, append tags or notes, or mark the transaction as ignored
 3. **A priority**: rules with a **lower** priority number run first
 
 When a transaction is added (manually, via import, or through bank sync), Securo evaluates it against every **active** rule in priority order. All matching rules apply their actions, with one guardrail: the **category is only ever set once**. The first matching rule to assign a category wins and later rules never overwrite it; payee actions from later matching rules still apply.
@@ -21,11 +21,22 @@ When a transaction is added (manually, via import, or through bank sync), Securo
 
 A condition targets a transaction field and compares it with an operator:
 
-- **Fields**: Description, Notes, Amount, Type (income/expense), Account, Payee, Date
+- **Fields**: Description, Imported payee (the counterparty exactly as the bank sent it), Notes, Amount, Type (income/expense), Account, Payee, Date
 - **Text operators**: contains, does not contain, starts with, ends with, equals, does not equal, and regex for complex patterns (e.g., `description regex "SALARY|PAYROLL|DIRECT DEPOSIT"`). Text matching is case-insensitive and accent-insensitive.
 - **Amount and date operators**: equals, greater than, greater or equal, less than, less or equal
 
-Blank condition values are rejected when saving: a blank pattern would match every transaction, which is never what you want.
+Blank condition values are rejected when saving: a blank pattern would match every transaction, which is never what you want. A regex that fails to compile, or one that matches the empty string, is refused for the same reason.
+
+### Condition Groups
+
+When AND and OR both have a part to play, click **Add group**. A group joins its own conditions with AND or OR, and the rule joins its groups the other way, so `contains "UBER" AND (contains "EATS" OR contains "FOOD")` is one rule instead of three. Groups can be nested.
+
+### Actions
+
+- **Set category** and **Set payee** are the everyday ones
+- **Set description** replaces the imported text with something readable (`PAG*NetflixCom 4823` becomes `Netflix`). The bank's original text is kept on the transaction, so a condition on *Imported payee* keeps matching next month
+- **Append tags/notes** adds hashtags or a note (`#work #reimbursable`)
+- **Ignore transaction** marks it as ignored, out of totals and reports but still visible
 
 ## Creating a Rule
 
@@ -34,9 +45,14 @@ Blank condition values are rejected when saving: a blank pattern would match eve
 3. Add one or more conditions (field, operator, value) and choose **AND** or **OR** to combine them
 4. Set the actions (category assignment, payee assignment, or both)
 5. Set the priority (lower numbers are evaluated first)
-6. Click **Save**. Securo asks whether to also apply the rule to your existing transactions right away
+6. Check the **Preview**: the dialog counts every transaction the conditions match, says how many would actually change, and lists the most recent ones with the category they would get, so a rule that is too wide is caught before it runs
+7. Click **Save**. Securo asks whether to also apply the rule to your existing transactions right away, and whether to replace categories that are already set
 
 Each rule has an **active** toggle, so you can disable one temporarily without deleting it.
+
+### From a Transaction
+
+The quickest way to write a rule is from the transaction that should have matched one. In the transaction dialog, **Create rule** opens the editor pre-filled with a description condition, and **Add to existing rule** opens the chosen rule in the same full editor with the new condition added, so you can adjust its groups, actions and priority before saving.
 
 ## Rule Packs
 
@@ -57,7 +73,11 @@ This is especially useful when you:
 
 Rules are evaluated from the lowest priority number to the highest. Because the category is first-wins, put your most specific rules at low numbers and catch-all rules at high numbers, so a generic rule never claims a transaction before a precise one has the chance.
 
-The rules page lets you sort by **Priority**, **Name**, or **Category** to organize your rule list.
+The rules page lets you sort by **Priority**, **Name**, or **Category**, and a long list can be narrowed by searching the name or filtering by category, status (active or inactive) and action.
+
+## Matching Rules, Queue and History
+
+The Rules page has two more tabs, **Waiting for you** and **History**, and a **Matching rules** section under the categorization rules. These belong to [payment matching](/docs/features/reconciliation): the rules that bind an incoming payment to the invoice or recurring bill it settles, the questions it could not answer alone, and the record of what it did.
 
 ## Example Rules
 
