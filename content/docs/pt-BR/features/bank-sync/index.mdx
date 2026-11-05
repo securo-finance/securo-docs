@@ -32,7 +32,7 @@ Para instruções de configuração de cada provedor, veja os guias [Pluggy](/pt
 
 ### Sincronização Automática
 
-Um job em background roda a cada hora e atualiza qualquer conexão que não tenha sido sincronizada nas últimas 4 horas. Suas transações ficam em dia sem intervenção manual.
+Um job em background roda a cada hora e atualiza qualquer conexão que não tenha sido sincronizada nas últimas 4 horas. Suas transações ficam em dia sem intervenção manual. Alguns bancos limitam o acesso desacompanhado (quatro buscas por dia é comum); quando o padrão é agressivo demais, defina `BANK_SYNC_MIN_INTERVAL_HOURS` no ambiente do backend para abrir o intervalo. O valor é em horas, padrão 4.
 
 ### Sincronização Manual
 
@@ -47,6 +47,7 @@ Você pode disparar uma sincronização imediata na página de Contas clicando n
 - Transações lançadas manualmente são comparadas com as sincronizadas por correspondência aproximada (mesmo valor, data parecida, descrição parecida)
 - As categorias são mapeadas automaticamente das categorias do provedor para as suas categorias do Securo quando o provedor expõe essas informações
 - Pares de transferência entre contas são detectados automaticamente
+- Cartões que compartilham uma linha de crédito consolidada no provedor reportam esse saldo **uma única vez** nos totais do painel e da barra lateral, enquanto cada cartão mantém suas transações, sua fatura e seu saldo em aberto próprios; a lista de contas diz quais cartões dividem a linha
 
 ## Configurações da Conexão
 
@@ -73,7 +74,7 @@ Quando ativado (padrão), as transações pendentes são importadas junto com as
 ### Conexão Aparece com Status de Erro ou Expirada
 
 - **Erro**: as credenciais que o provedor te deu falharam inesperadamente. Clique em **Reconectar** para tentar novamente.
-- **Expirada**: o consentimento que o usuário concedeu chegou ao fim (comum em provedores PSD2 como o Enable Banking, que limita o consentimento a cerca de 6 meses). Clique em **Reconectar** para iniciar um novo fluxo de consentimento.
+- **Expirada**: o consentimento que o usuário concedeu chegou ao fim (comum em provedores PSD2 como o Enable Banking, que limita o consentimento a cerca de 6 meses) ou o banco o encerrou antes. Clique em **Reconectar** para iniciar um novo fluxo de consentimento.
 
 ### Transações Duplicadas
 

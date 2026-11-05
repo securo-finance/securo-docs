@@ -11,10 +11,13 @@ The dashboard is the first screen you see after logging in. It provides a monthl
 
 At the top of the dashboard you'll see the current month and navigation arrows to browse previous months. The hero card leads with **Available balance**, the answer to "what can I spend", broken down per account, with the figures around it:
 
-- **Net worth**: Accounts plus tracked assets, in your primary currency
+- **Net worth**: Accounts plus tracked assets, minus debts such as loan balances, in your primary currency
 - **Monthly Income** and **Monthly Expenses**: What came in and went out this month
 - **Savings Rate**: The percentage of income you saved this month
 - **Invested assets**: The current value of your tracked assets (shown only when you have assets)
+- **Loans**: The outstanding debt on your loan accounts, as its own row rather than folded into the available balance
+
+A **refresh** button on the dashboard (and on the accounts, rules and categories pages) re-pulls the data for when something changed somewhere else.
 
 Below the summary, the dashboard shows a spending forecast: based on your current pace, it estimates how much you'll spend by the end of the month.
 
@@ -35,15 +38,15 @@ This widget shows a horizontal bar chart of your top spending categories for the
 
 This gives you an instant view of where your money is going without navigating to the full reports section.
 
-## Balance Flow
+## Balance Evolution
 
-The balance flow chart shows how your total balance changed day-by-day throughout the month. It's a line chart that helps you spot:
+The **Balance Evolution** chart shows how your total balance changed day-by-day throughout the month. It's a line chart that helps you spot:
 
 - Large one-time expenses (sudden drops)
 - Income deposits (sharp increases)
 - Overall spending trends across the month
 
-For days still ahead, the line continues with **projected** points derived from your [recurring transactions](/docs/features/recurring) and, in a Business workspace, from the unpaid balance of open [invoices](/docs/features/invoices), kept visually distinct from settled money. Hover over any point to see the exact balance for that day.
+Pick any earlier month to **compare against**: the current month is then read against that month's median line and its middle-50% band, so "is this month normal?" is answered on the chart itself. For days still ahead, the line continues with **projected** points derived from your [recurring transactions](/docs/features/recurring) and, in a Business workspace, from the unpaid balance of open [invoices](/docs/features/invoices), kept visually distinct from settled money. Hover over any point to see the exact balance for that day. When an exchange rate is missing, the chart says the total is incomplete instead of mixing currencies silently.
 
 ## Goals Progress
 

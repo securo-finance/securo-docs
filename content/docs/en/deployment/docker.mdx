@@ -120,6 +120,18 @@ The backend rate-limits login and other sensitive endpoints per client address. 
 
 The bundled nginx resolves the backend through the platform's DNS at startup, which works on Docker, Podman and Kubernetes alike. If your platform needs a specific resolver, set `NGINX_RESOLVER` on the frontend service.
 
+If you run **Traefik** instead of wiring your own proxy, the frontend service supports its labels as an opt-in: set `TRAEFIK_ENABLE=true` and `TRAEFIK_NETWORK=<the network Traefik listens on>` (optionally `TRAEFIK_RESOURCE_NAME`, unique per deployment). Off by default, so existing setups are untouched.
+
+### Other Tuning Knobs
+
+Set these in `.env` when the defaults do not fit your setup:
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `BANK_SYNC_MIN_INTERVAL_HOURS` | `4` | Minimum hours between automatic bank syncs per connection. Raise it for banks that cap unattended access to four fetches a day |
+
+The application **timezone** (the one that decides which day "today" is for balances, budgets, due dates and scheduled work) is set in the admin settings and follows an IANA name like `America/Sao_Paulo`; individual workspaces can override it, see [Workspaces](/docs/features/workspaces).
+
 ## Backups
 
 From inside the app, **Backup** (in the user menu) downloads the active workspace as a zip of plain JSON, every account, transaction and rule, optionally **encrypted with a password** (AES-256, opens in any standard archiver). The steps below are the server-side backup of the whole instance, which is what you restore from.

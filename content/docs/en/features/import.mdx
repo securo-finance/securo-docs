@@ -25,7 +25,7 @@ Securo accepts four file formats:
 1. Navigate to **Import** in the sidebar
 2. **Drag and drop** a file onto the upload area, or click to browse your files
 3. Securo will parse the file and show a preview of the transactions
-4. Review the transactions: assign or adjust the **category per row**, and untick any rows you don't want. A CSV category column that matches one of your categories by name comes preselected, and a [rule](/docs/features/rules) that matches the row takes precedence over it
+4. Review the transactions: assign or adjust the **category per row**, and untick any rows you don't want. A CSV category column that matches one of your categories by name comes preselected, and a [rule](/docs/features/rules) that matches the row takes precedence over it. The checkbox in the table header selects or deselects **all filtered rows**, not just the ones on the page you are looking at
 5. Confirm the import
 
 ## CSV Column Mapping
@@ -37,6 +37,7 @@ Real bank exports rarely match a fixed template, so CSV imports come with a **ma
 - **Date format**: pick the format when your bank uses `15.01.2026` or other regional styles
 - **Flip amounts**: for banks that export expenses as positive numbers
 - **Separate inflow/outflow columns**: for exports that split credits and debits into two columns
+- **Thousands separators**: read per column from all of its values, so `25,000` in a column that uses comma separators means twenty-five thousand, and any currency symbol (`R$`, `$`, `€`, ...) parses
 
 If you'd rather reshape the data yourself, a **CSV template** with the expected structure can be downloaded from the import page.
 
@@ -46,9 +47,9 @@ Below the upload area, the **Import History** section shows all previous imports
 
 ## Duplicate Handling
 
-Securo checks for duplicates during import, matching on transaction ID when your file has one and on date, amount, and description otherwise. Duplicates are skipped automatically and the import summary reports how many were left out.
+Securo checks for duplicates during import, matching on transaction ID when your file has one and on date, amount, and description otherwise. Duplicates are skipped automatically and the import summary reports how many were left out. An OFX file whose bank reuses the same FITID for several entries on one day keeps every row: the match includes the amount and the type, and re-importing the same file still skips them all.
 
-Rows whose date or amount cannot be read are skipped too, and reported with their line number and the reason, instead of failing the whole file. A row with a missing cell still imports.
+Rows whose date or amount cannot be read are skipped too, and CSV, QIF and CAMT files now **list every skipped record** with its line, its raw value and the reason, instead of guessing at it or dropping it in silence. A row with a missing cell still imports.
 
 ## Tips for Importing
 

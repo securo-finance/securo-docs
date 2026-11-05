@@ -97,6 +97,8 @@ The Bridge pulls from banks on its own cadence (typically once per day). If you 
 
 That's a transient SimpleFIN/bank error. Securo logs a warning and imports whatever data was returned alongside the failure. The next sync will retry.
 
+One failing bank never takes the whole connection down. Behind a single Access URL you may have several banks: if one needs reauthorization, the others keep syncing normally, the failing accounts carry a reauthorization notice, and a connection in the error state offers a retry sync rather than only a full reconnect. A claim that comes back with warnings but usable accounts is accepted, not refused outright. Reconnecting with a fresh token also matches the accounts already imported instead of creating a second set.
+
 ## References
 
 - [SimpleFIN protocol specification](https://www.simplefin.org/protocol.html)

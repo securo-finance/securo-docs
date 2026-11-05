@@ -15,7 +15,9 @@ The main transactions view shows a sortable table of your activity. Each row can
 - **Description**: The name or memo of the transaction (e.g., "STARBUCKS Latte")
 - **Amount**: Positive amounts (green) for income, negative (red) for expenses
 
-Transactions tagged as **transfers** between your own accounts are marked with a special badge so you can tell them apart from regular income and expenses. Synced transactions also show a **pending** or **posted** status, and purchases paid in installments display their installment number (e.g., 3/12).
+Transactions tagged as **transfers** between your own accounts are marked with a special badge so you can tell them apart from regular income and expenses; the badge also **names the linked account**, so a page full of transfers says where the money went without opening each row. Synced transactions also show a **pending** or **posted** status, and a pending row can be **marked as posted in one click**, straight from the row, without opening the edit dialog. Purchases paid in installments display their installment number (e.g., 3/12).
+
+The **description** of a synced transaction is editable too: rename it, and the bank's own text stays underneath with a **Restore original** link. The amount, date and account stay exactly as the bank sent them.
 
 ### Customizing the Table
 
@@ -44,7 +46,7 @@ Projections are never mixed into settled figures: they get their own line, their
 
 ## Adding a Transaction
 
-Click **+ Add Transaction** in the top right corner. Fill in:
+There are three ways in: the **+ Add Transaction** button in the top right, a **+** next to **Transactions** in the sidebar from any page, and an **Add Transaction** button on an account page, which already has that account and its currency chosen. In the form the account is **asked for, not preselected**, so nothing lands on the wrong account by accident. Fill in:
 
 1. **Description**: What the transaction is for
 2. **Account**: Which account the money came from or went to
@@ -56,6 +58,11 @@ Click **+ Add Transaction** in the top right corner. Fill in:
 8. **Notes** (optional): Any additional context
 
 Transactions also support **file attachments**: you can attach receipts or invoices to any transaction for record keeping. Attached transactions show a paperclip icon in the list. The dialog can also **make the transaction recurring** on the spot, creating a schedule from what you just entered.
+
+While filling the form, two helpers speed things up:
+
+- **Description suggestions**: the description field offers descriptions you have used before. Picking one also fills in the category and payee it was last filed under, leaving anything you already chose alone
+- **Create on the spot**: when a category or payee search matches nothing, the picker offers to **create it** and selects it in place, in the transaction dialog, the rule dialog and the import review
 
 Individual transactions can be marked as **ignored**: they stay in the list with a greyed amount and an "Ignored" badge but are left out of totals and reports, useful for reimbursements or corrections you want to keep visible. A gentler option is **Exclude from reports**: the row still counts toward the account balance, it just stops being income or expense in the dashboard and reports, for a work expense put on a personal card or anything else that is not really your spending.
 
@@ -74,13 +81,13 @@ Clicking the **Transfer** button creates a special paired transaction between tw
 - A debit in the source account
 - A matching credit in the destination account
 
-Transfer transactions are automatically linked and marked with a transfer badge. They don't count as income or expenses in your reports — they're just money moving between your own accounts. When you edit either leg, the dialog shows exactly which transaction sits on the other side (account, date, and amount), so an automatic link can be verified at a glance.
+Transfer transactions are automatically linked and marked with a transfer badge. They don't count as income or expenses in your reports — they're just money moving between your own accounts. When you edit either leg, the dialog shows exactly which transaction sits on the other side (account, date, and amount), and a link takes you **straight to that other side**.
 
 For **cross-currency transfers** (e.g., BRL to USD), Securo asks for both amounts so it can record the correct values in each currency. When you already know what landed on the other side, type the destination amount instead of letting an exchange rate derive it; each leg then carries the exact figure the bank showed.
 
 ### Linking and Unlinking Transfers
 
-If a transfer was imported or entered as two separate transactions, select both and **link them as a transfer pair**. Securo then treats them as a single transfer. You can **unlink** a pair at any time to turn them back into independent transactions.
+If a transfer was imported or entered as two separate transactions, select both and **link them as a transfer pair**. Securo then treats them as a single transfer. You can **unlink** a pair at any time to turn them back into independent transactions; unlinking asks for confirmation first, since the freed leg starts counting as income or expense again. [Transfer pairing rules](/docs/features/rules) do most of this linking for you as transactions arrive.
 
 ## Splitting Transactions
 
@@ -96,7 +103,7 @@ The filter bar at the top provides multiple ways to narrow down your transaction
 - **Account**: Filter by a specific account
 - **Category**: Filter by one or more categories, or show only **uncategorized** transactions
 - **Payee**: Filter by merchant or person
-- **Type**: Show only income or only expenses
+- **Type**: Show only income, only expenses, or **transfers** (both linked pairs and transactions in a category marked as a transfer)
 - **Status**: All, posted only, or pending only
 - **Hide ignored**: drop ignored rows from the list
 - **Amount**: Set a minimum and/or maximum value
@@ -119,6 +126,8 @@ Select multiple transactions using the checkboxes to reveal the bulk action bar.
 - **Add to a group** with a split rule
 - **Link** two transactions as a transfer pair
 - **Delete** multiple transactions at once, behind a confirmation that names what is about to go. Transfer counterparts and attachments are cleaned up with them
+
+Right-clicking the selection opens a **context menu** with the same actions, closer to the rows you are working on.
 
 ## Questions From Payment Matching
 

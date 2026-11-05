@@ -5,6 +5,8 @@ description: Track what your clients owe and what you owe suppliers, issue invoi
 
 Invoices give a workspace a receivables side: what you have charged, what has been paid, and what is late. Draft an invoice from line items or just record an amount, issue it to assign a number, follow it through partly paid, paid, overdue, void or uncollectible, and settle it against the real transaction that paid it so the ledger and the bank never disagree. Bills from suppliers work the same way in the other direction.
 
+![Invoices](/screenshots/invoices.png)
+
 ## Availability
 
 Invoices belong to workspaces created as **Business**. The workspace type is chosen once, at creation, and cannot be changed later; a personal workspace does not show the section at all. See [Workspaces](/docs/features/workspaces).
@@ -62,6 +64,31 @@ An issued invoice renders as a document with your business block, the client blo
 **Share link** creates a single, revocable URL that shows the document and offers the PDF to whoever opens it, with no sign-in required. **Revoke link** turns it off; the invoice stays yours.
 
 The **Documents** tab keeps the paperwork that belongs to an invoice: the bill, the fiscal document, the receipt, a contract. Attach files as they arrive. For a bill you received rather than issued, attach the supplier's document and it is shown exactly as it came, marked as a received document.
+
+## Recurring Invoices
+
+An agreement that bills every period, a retainer, a plan, anything subscription-shaped, can be set up as a **recurring invoice**: the agreement emits one invoice per period on schedule, with the agreed amount and a due date.
+
+- **The price is a dated term.** The agreement keeps a price table, and a change applies from the first period starting on or after its date. Nothing is prorated, and old invoices keep the price they were issued with
+- The agreement page shows **what it bills per month**, **what is still to come**, and **every period written so far**
+- Periods are generated automatically on the schedule; **Generate pending** creates the ones that are due now
+- An invoice you wrote by hand can be **linked to the period it belongs to**, so the period counts as written
+
+## Installments
+
+"3x", or "half upfront, half on delivery": an invoice can carry the **installment schedule** the client agreed to, as rows that add up to the total.
+
+The invoice's due date becomes the **last installment**, so every list, filter and aging bucket keeps its meaning. Settled money covers the schedule first to last: what arrives always settles the oldest open installment first.
+
+## Deductions
+
+Sometimes debt closes without money arriving: tax withheld by the client, a gateway fee, an exchange difference. A **deduction** records that against an invoice. The balance and the state move (a fully covered invoice reads as paid), but what was received does not change, so the ledger and the bank still agree.
+
+## Product and Service Catalog
+
+The **Catalog** holds your products and services with their own prices, so an invoice line is **picked instead of typed**.
+
+It is optional at every level: a workspace with no catalog writes lines exactly as before, an invoice can mix catalog lines and free lines, and a price can still be changed on the spot. Catalog prices are dated too, so a price change applies going forward without rewriting invoices already issued.
 
 ## Invoice Settings
 

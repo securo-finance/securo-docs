@@ -93,3 +93,5 @@ Clicking **Reconnect** for an Enable Banking connection:
 - Reuses the country and bank you chose originally (no need to pick them again)
 - Builds a fresh consent URL and redirects you to authorize again
 - Updates the existing connection in place — your accounts and transaction history are preserved
+
+Reauthorizing never duplicates your accounts. Enable Banking scopes an account's id to a single consent session, so a fresh consent renames every id behind the scenes; Securo matches accounts on a stable identification that survives the re-keying, so the reconnect feeds the accounts you already have, along with their transactions, rules and name overrides.

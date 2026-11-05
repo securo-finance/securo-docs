@@ -120,6 +120,18 @@ O backend limita por endereço do cliente o login e outros endpoints sensíveis.
 
 O nginx embutido resolve o backend pelo DNS da plataforma na inicialização, o que funciona igual em Docker, Podman e Kubernetes. Se a sua plataforma precisar de um resolvedor específico, defina `NGINX_RESOLVER` no serviço do frontend.
 
+Se quem roda na frente é o **Traefik**, o serviço do frontend aceita os labels dele como opt-in: defina `TRAEFIK_ENABLE=true` e `TRAEFIK_NETWORK=<a rede em que o Traefik escuta>` (opcionalmente `TRAEFIK_RESOURCE_NAME`, único por implantação). Desligado por padrão, então configurações existentes ficam intactas.
+
+### Outros ajustes
+
+Defina no `.env` quando os padrões não servirem para o seu ambiente:
+
+| Variável | Padrão | O que faz |
+| --- | --- | --- |
+| `BANK_SYNC_MIN_INTERVAL_HOURS` | `4` | Horas mínimas entre sincronizações automáticas do bank sync por conexão. Aumente para bancos que limitam o acesso desacompanhado a quatro buscas por dia |
+
+O **fuso horário** da aplicação (o que decide qual dia é o "hoje" para saldos, orçamentos, vencimentos e trabalhos agendados) é definido nas configurações de administração e segue um nome IANA como `America/Sao_Paulo`; workspaces individuais podem sobrescrevê-lo, veja [Workspaces](/pt-BR/docs/features/workspaces).
+
 ## Backups
 
 De dentro do app, **Backup** (no menu do usuário) baixa o workspace ativo como um zip de JSON puro, cada conta, transação e regra, opcionalmente **criptografado com senha** (AES-256, abre em qualquer compactador comum). Os passos abaixo são o backup do servidor da instância inteira, que é de onde você restaura.

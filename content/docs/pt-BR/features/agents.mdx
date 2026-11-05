@@ -58,6 +58,10 @@ Clique em **Novo agente** e configure:
 6. **Auto-injetar contexto da conta**: prepende um pequeno resumo com seu nome, moeda, data de hoje e lista de contas em cada conversa
 7. **Agente padrão**: define este agente como o usado pelo chat global
 
+### Começar de um modelo
+
+Não quer um formulário em branco? Comece a partir de um dos **modelos embutidos**: assessor de economia, revisão mensal, vigia de orçamento e auditoria de recorrentes. Cada um é criado em um clique e continua inteiramente seu para renomear, reescrever o prompt e trocar as ferramentas.
+
 ## Base de Conhecimento
 
 Cada agente pode ter sua própria **base de conhecimento**. Na aba **Conhecimento** do agente, envie arquivos PDF, Markdown ou texto — um guia tributário, uma política de investimentos, suas próprias notas. O agente busca nesses documentos para fundamentar as respostas. Você pode **fixar** um documento para que ele seja sempre incluído no contexto.
@@ -66,7 +70,7 @@ Cada agente pode ter sua própria **base de conhecimento**. Na aba **Conheciment
 
 Na aba **Ferramentas**, você escolhe quais ações o agente pode executar. As ferramentas permitem que um agente consulte suas transações, contas, orçamentos e metas, e até crie ou atualize registros em seu nome. Novos agentes começam com todas as ferramentas desativadas — habilite só as que você quer que cada agente use.
 
-As [regras](/pt-BR/docs/features/rules) também entram: um agente (ou um cliente MCP externo, como o Claude Desktop) pode listar suas regras, pré-visualizar o que uma regra mudaria antes de existir, e propor uma regra para criar, atualizar ou excluir. Uma proposta nunca é aplicada sozinha; ela aparece como um cartão no chat para você confirmar.
+As [regras](/pt-BR/docs/features/rules) também entram: um agente (ou um cliente MCP externo, como o Claude Desktop) pode listar suas regras, pré-visualizar o que uma regra mudaria antes de existir, e propor uma regra para criar, atualizar ou excluir. Uma proposta nunca é aplicada sozinha; ela aparece como um cartão no chat para você confirmar. O mesmo padrão de propor e confirmar cobre um conjunto crescente de escritas: edições nas **notas e tags** de uma transação, criação de **grupos de categoria**, atualização de **metas e orçamentos**, exclusão de um orçamento e as **ferramentas de par de transferência** (listar candidatos contrapartes, propor um vínculo, propor um desvínculo). O servidor MCP embutido fala o transporte Streamable HTTP da era 2026-07-28 junto com o anterior, então os clientes conectam no que suportarem.
 
 ## Conversando com um Agente
 

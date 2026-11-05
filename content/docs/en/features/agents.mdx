@@ -58,6 +58,10 @@ Click **New agent** and configure:
 6. **Auto-inject account context**: Prepends a short primer with your name, currency, today's date, and account list to every conversation
 7. **Default agent**: Makes this the agent used by the global chat
 
+### Starting From a Template
+
+Don't want a blank form? Start from one of the **built-in templates**: a savings advisor, a monthly review, a budget watch, and a recurring audit. Each creates in one click and stays entirely yours to rename, re-prompt and re-tool from there.
+
 ## Knowledge Base
 
 Each agent can have its own **knowledge base**. On the agent's **Knowledge** tab, upload PDF, Markdown, or text files — a tax guide, an investment policy, your own notes. The agent searches these documents to ground its answers. You can **pin** a document so it's always included in context.
@@ -66,7 +70,7 @@ Each agent can have its own **knowledge base**. On the agent's **Knowledge** tab
 
 On the **Tools** tab, you choose which actions the agent is allowed to take. Tools let an agent query your transactions, accounts, budgets, and goals, and even create or update records on your behalf. New agents start with all tools disabled — enable only the ones you want each agent to use.
 
-[Rules](/docs/features/rules) are covered too: an agent (or an external MCP client such as Claude Desktop) can list your rules, preview what a rule would change before it exists, and propose a rule to create, update or delete. A proposal is never applied on its own; it shows up as a card in the chat for you to confirm.
+[Rules](/docs/features/rules) are covered too: an agent (or an external MCP client such as Claude Desktop) can list your rules, preview what a rule would change before it exists, and propose a rule to create, update or delete. A proposal is never applied on its own; it shows up as a card in the chat for you to confirm. The same propose-then-confirm pattern covers a growing set of writes: edits to a transaction's **notes and tags**, creating **category groups**, updating **goals and budgets**, deleting a budget, and the **transfer-pair tools** (list counterpart candidates, propose a link, propose an unlink). The built-in MCP server speaks the 2026-07-28 Streamable HTTP transport alongside the older era, so clients connect on whichever they support.
 
 ## Chatting with an Agent
 

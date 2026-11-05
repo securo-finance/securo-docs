@@ -5,6 +5,8 @@ description: Mantenha espaços financeiros separados e compartilhe com quem prec
 
 Um workspace guarda um conjunto completo e independente de dados financeiros: suas próprias contas, transações, categorias, orçamentos e metas. Seu primeiro workspace é criado automaticamente na [primeira inicialização](/pt-BR/docs/getting-started/first-launch), e você pode criar outros sempre que um bolo de dados não deve se misturar com outro: as finanças da casa separadas de um projeto paralelo, ou um espaço que você administra para outra pessoa.
 
+![Workspaces](/screenshots/workspaces.png)
+
 ## Criando e Alternando
 
 O **seletor de workspace** na barra lateral mostra todos os seus workspaces e permite pular entre eles; tudo no app opera sempre sobre o workspace ativo. Clique em **Novo workspace** para criar outro; cada um tem nome, ícone, tipo, moeda padrão, idioma e jurisdição fiscal próprios.
@@ -17,6 +19,8 @@ O **tipo** é escolhido uma vez, na criação, e não pode ser alterado depois:
 | **Negócios** | O mesmo, mais [Cobranças](/pt-BR/docs/features/invoices) (a receber e a pagar) e a [conciliação de pagamentos](/pt-BR/docs/features/reconciliation) de cobranças |
 
 A **jurisdição fiscal** define quais documentos fiscais o workspace oferece (CNPJ e CPF no Brasil, NIF em Portugal, EIN nos EUA, e assim por diante) e, para a Índia, um exercício fiscal de abril a março nos relatórios. É independente do idioma da interface.
+
+Um workspace também pode ter seu próprio **fuso horário**, definido nas configurações. Ele decide qual dia é o "hoje" para os saldos, orçamentos, vencimentos e trabalhos agendados daquele workspace. Ele se apoia no fuso da aplicação definido por um administrador (que por padrão segue o servidor); um workspace sem fuso próprio simplesmente segue o da instância, então um mesmo servidor pode guardar contabilidade que fecha em São Paulo e contabilidade que fecha em Tóquio.
 
 Um workspace que você não usa mais pode ser **arquivado** pela página de configurações: ele some do seletor, mas todos os dados são preservados.
 
