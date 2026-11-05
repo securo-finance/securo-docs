@@ -129,6 +129,8 @@ Set these in `.env` when the defaults do not fit your setup:
 | Variable | Default | What it does |
 | --- | --- | --- |
 | `BANK_SYNC_MIN_INTERVAL_HOURS` | `4` | Minimum hours between automatic bank syncs per connection. Raise it for banks that cap unattended access to four fetches a day |
+| `OPENEXCHANGERATES_APP_ID` | none | Enables automatic currency conversion with a free [Open Exchange Rates](https://openexchangerates.org/) key. Rates are fetched on demand when foreign-currency transactions are created; without a key, cross-currency amounts fall back to a 1:1 rate with a visual warning |
+| `TZ` | host timezone | The startup default for the application timezone when no value has been saved in Admin Settings: Securo follows `TZ`, then the host timezone, then UTC, so an existing installation keeps behaving as before until someone picks a timezone in **Admin Settings → Date and time** |
 
 The application **timezone** (the one that decides which day "today" is for balances, budgets, due dates and scheduled work) is set in the admin settings and follows an IANA name like `America/Sao_Paulo`; individual workspaces can override it, see [Workspaces](/docs/features/workspaces).
 

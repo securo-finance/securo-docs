@@ -14,6 +14,22 @@ Os agentes são um recurso opcional e vêm desativados por padrão. Para usá-lo
 - `AGENTS_ENABLED=true` definido no ambiente do backend
 - Os serviços de agentes rodando: `docker compose --profile agents up -d`
 
+### Rodando agentes sem Docker
+
+`COMPOSE_PROFILES=agents` só diz ao Docker Compose para iniciar o container extra do `mcp-server`. Numa instalação em bare-metal, defina apenas `AGENTS_ENABLED=true` e rode o servidor MCP embutido ao lado do processo da API:
+
+```bash
+# ao lado dos processos da API/worker/beat
+uvicorn mcp_server.main:app --host 127.0.0.1 --port 8765
+```
+
+```ini
+AGENTS_ENABLED=true
+AGENTS_BUILTIN_MCP_URL=http://127.0.0.1:8765/mcp
+```
+
+Sem esse servidor os agentes ainda conversam, mas ficam sem ferramentas e não conseguem ler seus dados. O log do backend diz qual servidor MCP não conseguiu alcançar.
+
 Uma vez habilitado, uma entrada **Agentes** aparece na barra lateral.
 
 ## Conexões com LLMs

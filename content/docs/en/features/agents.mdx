@@ -16,6 +16,22 @@ Agents are an optional feature and are turned off by default. To use them, your 
 
 Once enabled, an **Agents** entry appears in the sidebar.
 
+### Running Agents Without Docker
+
+`COMPOSE_PROFILES=agents` only tells Docker Compose to start the extra `mcp-server` container. On a bare-metal install, set `AGENTS_ENABLED=true` alone and run the built-in MCP server next to the API process:
+
+```bash
+# alongside the API/worker/beat processes
+uvicorn mcp_server.main:app --host 127.0.0.1 --port 8765
+```
+
+```ini
+AGENTS_ENABLED=true
+AGENTS_BUILTIN_MCP_URL=http://127.0.0.1:8765/mcp
+```
+
+Without that server the agents still chat, but they have no tools and cannot read your data. The backend log says which MCP server it failed to reach.
+
 ## LLM Connections
 
 An agent needs a **connection** to a language model provider. Open **Manage connections** and click **Add connection**. Securo supports:

@@ -129,6 +129,8 @@ Defina no `.env` quando os padrões não servirem para o seu ambiente:
 | Variável | Padrão | O que faz |
 | --- | --- | --- |
 | `BANK_SYNC_MIN_INTERVAL_HOURS` | `4` | Horas mínimas entre sincronizações automáticas do bank sync por conexão. Aumente para bancos que limitam o acesso desacompanhado a quatro buscas por dia |
+| `OPENEXCHANGERATES_APP_ID` | nenhuma | Ativa a conversão automática de moedas com uma chave gratuita do [Open Exchange Rates](https://openexchangerates.org/). As taxas são buscadas sob demanda quando transações em moeda estrangeira são criadas; sem chave, valores entre moedas caem no fallback 1:1 com um aviso visual |
+| `TZ` | fuso do host | O padrão de inicialização do fuso da aplicação quando não há valor salvo em Admin Settings: o Securo segue `TZ`, depois o fuso do host, depois UTC, então uma instalação existente continua se comportando como antes até alguém escolher um fuso em **Admin Settings → Date and time** |
 
 O **fuso horário** da aplicação (o que decide qual dia é o "hoje" para saldos, orçamentos, vencimentos e trabalhos agendados) é definido nas configurações de administração e segue um nome IANA como `America/Sao_Paulo`; workspaces individuais podem sobrescrevê-lo, veja [Workspaces](/pt-BR/docs/features/workspaces).
 
