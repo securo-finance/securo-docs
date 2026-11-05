@@ -23,7 +23,9 @@ This report helps you answer the fundamental question: am I spending more than I
 
 ## Cash Flow
 
-The **Cash Flow** report tracks your running balance forward in time, projecting inflows and outflows over the months ahead. The summary shows your starting balance, projected inflow, projected outflow, and projected ending balance.
+The **Cash Flow** report tracks your running balance forward in time, projecting inflows and outflows over the months ahead. The summary shows your starting balance, projected inflow, projected outflow, and projected ending balance, and the report also names the **lowest point** of the projection and, when it crosses zero, **the day your balance runs out**. That bottom is read off a day-by-day walk, so a dip inside a month still counts even when the chart is drawn by month.
+
+Alongside the flow, **net cash-flow bars** show income minus expenses per period: positive bars above the axis, negative ones below, so a month that quietly lost money stands out.
 
 A positive trend means you're on track to save; a downward trend is an early warning that spending is outpacing income.
 
@@ -41,11 +43,17 @@ Alongside the composition donut, the **Category Trends** panel shows a small spa
 
 ## Time Range and Granularity
 
-Each report supports flexible controls in the top right:
+The range selector in the top right offers three ways to set the window:
+
+- **Presets**: the fixed windows (6M, YTD, 1Y, 2Y), plus **This month** and **Last month**
+- **Custom range**: pick any start and end date
+- **Year**: pick a whole year from the picker instead of typing two dates
+
+Next to the selector, **arrows step the window** back and forward by its own length: a month view walks month by month, a custom 47-day range walks in 47-day steps. The range you picked survives a reload and follows you between pages, and each report tab also keeps its own.
 
 | Control | Net Worth & Income vs Expenses | Cash Flow |
 |---------|-------------------------------|-----------|
-| **Range** | 6M, YTD, 1Y, 2Y | 3M, 6M, 12M |
+| **Range** | Presets, custom dates, year picker, step arrows | Presets, custom dates, year picker, step arrows |
 | **Granularity** | Daily, Weekly, Monthly, Yearly | Daily, Weekly, Monthly |
 
 Net Worth and Income vs Expenses look backward over your historical data, while Cash Flow projects forward.

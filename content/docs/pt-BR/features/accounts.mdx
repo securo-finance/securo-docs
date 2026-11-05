@@ -20,6 +20,9 @@ São contas que você administra na mão. Você as cria, define um saldo inicial
 - **Cartão de Crédito**
 - **Investimento**
 - **Carteira**
+- **Empréstimo / financiamento**
+
+Uma conta de **Empréstimo / financiamento** acompanha dívida: o saldo lê a dívida em aberto, e as configurações trazem **dados do contrato** opcionais (taxa, prazo, primeira parcela, sistema de amortização) que a transformam em um rastreador completo, com cronograma e data de quitação. Veja [Empréstimos](/pt-BR/docs/features/loans). Uma conta só entra ou sai desse tipo enquanto não tiver transações.
 
 ### Conexões Bancárias
 
@@ -39,6 +42,8 @@ Por exemplo, você pode ter:
 - Uma conta de investimento em **USD** (Dólar Americano)
 
 O painel e os relatórios mostram o saldo de cada conta na sua moeda nativa, junto com o valor convertido equivalente na sua moeda principal. Isso facilita ver seu patrimônio líquido total entre moedas.
+
+Quando não há taxa de câmbio disponível para a moeda de uma conta, o Securo mostra o saldo **na própria moeda e avisa que falta o câmbio**, em vez de passar um número não convertido como se estivesse, e os totais dizem quando estão incompletos.
 
 ## Criando uma Conta
 
@@ -70,4 +75,4 @@ Quando você tem muitas contas, as [coleções](/pt-BR/docs/features/collections
 
 ## Barra Lateral de Contas
 
-Suas contas ficam sempre visíveis na barra lateral principal, mostrando o nome, o tipo, o saldo atual e um indicador de variação percentual. Isso te dá uma olhada rápida em todos os saldos sem precisar sair da página em que você está.
+Suas contas ficam sempre visíveis na barra lateral principal, mostrando o nome, o tipo, o saldo atual e um indicador de variação percentual. Isso te dá uma olhada rápida em todos os saldos sem precisar sair da página em que você está. No desktop a barra lateral também pode **recolher até os ícones**, e guarda a escolha, para quem quer a largura de volta.

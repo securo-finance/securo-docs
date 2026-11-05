@@ -21,7 +21,7 @@ When a transaction is added (manually, via import, or through bank sync), Securo
 
 A condition targets a transaction field and compares it with an operator:
 
-- **Fields**: Description, Imported payee (the counterparty exactly as the bank sent it), Notes, Amount, Type (income/expense), Account, Payee, Date
+- **Fields**: Description, Imported payee (the counterparty exactly as the bank sent it), Notes, Amount, Type (income/expense), Status (posted or pending), Account, Payee, Date
 - **Text operators**: contains, does not contain, starts with, ends with, equals, does not equal, and regex for complex patterns (e.g., `description regex "SALARY|PAYROLL|DIRECT DEPOSIT"`). Text matching is case-insensitive and accent-insensitive.
 - **Amount and date operators**: equals, greater than, greater or equal, less than, less or equal
 
@@ -78,6 +78,16 @@ The rules page lets you sort by **Priority**, **Name**, or **Category**, and a l
 ## Matching Rules, Queue and History
 
 The Rules page has two more tabs, **Waiting for you** and **History**, and a **Matching rules** section under the categorization rules. These belong to [payment matching](/docs/features/reconciliation): the rules that bind an incoming payment to the invoice or recurring bill it settles, the questions it could not answer alone, and the record of what it did.
+
+### Transfer Pairing Rules
+
+The rules that link the two legs of a **transfer** live here too, as a card next to the invoice and recurring sets: the window, the signals and the decision to link rather than ask are ordinary rows you can read, reorder, edit, switch off, export and import like every other rule.
+
+Pairing is conservative on purpose:
+
+- A pair is linked only when **each leg is the other's single best answer**. Two same-amount transfers leaving one account on the same day go to the queue instead of pairing at random
+- A card purchase **leaves the candidate pool before any rule runs**, so it can never be mistaken for the other side of a transfer
+- The **waiting queue** asks you when the answer is not clear, and the pairing tools are also exposed to the built-in [MCP server](/docs/features/agents): list counterpart candidates, propose a link, propose an unlink
 
 ## Example Rules
 

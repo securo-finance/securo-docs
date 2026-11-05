@@ -5,6 +5,8 @@ description: Acompanhe o que seus clientes devem e o que você deve a fornecedor
 
 Cobranças dão ao workspace um lado de recebíveis: o que você cobrou, o que foi pago e o que está atrasado. Monte uma cobrança a partir de itens ou registre só um valor, emita para receber um número, acompanhe por parcial, recebida, vencida, cancelada ou incobrável, e liquide contra a transação real que a pagou, para o livro e o banco nunca discordarem. Contas de fornecedores funcionam do mesmo jeito, na outra direção.
 
+![Cobranças](/screenshots/invoices.png)
+
 ## Disponibilidade
 
 Cobranças pertencem a workspaces criados como **Negócios**. O tipo é escolhido uma vez, na criação, e não pode ser alterado depois; um workspace pessoal não mostra a seção. Veja [Workspaces](/pt-BR/docs/features/workspaces).
@@ -62,6 +64,31 @@ Uma cobrança emitida vira um documento com o bloco do seu negócio, o bloco do 
 **Compartilhar** cria um link único e revogável que mostra o documento e oferece o PDF a quem abrir, sem exigir login. **Revogar link** desliga; a cobrança continua sua.
 
 A aba **Documentos** guarda a papelada que pertence a uma cobrança: a fatura, a nota fiscal, o comprovante, um contrato. Anexe os arquivos conforme chegam. Para uma conta que você recebeu em vez de emitir, anexe o documento do fornecedor e ele é exibido exatamente como veio, marcado como documento recebido.
+
+## Cobranças recorrentes
+
+Um contrato que fatura todo período, um retainer, um plano, qualquer coisa em formato de assinatura, pode ser configurado como **cobrança recorrente**: o contrato emite uma cobrança por período no calendário, com o valor combinado e data de vencimento.
+
+- **O preço é um termo datado.** O contrato mantém uma tabela de preços, e uma mudança vale a partir do primeiro período que comece na data ou depois dela. Nada é prorrateado, e as cobranças já emitidas mantêm o preço com que foram emitidas
+- A página do contrato mostra **quanto ele fatura por mês**, **o que ainda está por vir** e **todos os períodos escritos até agora**
+- Os períodos são gerados automaticamente na agenda; **Gerar pendentes** cria os que estão vencendo agora
+- Uma cobrança escrita à mão pode ser **vinculada ao período a que pertence**, para que o período conte como escrito
+
+## Parcelamento para o cliente
+
+"3x", ou "metade na assinatura, metade na entrega": uma cobrança pode carregar o **cronograma de parcelas** com que o cliente concordou, como linhas que somam o total.
+
+O vencimento da cobrança passa a ser a **última parcela**, então listas, filtros e as faixas de aging mantêm seu sentido. O dinheiro quita o cronograma da primeira à última: o que entra sempre cobre primeiro a parcela em aberto mais antiga.
+
+## Descontos
+
+Às vezes a dívida se encerra sem dinheiro chegar: imposto retido pelo cliente, taxa de gateway, diferença de câmbio. Um **desconto** registra isso contra a cobrança. O saldo e o status se movem (uma cobrança totalmente coberta aparece como paga), mas o que foi recebido não muda, então o livro e o banco continuam batendo.
+
+## Catálogo de produtos e serviços
+
+O **Catálogo** guarda seus produtos e serviços com preços próprios, então a linha da cobrança é **escolhida em vez de digitada**.
+
+É opcional em todo nível: um workspace sem catálogo escreve linhas exatamente como antes, uma cobrança pode misturar linhas do catálogo e linhas livres, e um preço ainda pode ser mudado na hora. Os preços do catálogo também são datados: uma mudança vale para frente, sem reescrever cobranças já emitidas.
 
 ## Configurações de Cobrança
 

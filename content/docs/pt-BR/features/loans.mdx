@@ -1,0 +1,68 @@
+---
+title: Empréstimos
+description: "Acompanhe um financiamento imobiliário, de veículo ou um empréstimo pessoal pelo contrato: cronograma de parcelas, juros, amortização e a data real de quitação."
+---
+
+Uma conta de **Empréstimo / financiamento** registra a dívida que você deve. Preencher os **dados do contrato** transforma essa conta em um rastreador completo: o Securo calcula o cronograma de parcelas, separa cada pagamento em juros e amortização, e mostra quando a dívida vai acabar, tanto pelo contrato quanto no ritmo com que você realmente está pagando.
+
+![Contrato do empréstimo](/screenshots/loans.png)
+
+## Criando uma conta de empréstimo
+
+Na página [Contas](/pt-BR/docs/features/accounts), crie uma conta do tipo **Empréstimo / financiamento** (uma conta existente só pode entrar ou sair desse tipo enquanto não tiver transações). A conta guarda a dívida em aberto, exibida como saldo negativo.
+
+Abra as configurações da conta e preencha os **Dados do contrato** (opcionais, mas tudo abaixo depende deles):
+
+| Campo | O que é |
+|-------|---------|
+| **Tipo de empréstimo** | Financiamento imobiliário, financiamento de veículo, empréstimo pessoal, crédito estudantil ou outro |
+| **Valor contratado** | O valor original da dívida |
+| **Taxa de juros (%)** e **Período da taxa** | A taxa, declarada ao mês, ao ano (efetiva) ou ao ano (nominal) |
+| **Prazo (meses)** | Quantas parcelas o contrato prevê |
+| **Primeira parcela** | A data da primeira parcela |
+| **Sistema de amortização** | **Parcela fixa (Price)**, o sistema mais comum no Brasil, ou **Amortização constante (SAC)**, em que a amortização é fixa e a parcela cai ao longo do tempo |
+
+## O card do contrato
+
+Com os dados preenchidos, a página da conta mostra o card **Contrato do empréstimo**:
+
+- **Próxima parcela**, já separada em **juros** e **amortização** para a data que vem
+- **Parcelas restantes** (por exemplo, 187 de 360) com uma barra de progresso
+- **Juros totais** que ainda faltam pagar pelo contrato
+- A data de **quitação pelo contrato** e uma projeção de **quitação neste ritmo**, baseada na velocidade real dos seus pagamentos, dizendo o quanto você está **adiantado** ou **atrasado** em relação ao contrato
+- Um selo de status: em dia, quitado ou atrasado
+
+**Ver cronograma** abre o cronograma completo calculado pela tabela price/SAC, uma linha por parcela com data, valor, juros, amortização e saldo devedor. Ele abre na parcela atual, não no começo de um financiamento de trinta anos.
+
+O cronograma é calculado na leitura, nunca armazenado: mudar um dado do contrato rederiva tudo na hora.
+
+## Mantendo o saldo alinhado com o credor
+
+Contratos indexados ou renegociados se desviam do cronograma. **Atualizar saldo** deixa você informar o saldo que o extrato do credor mostra, com a data do extrato:
+
+- Se a dívida **cresceu**, a diferença é registrada como uma transação nessa conta de empréstimo (um custo do empréstimo, na categoria que você escolher)
+- Se a dívida **diminuiu**, o saldo é corrigido sem contar como receita
+- Se o livro já bate com o extrato, nada é registrado
+
+O preview diz qual dos três casos vai acontecer antes de você salvar.
+
+## Empréstimos com garantia de imóvel
+
+Um empréstimo pode apontar o [ativo](/pt-BR/docs/features/assets) que serve de garantia, normalmente um imóvel:
+
+- O painel de detalhes do imóvel lista os **empréstimos vinculados**, a dívida de cada um e o **patrimônio líquido restante**: o valor do imóvel menos a dívida que pesa sobre ele
+- Um pagamento de financiamento registrado pode ser **dividido entre juros e amortização** em relação ao imóvel, para aparecer onde importa o quanto do bem está sendo comprado de volta. Quando o empréstimo é sincronizado com o banco, o banco já reporta o saldo, então a divisão é salva sem lançar a amortização de novo
+
+## Empréstimos vindos do bank sync
+
+Uma conta sincronizada do banco também pode carregar os dados do contrato: um **override de empréstimo** anexa o contrato à conta conectada, e a dívida mantém o sinal correto em cada sincronização. O card do contrato, o cronograma e a quitação funcionam exatamente como na conta manual.
+
+## Onde os empréstimos aparecem
+
+- **Dashboard**: os empréstimos formam uma linha própria, em vez de entrar escondidos no saldo disponível
+- **Patrimônio líquido**: a dívida em aberto conta como passivo
+- **Barra lateral**: as contas de empréstimo aparecem com as demais, rotuladas pela dívida em aberto
+
+<Callout>
+Pagar o empréstimo é uma transação normal nessa conta. O card do contrato acompanha o cronograma; as transações é que mantêm os números honestos.
+</Callout>

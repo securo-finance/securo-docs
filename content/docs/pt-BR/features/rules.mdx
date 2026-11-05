@@ -21,7 +21,7 @@ Quando uma transação é adicionada (manualmente, via importação ou pela sinc
 
 Uma condição mira um campo da transação e o compara com um operador:
 
-- **Campos**: Descrição, Pessoa importada (a contraparte exatamente como o banco enviou), Notas, Valor, Tipo (receita/despesa), Conta, Pessoa, Data
+- **Campos**: Descrição, Pessoa importada (a contraparte exatamente como o banco enviou), Notas, Valor, Tipo (receita/despesa), Status (lançada ou pendente), Conta, Pessoa, Data
 - **Operadores de texto**: contém, não contém, começa com, termina com, é igual a, é diferente de, e regex para padrões complexos (ex.: `descrição regex "SALARIO|PAGAMENTO|FOLHA"`). A correspondência de texto ignora maiúsculas/minúsculas e acentos.
 - **Operadores de valor e data**: igual, maior que, maior ou igual, menor que, menor ou igual
 
@@ -78,6 +78,16 @@ A página de regras permite ordenar por **Prioridade**, **Nome** ou **Categoria*
 ## Regras de Conciliação, Fila e Histórico
 
 A página de Regras tem mais duas abas, **Esperando você** e **Histórico**, e uma seção **Regras de conciliação** abaixo das regras de categorização. Elas pertencem à [conciliação de pagamentos](/pt-BR/docs/features/reconciliation): as regras que ligam um pagamento que entra à cobrança ou recorrente que ele quita, as perguntas que ela não conseguiu responder sozinha e o registro do que fez.
+
+### Regras de pareamento de transferências
+
+As regras que ligam as duas pernas de uma **transferência** moram aqui também, num card ao lado dos conjuntos de cobrança e recorrentes: a janela, os sinais e a decisão de vincular em vez de perguntar são linhas comuns, que você pode ler, reordenar, editar, desligar, exportar e importar como qualquer outra regra.
+
+O pareamento é conservador de propósito:
+
+- Um par é vinculado apenas quando **cada perna é a melhor resposta única da outra**. Duas transferências do mesmo valor saindo da mesma conta no mesmo dia vão para a fila em vez de parear ao acaso
+- Uma compra de cartão **sai do conjunto de candidatos antes de qualquer regra rodar**, para nunca ser confundida com o outro lado de uma transferência
+- A **fila de espera** pergunta quando a resposta não é clara, e as ferramentas de pareamento também aparecem no **servidor MCP embutido**: listar candidatos contrapartes, propor um vínculo, propor um desvínculo
 
 ## Exemplos de Regras
 

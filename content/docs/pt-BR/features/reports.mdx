@@ -23,7 +23,9 @@ Esse relatório ajuda você a responder à pergunta fundamental: estou gastando 
 
 ## Fluxo de Caixa
 
-O relatório de **Fluxo de Caixa** acompanha seu saldo corrente projetando entradas e saídas para os meses à frente. O resumo mostra saldo inicial, entrada projetada, saída projetada e saldo final projetado.
+O relatório de **Fluxo de Caixa** acompanha seu saldo corrente projetando entradas e saídas para os meses à frente. O resumo mostra saldo inicial, entrada projetada, saída projetada e saldo final projetado, e o relatório também aponta o **ponto mais baixo** da projeção e, quando ela cruza o zero, **o dia em que o saldo acaba**. Esse fundo é lido em uma caminhada dia a dia, então um buraco dentro de um mês conta mesmo quando o gráfico é desenhado por mês.
+
+Junto do fluxo, as **barras de fluxo de caixa líquido** mostram entradas menos despesas por período: barras positivas acima do eixo, negativas abaixo, para que um mês que perdeu dinheiro em silêncio apareça.
 
 Uma tendência positiva significa que você está no caminho de economizar; uma tendência de queda é um alerta precoce de que os gastos estão superando a receita.
 
@@ -41,11 +43,17 @@ Ao lado da rosca de composição, o painel de **Tendências por Categoria** most
 
 ## Período e Granularidade
 
-Cada relatório tem controles flexíveis no canto superior direito:
+O seletor de período no canto superior direito oferece três formas de definir a janela:
+
+- **Predefinições**: as janelas fixas (6M, YTD, 1A, 2A), mais **Este mês** e **Mês passado**
+- **Período personalizado**: escolha qualquer data inicial e final
+- **Ano**: escolha um ano inteiro no seletor em vez de digitar duas datas
+
+Ao lado do seletor, **setas movem a janela** para trás e para frente pelo próprio comprimento dela: uma visão mensal anda mês a mês, um período personalizado de 47 dias anda em passos de 47 dias. O período escolhido sobrevive a um recarregamento e acompanha você entre as páginas, e cada aba de relatório também guarda o seu.
 
 | Controle | Patrimônio Líquido e Receitas vs Despesas | Fluxo de Caixa |
 |----------|-------------------------------------------|----------------|
-| **Período** | 6M, YTD, 1A, 2A | 3M, 6M, 12M |
+| **Período** | Predefinições, datas personalizadas, seletor de ano, setas | Predefinições, datas personalizadas, seletor de ano, setas |
 | **Granularidade** | Diária, Semanal, Mensal, Anual | Diária, Semanal, Mensal |
 
 Patrimônio Líquido e Receitas vs Despesas olham para trás, sobre seus dados históricos, enquanto Fluxo de Caixa projeta para frente.

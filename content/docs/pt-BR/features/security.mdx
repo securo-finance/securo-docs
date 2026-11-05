@@ -5,6 +5,8 @@ description: Proteja sua conta do Securo com passkeys, autenticação em dois fa
 
 Sua instância do Securo guarda todo o seu histórico financeiro, então o login merece mais do que uma senha. O Securo suporta passkeys, autenticação em dois fatores TOTP e single sign-on OIDC, tudo self-hosted, sem nada sair do seu servidor.
 
+![Login e segurança](/screenshots/security.png)
+
 ## Passkeys
 
 As passkeys permitem entrar com a digital do dispositivo, o desbloqueio facial ou uma chave de segurança física, sem digitar senha. Registre uma nas configurações da sua conta e a página de login ganha um botão **Continuar com passkey**; o navegador também oferece uma passkey salva direto no campo de e-mail, do jeito que oferece uma senha salva.
@@ -12,6 +14,7 @@ As passkeys permitem entrar com a digital do dispositivo, o desbloqueio facial o
 - Você pode registrar várias passkeys (notebook, celular, uma chave física de reserva) e remover qualquer uma depois
 - Uma passkey também pode servir de **segundo fator** para logins com senha, no lugar do código do autenticador
 - Passkeys exigem um contexto seguro: sirva o Securo via **HTTPS** (ou use `localhost`). Num endereço HTTP puro da rede local o navegador recusa, é uma regra da plataforma, não uma limitação do Securo
+- Por padrão o Securo segue o endereço em que você abre a instância. Para fixar as passkeys em um domínio, defina `WEBAUTHN_RP_ID` (use o domínio raiz se você acessa o Securo por vários subdomínios). Requisições de um endereço inviável recebem uma explicação na interface em vez de uma falha silenciosa
 
 ## Autenticação em Dois Fatores
 
@@ -33,9 +36,13 @@ OIDC_PROVIDER_NAME=Authentik
 OIDC_DISCOVERY_URL=https://auth.seudominio.com/.well-known/openid-configuration
 OIDC_CLIENT_ID=securo
 OIDC_CLIENT_SECRET=seu-client-secret
+# Opcional; padrão ${FRONTEND_URL}/api/auth/oidc/callback
+OIDC_REDIRECT_URI=https://seu-host-securo/api/auth/oidc/callback
 ```
 
-A página de login ganha um botão "Continuar com ..." com o nome do seu provedor. Auto-registro de novos usuários, exigência de email verificado e mapeamento de grupos do provedor para papéis são todos configuráveis; veja o `.env.example` no repositório para a lista completa de opções `OIDC_*`.
+No provedor, registre `https://seu-host-securo/api/auth/oidc/callback` como redirect URI. Novos usuários são provisionados automaticamente por padrão (`OIDC_AUTO_REGISTER=true`) usando endereços de email verificados; defina `OIDC_AUTO_REGISTER=false` para admitir apenas usuários Securo já existentes cujo email bata com a claim do provedor.
+
+A página de login ganha um botão "Continuar com ..." com o nome do seu provedor. Auto-registro de novos usuários, vínculo de contas existentes e sincronização de papéis do provedor estão cobertos nas seções abaixo; veja o `.env.example` no repositório para a lista completa de opções `OIDC_*`.
 
 ### Vinculando contas existentes
 
@@ -52,6 +59,21 @@ Use `verified_email` para migrar seus usuários existentes para SSO sem recriar 
 ### Somente OIDC
 
 Para tornar o provedor de identidade o único caminho de entrada, defina `LOCAL_AUTH_ENABLED=false`. O login por senha e por passkey é desligado junto com todas as rotas de autenticação local por trás dele, e a página de login mostra só o botão do provedor. O Securo se recusa a iniciar com essa configuração se o OIDC não estiver ativado, então um erro de digitação não tranca todo mundo do lado de fora. Quem tinha 2FA ou passkeys cadastrados antes da troca ainda pode removê-los nas configurações da conta; só não pode adicionar novos.
+
+Numa instância nova somente OIDC, a primeira conta precisa chegar pelo OIDC: mantenha `OIDC_AUTO_REGISTER=true`, ative `OIDC_SYNC_ROLES=true` e garanta que a claim de papéis dessa identidade carregue um dos valores de `OIDC_ADMIN_ROLES`, para que o primeiro login vire administrador do Securo. Não desligue o auto-registro antes de existir pelo menos uma conta correspondente.
+
+### Sincronização de papéis do OIDC
+
+Com `OIDC_SYNC_ROLES=true`, o Securo mapeia os papéis/grupos que o seu provedor envia sobre as permissões internas a cada login OIDC:
+
+```ini
+OIDC_SYNC_ROLES=true
+OIDC_ROLES_CLAIM=groups            # a claim com os papéis/grupos; "groups" serve para Authentik e Pocket ID
+OIDC_ADMIN_ROLES=securo-admins     # pertencer a ela concede ou revoga o admin do Securo
+OIDC_WORKSPACE_ROLE_MAP={"securo-owners":"owner","securo-editors":"editor","securo-viewers":"viewer"}
+```
+
+`OIDC_WORKSPACE_ROLE_MAP` mapeia papéis do provedor para o papel do usuário no workspace Pessoal (`owner`, `editor` ou `viewer`); quando vários papéis mapeados estão presentes, vale a permissão mais alta. Deixe `OIDC_SYNC_ROLES=false` para manter todos os papéis do Securo gerenciados localmente.
 
 ## Senhas
 

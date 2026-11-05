@@ -97,6 +97,8 @@ O Bridge consulta os bancos na cadência dele (em geral, uma vez por dia). Se vo
 
 É um erro transitório do SimpleFIN ou do banco. O Securo registra um warning e importa o que veio junto. O próximo sync tenta de novo.
 
+Um banco com problema nunca derruba a conexão inteira. Atrás de uma única Access URL pode haver vários bancos: se um precisa de reautorização, os outros seguem sincronizando normalmente, as contas com problema carregam um aviso de reautorização, e uma conexão em estado de erro oferece uma sincronização de tentativa em vez de só uma reconexão completa. Uma claim que volta com avisos mas contas utilizáveis é aceita, não recusada por inteiro. Reconectar com um token novo também casa com as contas já importadas em vez de criar um segundo conjunto.
+
 ## Referências
 
 - [Especificação do protocolo SimpleFIN](https://www.simplefin.org/protocol.html)

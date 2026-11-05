@@ -37,13 +37,8 @@ Below the chart, a **Composition** donut breaks down what makes up your net wort
 
 ## Time Range
 
-Like other reports, you can adjust the time range:
-
-- **6M**: Last 6 months
-- **YTD**: Since January 1st
-- **1Y**: Last 1 year (default)
-- **2Y**: Last 2 years
+Like other reports, you can adjust the time range: preset windows (6M, YTD, 1Y, 2Y), **This month** and **Last month**, a **custom start and end date**, a whole **year** picked from the picker, and step arrows that walk the window back and forward. The range survives a reload, and each report tab keeps its own. See [Reports](/docs/features/reports).
 
 ## Multi-Currency Totals
 
-If you have accounts in different currencies, Securo converts everything to your primary currency for the net worth calculation. Individual accounts still show their native currency amounts alongside the converted values.
+If you have accounts in different currencies, Securo converts everything to your primary currency for the net worth calculation. Individual accounts still show their native currency amounts alongside the converted values. Balances and assets in a currency with no rate available are left out of the converted totals rather than summed unconverted, and the total says when it is incomplete.

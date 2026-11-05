@@ -25,7 +25,7 @@ O Securo aceita quatro formatos de arquivo:
 1. Navegue até **Importar** na barra lateral
 2. **Arraste e solte** um arquivo na área de upload, ou clique para escolher o arquivo
 3. O Securo vai interpretar o arquivo e mostrar uma prévia das transações
-4. Revise as transações: atribua ou ajuste a **categoria linha a linha** e desmarque as linhas que não quiser. Uma coluna de categoria do CSV que bate com uma categoria sua pelo nome já vem selecionada, e uma [regra](/pt-BR/docs/features/rules) que case com a linha tem precedência sobre ela
+4. Revise as transações: atribua ou ajuste a **categoria linha a linha** e desmarque as linhas que não quiser. Uma coluna de categoria do CSV que bate com uma categoria sua pelo nome já vem selecionada, e uma [regra](/pt-BR/docs/features/rules) que case com a linha tem precedência sobre ela. A caixa no cabeçalho da tabela seleciona ou desmarca **todas as linhas filtradas**, não só as da página que você está vendo
 5. Confirme a importação
 
 ## Mapeamento de Colunas do CSV
@@ -37,6 +37,7 @@ Exportações reais de banco raramente seguem um template fixo, então a importa
 - **Formato de data**: escolha o formato quando o banco usa `15.01.2026` ou outros estilos regionais
 - **Inverter valores**: para bancos que exportam despesas como números positivos
 - **Colunas separadas de entrada/saída**: para exportações que dividem créditos e débitos em duas colunas
+- **Separadores de milhar**: lidos por coluna a partir de todos os seus valores, então `25,000` numa coluna que usa vírgula como separador significa vinte e cinco mil, e qualquer símbolo de moeda (`R$`, `$`, `€`, ...) é reconhecido
 
 Se preferir remodelar os dados você mesmo, um **template de CSV** com a estrutura esperada pode ser baixado na página de importação.
 
@@ -46,9 +47,9 @@ Abaixo da área de upload, a seção **Histórico de Importação** mostra todas
 
 ## Tratamento de Duplicatas
 
-O Securo verifica duplicatas durante a importação, comparando pelo ID da transação quando o arquivo tem um, e por data, valor e descrição quando não tem. Duplicatas são puladas automaticamente e o resumo da importação informa quantas ficaram de fora.
+O Securo verifica duplicatas durante a importação, comparando pelo ID da transação quando o arquivo tem um, e por data, valor e descrição quando não tem. Duplicatas são puladas automaticamente e o resumo da importação informa quantas ficaram de fora. Um arquivo OFX cujo banco reusa o mesmo FITID para várias entradas num dia mantém todas as linhas: a comparação inclui valor e tipo, e reimportar o mesmo arquivo continua pulando tudo.
 
-Linhas cuja data ou valor não podem ser lidos também são puladas, e informadas com o número da linha e o motivo, em vez de derrubar o arquivo inteiro. Uma linha com uma célula faltando ainda é importada.
+Linhas cuja data ou valor não podem ser lidos também são puladas, e arquivos CSV, QIF e CAMT agora **listam cada registro pulado** com sua linha, seu valor bruto e o motivo, em vez de adivinhar ou descartar em silêncio. Uma linha com uma célula faltando ainda é importada.
 
 ## Dicas para Importar
 

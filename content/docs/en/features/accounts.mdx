@@ -20,6 +20,9 @@ These are accounts you manage by hand. You create them, set a starting balance, 
 - **Credit Card**
 - **Investment**
 - **Wallet**
+- **Loan**
+
+A **Loan** account tracks debt: its balance reads as what you still owe, and its settings carry optional **contract terms** (rate, term, first payment, amortization) that turn it into a full loan tracker with a schedule and a payoff date. See [Loans](/docs/features/loans). An account can only switch to or from Loan while it has no transactions.
 
 ### Bank Connections
 
@@ -39,6 +42,8 @@ For example, you might have:
 - An investment account in **USD** (US Dollar)
 
 The dashboard and reports will show each account's balance in its native currency, plus the converted equivalent in your primary currency. This makes it easy to see your total net worth across currencies.
+
+When no exchange rate is available for an account's currency, Securo shows the balance **in its own currency and says the rate is missing**, rather than passing an unconverted number off as converted, and the totals say when they are incomplete.
 
 ## Creating an Account
 
@@ -70,4 +75,4 @@ When you have many accounts, [collections](/docs/features/collections) let you g
 
 ## Account Sidebar
 
-Your accounts are always visible in the main sidebar, showing the account name, type, current balance, and a percentage change indicator. This gives you a quick glance at all your balances without navigating away from whatever page you're on.
+Your accounts are always visible in the main sidebar, showing the account name, type, current balance, and a percentage change indicator. This gives you a quick glance at all your balances without navigating away from whatever page you're on. The desktop sidebar can also **collapse to icons**, and it remembers the choice, for anyone who wants the width back.

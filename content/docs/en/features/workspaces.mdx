@@ -5,6 +5,8 @@ description: Keep separate financial spaces and share them with the people who n
 
 A workspace holds a complete, independent set of financial data: its own accounts, transactions, categories, budgets, and goals. Your first workspace is created automatically at [first launch](/docs/getting-started/first-launch), and you can create more whenever one pot of data shouldn't mix with another: household finances separate from a side project, or a space you manage for someone else.
 
+![Workspaces](/screenshots/workspaces.png)
+
 ## Creating and Switching
 
 The **workspace switcher** in the sidebar shows all your workspaces and lets you jump between them; everything in the app always operates on the active one. Click **New workspace** to create another; each has its own name, icon, type, default currency, language, and tax jurisdiction.
@@ -17,6 +19,8 @@ The **type** is chosen once, at creation, and cannot be changed afterwards:
 | **Business** | The same, plus [Invoices](/docs/features/invoices) (receivables and payables) and invoice [payment matching](/docs/features/reconciliation) |
 
 The **tax jurisdiction** decides which fiscal documents the workspace is offered (CNPJ and CPF in Brazil, NIF in Portugal, EIN in the US, and so on) and, for India, an April to March financial year in reports. It is separate from the interface language.
+
+A workspace can also keep its own **timezone**, set in its settings. It decides which day "today" is for that workspace's balances, budgets, due dates and scheduled work. It builds on the application-wide timezone an administrator sets (which by default follows the server); a workspace without one simply follows the instance, so one server can hold books that close in São Paulo and books that close in Tokyo.
 
 A workspace you no longer use can be **archived** from its settings page: it disappears from the switcher but all data is preserved.
 

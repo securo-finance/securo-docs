@@ -5,6 +5,8 @@ description: Protect your Securo account with passkeys, two-factor authenticatio
 
 Your Securo instance holds your complete financial history, so the login deserves more than a password. Securo supports passkeys, TOTP two-factor authentication, and OIDC single sign-on, all self-hosted, with nothing leaving your server.
 
+![Login and security](/screenshots/security.png)
+
 ## Passkeys
 
 Passkeys let you sign in with your device's fingerprint reader, face unlock, or a hardware security key, no password typed. Register one from your account settings and the login page gains a **Continue with passkey** button; the browser also offers a saved passkey straight from the email field, the way it offers a saved password.
@@ -12,6 +14,7 @@ Passkeys let you sign in with your device's fingerprint reader, face unlock, or 
 - You can register multiple passkeys (laptop, phone, a backup hardware key) and remove any of them later
 - A passkey can also serve as the **second factor** for password logins, instead of an authenticator code
 - Passkeys require a secure context: serve Securo over **HTTPS** (or use `localhost`). On a plain-HTTP LAN address the browser will refuse, that's a platform rule, not a Securo limitation
+- By default Securo follows whatever address you open it on. To pin passkeys to one domain, set `WEBAUTHN_RP_ID` (use the parent domain if you reach Securo on several subdomains). Requests from an unusable address get an explanation in the UI instead of a silent failure
 
 ## Two-Factor Authentication
 
@@ -33,9 +36,13 @@ OIDC_PROVIDER_NAME=Authentik
 OIDC_DISCOVERY_URL=https://auth.yourdomain.com/.well-known/openid-configuration
 OIDC_CLIENT_ID=securo
 OIDC_CLIENT_SECRET=your-client-secret
+# Optional; defaults to ${FRONTEND_URL}/api/auth/oidc/callback
+OIDC_REDIRECT_URI=https://your-securo-host/api/auth/oidc/callback
 ```
 
-The login page gains a "Continue with ..." button named after your provider. Auto-registration of new users, requiring verified emails, and mapping provider groups to roles are all configurable; see `.env.example` in the repository for the full list of `OIDC_*` options.
+In your provider, register `https://your-securo-host/api/auth/oidc/callback` as the redirect URI. New users are auto-provisioned by default (`OIDC_AUTO_REGISTER=true`) using verified email addresses; set `OIDC_AUTO_REGISTER=false` to admit only existing Securo users whose email matches the provider claim.
+
+The login page gains a "Continue with ..." button named after your provider. Auto-registration of new users, linking existing accounts, and provider role sync are covered in the sections below; see `.env.example` in the repository for the full list of `OIDC_*` options.
 
 ### Linking existing accounts
 
@@ -52,6 +59,21 @@ Use `verified_email` to move your existing users to SSO without recreating their
 ### OIDC Only
 
 To make the identity provider the only way in, set `LOCAL_AUTH_ENABLED=false`. Password and passkey sign-in are switched off along with every local-auth route behind them, and the login page shows only the provider button. Securo refuses to start with this setting unless OIDC is enabled, so a typo cannot lock everyone out. Users who had enrolled 2FA or passkeys before the switch can still remove them from their account settings; they just cannot add new ones.
+
+On a fresh OIDC-only instance, the first account must arrive through OIDC: keep `OIDC_AUTO_REGISTER=true`, enable `OIDC_SYNC_ROLES=true`, and make sure that identity's roles claim carries one of the `OIDC_ADMIN_ROLES` values, so the first login becomes a Securo administrator. Don't turn auto-registration off before at least one matching account exists.
+
+### OIDC role sync
+
+With `OIDC_SYNC_ROLES=true`, Securo maps the roles/groups your provider sends onto its own permissions on every OIDC login:
+
+```ini
+OIDC_SYNC_ROLES=true
+OIDC_ROLES_CLAIM=groups            # the claim holding roles/groups; "groups" fits Authentik and Pocket ID
+OIDC_ADMIN_ROLES=securo-admins     # membership grants or revokes Securo admin
+OIDC_WORKSPACE_ROLE_MAP={"securo-owners":"owner","securo-editors":"editor","securo-viewers":"viewer"}
+```
+
+`OIDC_WORKSPACE_ROLE_MAP` maps provider roles to the user's Personal workspace role (`owner`, `editor`, or `viewer`); when several mapped roles are present, the highest permission wins. Leave `OIDC_SYNC_ROLES=false` to keep all Securo roles managed locally.
 
 ## Passwords
 

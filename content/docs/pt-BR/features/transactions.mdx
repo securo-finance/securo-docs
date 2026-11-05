@@ -15,7 +15,9 @@ A visão principal mostra uma tabela ordenável da sua atividade. Cada linha pod
 - **Descrição**: o nome ou memorando da transação (ex.: "STARBUCKS Latte")
 - **Valor**: valores positivos (verde) para entradas, negativos (vermelho) para despesas
 
-Transações marcadas como **transferências** entre suas próprias contas recebem um selo especial para você distingui-las das entradas e saídas comuns. Transações sincronizadas também mostram um status **pendente** ou **lançada**, e compras parceladas exibem o número da parcela (ex.: 3/12).
+Transações marcadas como **transferências** entre suas próprias contas recebem um selo especial para você distingui-las das entradas e saídas comuns; o selo também **diz o nome da conta vinculada**, então uma página cheia de transferências já informa para onde o dinheiro foi sem abrir cada linha. Transações sincronizadas também mostram um status **pendente** ou **lançada**, e uma linha pendente pode ser **marcada como lançada em um clique**, direto na linha, sem abrir o diálogo de edição. Compras parceladas exibem o número da parcela (ex.: 3/12).
+
+A **descrição** de uma transação sincronizada também é editável: renomeie, e o texto original do banco fica embaixo com um link **Restaurar original**. Valor, data e conta continuam exatamente como o banco enviou.
 
 ### Personalizando a Tabela
 
@@ -44,7 +46,7 @@ As projeções nunca se misturam aos números liquidados: elas têm a própria l
 
 ## Adicionando uma Transação
 
-Clique em **+ Adicionar Transação** no canto superior direito. Preencha:
+Há três entradas: o botão **+ Adicionar Transação** no canto superior direito, um **+** ao lado de **Transações** na barra lateral a partir de qualquer página, e um botão **Adicionar Transação** na página de uma conta, que já traz a conta e a moeda escolhidos. No formulário a conta é **perguntada, não pré-selecionada**, para nada cair na conta errada por descuido. Preencha:
 
 1. **Descrição**: do que se trata a transação
 2. **Conta**: de qual conta o dinheiro veio ou para qual foi
@@ -56,6 +58,11 @@ Clique em **+ Adicionar Transação** no canto superior direito. Preencha:
 8. **Notas** (opcional): qualquer contexto adicional
 
 As transações também suportam **anexos**: você pode anexar recibos ou notas fiscais a qualquer transação para fins de registro. Transações com anexo mostram um ícone de clipe na lista. O diálogo também pode **tornar a transação recorrente** na hora, criando uma agenda a partir do que você acabou de preencher.
+
+Enquanto você preenche o formulário, dois ajudantes aceleram:
+
+- **Sugestões de descrição**: o campo de descrição oferece descrições que você já usou. Escolher uma também preenche a categoria e o beneficiário sob os quais ela foi arquivada da última vez, deixando intacto o que você já escolheu
+- **Criar na hora**: quando a busca de categoria ou beneficiário não encontra nada, o seletor oferece **criar** o que você digitou e já seleciona no lugar, no diálogo de transação, no diálogo de regra e na revisão da importação
 
 Transações individuais podem ser marcadas como **ignoradas**: elas continuam na lista com o valor acinzentado e um selo "Ignorada", mas ficam fora dos totais e relatórios, útil para reembolsos ou correções que você quer manter visíveis. Uma opção mais leve é **Excluir dos relatórios**: a linha continua contando no saldo da conta, só deixa de ser receita ou despesa no dashboard e nos relatórios, para uma despesa do trabalho paga no cartão pessoal ou qualquer outra coisa que não é de fato um gasto seu.
 
@@ -74,13 +81,13 @@ Clicar no botão **Transferência** cria uma transação pareada especial entre 
 - Um débito na conta de origem
 - Um crédito correspondente na conta de destino
 
-Transações de transferência ficam automaticamente vinculadas e marcadas com um selo de transferência. Elas não contam como receita nem despesa nos seus relatórios — é apenas dinheiro circulando entre suas próprias contas. Ao editar qualquer uma das pernas, o diálogo mostra exatamente qual transação está do outro lado (conta, data e valor), então um vínculo automático pode ser conferido de relance.
+Transações de transferência ficam automaticamente vinculadas e marcadas com um selo de transferência. Elas não contam como receita nem despesa nos seus relatórios — é apenas dinheiro circulando entre suas próprias contas. Ao editar qualquer uma das pernas, o diálogo mostra exatamente qual transação está do outro lado (conta, data e valor), e um link leva **direto ao outro lado**.
 
 Para **transferências entre moedas** (ex.: BRL para USD), o Securo pede os dois valores para registrar os valores corretos em cada moeda. Quando você já sabe quanto caiu do outro lado, digite o valor de destino em vez de deixar uma taxa de câmbio derivá-lo; cada perna passa a carregar o número exato que o banco mostrou.
 
 ### Vinculando e Desvinculando Transferências
 
-Se uma transferência foi importada ou lançada como duas transações separadas, selecione as duas e **vincule como par de transferência**. O Securo passa a tratá-las como uma única transferência. Você pode **desvincular** o par a qualquer momento para voltar a ter transações independentes.
+Se uma transferência foi importada ou lançada como duas transações separadas, selecione as duas e **vincule como par de transferência**. O Securo passa a tratá-las como uma única transferência. Você pode **desvincular** o par a qualquer momento para voltar a ter transações independentes; desvincular pede confirmação primeiro, já que a perna liberada volta a contar como receita ou despesa. As [regras de pareamento de transferências](/pt-BR/docs/features/rules) fazem a maior parte desses vínculos sozinha quando as transações chegam.
 
 ## Dividindo Transações
 
@@ -96,7 +103,7 @@ A barra de filtros no topo oferece várias formas de refinar suas transações:
 - **Conta**: filtre por uma conta específica
 - **Categoria**: filtre por uma ou mais categorias, ou mostre apenas transações **sem categoria**
 - **Beneficiário**: filtre por estabelecimento ou pessoa
-- **Tipo**: mostre só entradas ou só despesas
+- **Tipo**: mostre só entradas, só despesas ou **transferências** (pares vinculados e transações em categoria marcada como transferência)
 - **Status**: todas, só lançadas ou só pendentes
 - **Ocultar ignoradas**: tira as linhas ignoradas da lista
 - **Valor**: defina um valor mínimo e/ou máximo
@@ -119,6 +126,8 @@ Selecione várias transações com os checkboxes para mostrar a barra de ações
 - **Adicionar a um grupo** com uma regra de divisão
 - **Vincular** duas transações como um par de transferência
 - **Excluir** várias transações de uma vez, atrás de uma confirmação que diz o que vai embora. As contrapartes de transferência e os anexos são limpos junto
+
+Clicar com o botão direito na seleção abre um **menu de contexto** com as mesmas ações, mais perto das linhas em que você está trabalhando.
 
 ## Perguntas da Conciliação
 
