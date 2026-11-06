@@ -52,7 +52,7 @@ There are three ways in: the **+ Add Transaction** button in the top right, a **
 2. **Account**: Which account the money came from or went to
 3. **Amount**: The transaction value
 4. **Date**: When it happened (defaults to today)
-5. **Category**: The spending category
+5. **Category**: The spending category, or several (see [Splitting Across Categories](#splitting-across-categories))
 6. **Payee** (optional): The merchant or person
 7. **Status**: **Posted** for money that already moved, **Pending** for a bill you know is coming. Pending transactions are excluded from the dashboard's period totals until they post
 8. **Notes** (optional): Any additional context
@@ -89,7 +89,29 @@ For **cross-currency transfers** (e.g., BRL to USD), Securo asks for both amount
 
 If a transfer was imported or entered as two separate transactions, select both and **link them as a transfer pair**. Securo then treats them as a single transfer. You can **unlink** a pair at any time to turn them back into independent transactions; unlinking asks for confirmation first, since the freed leg starts counting as income or expense again. [Transfer pairing rules](/docs/features/rules) do most of this linking for you as transactions arrive.
 
-## Splitting Transactions
+## Splitting Across Categories
+
+One purchase often covers more than one kind of spending: a supermarket run with groceries and cleaning supplies, a store receipt with clothes and toiletries. Instead of filing the whole amount under one category, split the transaction so each part lands in its own.
+
+![Splitting a transaction across categories](/screenshots/split-categories.png)
+
+In the add or edit dialog, click **Split across categories** next to the category field, then:
+
+1. Pick a category for each part; **Add category** adds another one. Each category appears once per split
+2. Enter the parts by **Amount** or by **%**. Switching between the two converts what you already typed
+3. Follow the counter under the parts: it shows how much is **left to allocate**, and **Fill in** puts the rest into the last part. Saving stays blocked until the parts add up to the transaction amount, to the cent (or to exactly 100%)
+
+**Undo split** turns it back into a plain transaction in the category of its largest part.
+
+A split transaction keeps **one row and its full amount**, exactly as the bank sent it; the parts only say how that amount is distributed. In the list it carries a **Split · N** badge where the category would be, and hovering the badge (or tapping it on mobile) shows the parts. Changing the amount of a split transaction asks you to distribute the new amount again.
+
+Everything that totals money by category reads the parts: the dashboard, [reports](/docs/features/reports), [budgets](/docs/features/budgets), the calendar and the list's totals. The **account balance** and the **card bill** keep using the whole amount, since that is what actually left the account. A part in a category marked **Treat as transfer** (part of a deposit going to Investments, say) stays out of income and expenses on its own, while the other parts still count.
+
+[Rules](/docs/features/rules) and **bulk categorize** never overwrite a split: they leave split transactions as they are and say how many they skipped. A purchase in [installments](#installments) can be split too: every installment gets the same split.
+
+Some transactions can't be split across categories: a linked **transfer**, an **ignored** transaction, a transaction **shared with a group**, and a [loan payment](/docs/features/loans) broken into interest and principal. Ignored and hidden categories can't hold a part, and a credit on a credit card can't have a part in a category marked as a transfer.
+
+## Sharing With Other People
 
 When an expense is shared with other people — a dinner, a trip, a shared apartment — you can split it through a **group**. Splitting records each person's share so you can track who owes whom.
 
@@ -101,9 +123,9 @@ The filter bar at the top provides multiple ways to narrow down your transaction
 
 - **Search**: Free-text search across descriptions and notes
 - **Account**: Filter by a specific account
-- **Category**: Filter by one or more categories, or show only **uncategorized** transactions
+- **Category**: Filter by one or more categories, or show only **uncategorized** transactions. A split transaction shows up when any of its parts is in the filtered categories, and the totals at the bottom count only those parts
 - **Payee**: Filter by merchant or person
-- **Type**: Show only income, only expenses, or **transfers** (both linked pairs and transactions in a category marked as a transfer)
+- **Type**: Show only income, only expenses, or **transfers** (both linked pairs and transactions in a category marked as a transfer, including split transactions with a part in one; the totals then count only the transfer parts)
 - **Status**: All, posted only, or pending only
 - **Hide ignored**: drop ignored rows from the list
 - **Amount**: Set a minimum and/or maximum value
@@ -117,11 +139,13 @@ All filters can be combined to create precise queries like "all uncategorized ex
 
 Click **Export CSV** to download your transactions as a CSV file. The export respects your current filters and selection, so you can export a specific subset of transactions.
 
+A transaction split across categories is exported as **one row per part**, tied together by the `split_group` and `split_index` columns, so the file adds up by category and can be [imported back](/docs/features/import#split-transactions-in-a-csv) as the same split. The full workspace backup keeps the parts of split transactions and of split recurring bills as well.
+
 ## Bulk Actions
 
 Select multiple transactions using the checkboxes to reveal the bulk action bar. From there you can:
 
-- **Categorize** all selected transactions at once
+- **Categorize** all selected transactions at once. Transactions split across categories keep their parts, and Securo tells you how many it left as they were
 - **Add tags** to the selection
 - **Add to a group** with a split rule
 - **Link** two transactions as a transfer pair

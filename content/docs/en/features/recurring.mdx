@@ -13,6 +13,7 @@ A recurring transaction is a template that defines:
 
 - **Description**: What the payment is for (e.g., "Spotify", "Netflix USD")
 - **Amount**: The transaction value, including currency
+- **Category**: one category, or a [split across several](#split-recurring-bills)
 - **Frequency**: How often it repeats (weekly, biweekly, monthly, quarterly, twice a year, or yearly)
 - **Weekend adjustment**: leave the date alone, or move an occurrence that lands on a weekend to the **Friday before** or the **Monday after**, the way a bank or an employer would
 - **Next date**: When the next occurrence is due
@@ -46,6 +47,15 @@ The recurring transactions page shows a table with all your schedules:
 | Next Date  | When the next transaction will be generated    |
 | Status     | Active or paused                               |
 | Actions    | Edit or delete the schedule                    |
+
+## Split Recurring Bills
+
+A bill that covers more than one kind of spending, like an internet and streaming bundle, can be **split across categories** on the schedule itself, the same way as a [transaction](/docs/features/transactions#splitting-across-categories): **Split across categories** next to the category field, parts by **Amount** or by **%**.
+
+- Every occurrence the schedule generates starts with the same split, sized to its amount
+- A real charge [linked to the schedule](#linking-to-real-transactions) that has no category yet takes the split as well
+- Changing the amount of the schedule resizes the parts in proportion; a split by percentage keeps its percentages
+- Upcoming occurrences on the dashboard, in the calendar and in the [cash flow](/docs/features/reports#cash-flow) projection count each part in its own category, and the schedule list shows the parts on hover
 
 ## Generating Pending Transactions
 

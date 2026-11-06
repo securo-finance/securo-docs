@@ -41,6 +41,14 @@ Real bank exports rarely match a fixed template, so CSV imports come with a **ma
 
 If you'd rather reshape the data yourself, a **CSV template** with the expected structure can be downloaded from the import page.
 
+### Split Transactions in a CSV
+
+A CSV exported from Securo writes a transaction [split across categories](/docs/features/transactions#splitting-across-categories) as one row per part, tied together by the `split_group` and `split_index` columns. Importing that file puts each group back together as one split transaction, as long as every part's category matches **exactly one** of your categories by name. Otherwise the review table says why and the row imports as a plain transaction:
+
+- **Not found here**: the category doesn't exist in this workspace yet
+- **More than one category is named**: two of your categories share the name, so Securo won't guess
+- **Each category can appear only once**: two parts point at the same category
+
 ## Import History
 
 Below the upload area, the **Import History** section shows all previous imports with their date, file name, and number of transactions imported. An import can also be **undone**: deleting it from the history removes the transactions it created, so a botched file is one click away from never having happened.

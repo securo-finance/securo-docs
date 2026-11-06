@@ -88,6 +88,8 @@ Na aba **Ferramentas**, você escolhe quais ações o agente pode executar. As f
 
 As [regras](/pt-BR/docs/features/rules) também entram: um agente (ou um cliente MCP externo, como o Claude Desktop) pode listar suas regras, pré-visualizar o que uma regra mudaria antes de existir, e propor uma regra para criar, atualizar ou excluir. Uma proposta nunca é aplicada sozinha; ela aparece como um cartão no chat para você confirmar. O mesmo padrão de propor e confirmar cobre um conjunto crescente de escritas: edições nas **notas e tags** de uma transação, criação de **grupos de categoria**, atualização de **metas e orçamentos**, exclusão de um orçamento e as **ferramentas de par de transferência** (listar candidatos contrapartes, propor um vínculo, propor um desvínculo). O servidor MCP embutido fala o transporte Streamable HTTP da era 2026-07-28 junto com o anterior, então os clientes conectam no que suportarem.
 
+As ferramentas de transação trazem as partes de uma transação [dividida por categoria](/pt-BR/docs/features/transactions#dividindo-por-categoria), os totais por categoria contam cada parte na sua categoria, e um agente pode propor uma nova transação ou recorrente já dividido. Propostas de definir uma categoria só deixam uma transação dividida como está.
+
 ## Conversando com um Agente
 
 Abra um agente e use a aba **Chat** para falar com ele. As conversas são de múltiplos turnos e exibem as respostas em streaming conforme são geradas. O agente conhece a página em que você está, então você pode perguntar sobre "esta lista" ou "esta transação" e ele entende o contexto. Conversas anteriores ficam salvas e listadas na barra lateral.

@@ -13,6 +13,7 @@ Uma transação recorrente é um template que define:
 
 - **Descrição**: do que se trata o pagamento (ex.: "Spotify", "Netflix USD")
 - **Valor**: o valor da transação, incluindo a moeda
+- **Categoria**: uma categoria, ou uma [divisão entre várias](#recorrentes-divididos-por-categoria)
 - **Frequência**: com que frequência se repete (semanal, quinzenal, mensal, trimestral, semestral ou anual)
 - **Ajuste de fim de semana**: deixar a data como está, ou mover uma ocorrência que cai no fim de semana para a **sexta-feira antes** ou a **segunda-feira depois**, como um banco ou um empregador fariam
 - **Próxima data**: quando é a próxima ocorrência
@@ -46,6 +47,15 @@ A página de transações recorrentes mostra uma tabela com todas as suas agenda
 | Próxima Data | Quando a próxima transação será gerada           |
 | Status     | Ativa ou pausada                                   |
 | Ações      | Editar ou excluir a agenda                         |
+
+## Recorrentes Divididos por Categoria
+
+Uma conta que cobre mais de um tipo de gasto, como um combo de internet e streaming, pode ser **dividida por categoria** na própria agenda, do mesmo jeito que uma [transação](/pt-BR/docs/features/transactions#dividindo-por-categoria): **Dividir por categoria** ao lado do campo de categoria, partes por **Valor** ou por **%**.
+
+- Cada ocorrência que a agenda gera já começa com a mesma divisão, no tamanho do seu valor
+- Uma cobrança real [vinculada à agenda](#vínculo-com-transações-reais) que ainda não tem categoria também recebe a divisão
+- Mudar o valor da agenda redimensiona as partes na mesma proporção; uma divisão por porcentagem mantém as porcentagens
+- As próximas ocorrências no dashboard, no calendário e na projeção do [fluxo de caixa](/pt-BR/docs/features/reports#fluxo-de-caixa) contam cada parte na sua categoria, e a lista de agendas mostra as partes ao passar o mouse
 
 ## Gerando Transações Pendentes
 

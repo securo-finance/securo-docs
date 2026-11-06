@@ -41,6 +41,14 @@ Exportações reais de banco raramente seguem um template fixo, então a importa
 
 Se preferir remodelar os dados você mesmo, um **template de CSV** com a estrutura esperada pode ser baixado na página de importação.
 
+### Transações Divididas num CSV
+
+Um CSV exportado pelo Securo escreve uma transação [dividida por categoria](/pt-BR/docs/features/transactions#dividindo-por-categoria) como uma linha por parte, ligadas pelas colunas `split_group` e `split_index`. Importar esse arquivo junta cada grupo de volta numa transação dividida, desde que a categoria de cada parte corresponda a **exatamente uma** das suas categorias pelo nome. Senão, a tabela de revisão diz o motivo e a linha entra como uma transação comum:
+
+- **Não encontrada aqui**: a categoria ainda não existe neste workspace
+- **Mais de uma categoria se chama**: duas das suas categorias têm o mesmo nome, e o Securo não tenta adivinhar
+- **Cada categoria só pode aparecer uma vez**: duas partes apontam para a mesma categoria
+
 ## Histórico de Importação
 
 Abaixo da área de upload, a seção **Histórico de Importação** mostra todas as importações anteriores, com data, nome do arquivo e quantidade de transações importadas. Uma importação também pode ser **desfeita**: excluí-la do histórico remove as transações que ela criou, então um arquivo errado fica a um clique de nunca ter acontecido.

@@ -15,7 +15,7 @@ Each rule consists of:
 2. **Actions**: set a category, set a payee, set the description, append tags or notes, or mark the transaction as ignored
 3. **A priority**: rules with a **lower** priority number run first
 
-When a transaction is added (manually, via import, or through bank sync), Securo evaluates it against every **active** rule in priority order. All matching rules apply their actions, with one guardrail: the **category is only ever set once**. The first matching rule to assign a category wins and later rules never overwrite it; payee actions from later matching rules still apply.
+When a transaction is added (manually, via import, or through bank sync), Securo evaluates it against every **active** rule in priority order. All matching rules apply their actions, with one guardrail: the **category is only ever set once**. The first matching rule to assign a category wins and later rules never overwrite it; payee actions from later matching rules still apply. A transaction [split across categories](/docs/features/transactions#splitting-across-categories) keeps its parts: rules never set a category on it, and the rule preview marks it as unchanged.
 
 ## Conditions
 

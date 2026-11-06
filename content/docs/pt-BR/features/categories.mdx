@@ -63,10 +63,18 @@ Use o botão **Recolher Todos** no topo para recolher ou expandir todos os grupo
 
 As categorias atravessam o aplicativo inteiro:
 
-- **Transações**: cada transação é atribuída a uma categoria
+- **Transações**: cada transação é atribuída a uma categoria, ou [dividida entre várias](/pt-BR/docs/features/transactions#dividindo-por-categoria)
 - **Orçamentos**: você define limites de gasto por categoria
 - **Painel**: o gráfico de gastos detalha as despesas por categoria
 - **Relatórios**: toda a análise é agrupada por categoria
 - **Regras**: regras de automação podem atribuir categorias automaticamente com base na descrição da transação
 
 Transações sem categoria são destacadas no painel para você sempre saber o que precisa de atenção.
+
+## Categorias em Transações Divididas
+
+Uma categoria pode receber uma parte de uma [transação dividida](/pt-BR/docs/features/transactions#dividindo-por-categoria) ou de um [recorrente dividido](/pt-BR/docs/features/recurring#recorrentes-divididos-por-categoria), e algumas ações de categoria levam isso em conta:
+
+- **Excluir** uma categoria conta essas partes como uso e as move para a categoria que você escolher. Quando a divisão já tem uma parte nessa categoria, as duas viram uma só; uma divisão que fica com uma categoria só volta a ser uma transação comum nela
+- Uma categoria que tem uma parte **não pode ser ignorada nem ocultada**: mude essas divisões antes
+- Uma categoria com parte num **crédito de cartão de crédito** não pode ser marcada como **Tratar como transferência**, nem movida para uma que seja, porque a fatura não consegue deixar de fora só aquela parte
