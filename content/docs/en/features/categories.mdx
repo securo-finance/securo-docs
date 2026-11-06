@@ -63,10 +63,18 @@ Use the **Collapse All** toggle at the top to quickly collapse or expand all gro
 
 Categories flow through the entire application:
 
-- **Transactions**: Each transaction is assigned to one category
+- **Transactions**: Each transaction is assigned to one category, or [split across several](/docs/features/transactions#splitting-across-categories)
 - **Budgets**: You set spending limits per category
 - **Dashboard**: The spending chart breaks down expenses by category
 - **Reports**: All analytics are grouped by category
 - **Rules**: Automation rules can auto-assign categories based on transaction descriptions
 
 Uncategorized transactions are highlighted on the dashboard so you're always aware of what needs attention.
+
+## Categories in Split Transactions
+
+A category can hold a part of a [split transaction](/docs/features/transactions#splitting-across-categories) or of a split [recurring bill](/docs/features/recurring#split-recurring-bills), and a few category actions take that into account:
+
+- **Deleting** a category counts those parts as uses and moves them to the category you choose. When a split already has a part in that category, the two parts become one; a split left with a single category turns back into a plain transaction in it
+- A category that holds a part **can't be ignored or hidden**: change those splits first
+- A category that holds a part of a **credit on a credit card** can't be marked **Treat as transfer**, nor moved into a category that is, since the card bill could not leave out only that part

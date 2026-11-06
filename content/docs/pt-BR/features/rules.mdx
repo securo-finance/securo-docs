@@ -15,7 +15,7 @@ Cada regra é composta de:
 2. **Ações**: definir uma categoria, definir uma pessoa, definir a descrição, adicionar tags ou notas, ou marcar a transação como ignorada
 3. **Uma prioridade**: regras com número de prioridade **menor** rodam primeiro
 
-Quando uma transação é adicionada (manualmente, via importação ou pela sincronização bancária), o Securo a avalia contra todas as regras **ativas** em ordem de prioridade. Todas as regras que corresponderem aplicam suas ações, com uma proteção: a **categoria só é definida uma vez**. A primeira regra que atribuir uma categoria vence e as seguintes nunca a sobrescrevem; ações de beneficiário de regras posteriores ainda se aplicam.
+Quando uma transação é adicionada (manualmente, via importação ou pela sincronização bancária), o Securo a avalia contra todas as regras **ativas** em ordem de prioridade. Todas as regras que corresponderem aplicam suas ações, com uma proteção: a **categoria só é definida uma vez**. A primeira regra que atribuir uma categoria vence e as seguintes nunca a sobrescrevem; ações de beneficiário de regras posteriores ainda se aplicam. Uma transação [dividida por categoria](/pt-BR/docs/features/transactions#dividindo-por-categoria) mantém as partes: regras nunca definem uma categoria nela, e a pré-visualização da regra a marca como inalterada.
 
 ## Condições
 

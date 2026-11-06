@@ -88,6 +88,8 @@ On the **Tools** tab, you choose which actions the agent is allowed to take. Too
 
 [Rules](/docs/features/rules) are covered too: an agent (or an external MCP client such as Claude Desktop) can list your rules, preview what a rule would change before it exists, and propose a rule to create, update or delete. A proposal is never applied on its own; it shows up as a card in the chat for you to confirm. The same propose-then-confirm pattern covers a growing set of writes: edits to a transaction's **notes and tags**, creating **category groups**, updating **goals and budgets**, deleting a budget, and the **transfer-pair tools** (list counterpart candidates, propose a link, propose an unlink). The built-in MCP server speaks the 2026-07-28 Streamable HTTP transport alongside the older era, so clients connect on whichever they support.
 
+Transaction tools return the parts of a transaction [split across categories](/docs/features/transactions#splitting-across-categories), totals by category count each part in its own category, and an agent can propose a new transaction or recurring bill already split. Proposals to set a single category leave a split transaction alone.
+
 ## Chatting with an Agent
 
 Open an agent and use the **Chat** tab to talk to it. Conversations are multi-turn and stream responses as they're generated. The agent is aware of the page you're on, so you can ask about "this list" or "this transaction" and it understands the context. Past conversations are saved and listed in the sidebar.

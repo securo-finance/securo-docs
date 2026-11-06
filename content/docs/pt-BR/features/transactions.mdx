@@ -52,7 +52,7 @@ Há três entradas: o botão **+ Adicionar Transação** no canto superior direi
 2. **Conta**: de qual conta o dinheiro veio ou para qual foi
 3. **Valor**: o valor da transação
 4. **Data**: quando aconteceu (por padrão, hoje)
-5. **Categoria**: a categoria de gasto
+5. **Categoria**: a categoria de gasto, ou várias (veja [Dividindo por Categoria](#dividindo-por-categoria))
 6. **Beneficiário** (opcional): o estabelecimento ou pessoa
 7. **Status**: **Lançada** para dinheiro que já se moveu, **Pendente** para uma conta que você sabe que vem. Transações pendentes ficam fora dos totais do período no dashboard até serem lançadas
 8. **Notas** (opcional): qualquer contexto adicional
@@ -89,7 +89,29 @@ Para **transferências entre moedas** (ex.: BRL para USD), o Securo pede os dois
 
 Se uma transferência foi importada ou lançada como duas transações separadas, selecione as duas e **vincule como par de transferência**. O Securo passa a tratá-las como uma única transferência. Você pode **desvincular** o par a qualquer momento para voltar a ter transações independentes; desvincular pede confirmação primeiro, já que a perna liberada volta a contar como receita ou despesa. As [regras de pareamento de transferências](/pt-BR/docs/features/rules) fazem a maior parte desses vínculos sozinha quando as transações chegam.
 
-## Dividindo Transações
+## Dividindo por Categoria
+
+Uma compra muitas vezes cobre mais de um tipo de gasto: o mercado com comida e produtos de limpeza, a farmácia com remédio e itens de higiene. Em vez de lançar o valor inteiro numa categoria só, divida a transação para cada parte cair na sua.
+
+![Dividindo uma transação por categoria](/screenshots/split-categories.png)
+
+No diálogo de adicionar ou editar, clique em **Dividir por categoria** ao lado do campo de categoria e então:
+
+1. Escolha uma categoria para cada parte; **Adicionar categoria** inclui mais uma. Cada categoria aparece uma vez por divisão
+2. Informe as partes por **Valor** ou por **%**. Trocar entre os dois converte o que você já digitou
+3. Acompanhe o contador abaixo das partes: ele mostra quanto **falta** distribuir, e **Preencher** coloca o restante na última parte. Salvar fica bloqueado até as partes somarem o valor da transação, no centavo (ou exatamente 100%)
+
+**Desfazer divisão** volta a transação para uma categoria só, a da maior parte.
+
+Uma transação dividida continua sendo **uma linha com o valor inteiro**, exatamente como o banco mandou; as partes só dizem como esse valor se distribui. Na lista ela mostra o selo **Dividida · N** no lugar da categoria, e passar o mouse no selo (ou tocar nele no celular) mostra as partes. Mudar o valor de uma transação dividida pede para você distribuir o novo valor de novo.
+
+Tudo que soma dinheiro por categoria lê as partes: o dashboard, os [relatórios](/pt-BR/docs/features/reports), os [orçamentos](/pt-BR/docs/features/budgets), o calendário e os totais da lista. O **saldo da conta** e a **fatura do cartão** continuam usando o valor inteiro, que é o que de fato saiu da conta. Uma parte numa categoria marcada como **Tratar como transferência** (parte de um depósito indo para Investimentos, por exemplo) fica fora de entradas e despesas sozinha, e as outras partes continuam contando.
+
+[Regras](/pt-BR/docs/features/rules) e a **categorização em lote** nunca sobrescrevem uma divisão: elas deixam as transações divididas como estão e dizem quantas pularam. Uma compra [parcelada](#parcelas) também pode ser dividida: todas as parcelas recebem a mesma divisão.
+
+Algumas transações não podem ser divididas por categoria: uma **transferência** vinculada, uma transação **ignorada**, uma transação **compartilhada com um grupo** e um [pagamento de financiamento](/pt-BR/docs/features/loans) separado em juros e amortização. Categorias ignoradas e ocultas não recebem partes, e um crédito no cartão de crédito não pode ter parte numa categoria marcada como transferência.
+
+## Dividindo com Outras Pessoas
 
 Quando uma despesa é compartilhada com outras pessoas — um jantar, uma viagem, um apartamento compartilhado — você pode dividi-la através de um **grupo**. A divisão registra a parte de cada pessoa para você acompanhar quem deve a quem.
 
@@ -101,9 +123,9 @@ A barra de filtros no topo oferece várias formas de refinar suas transações:
 
 - **Busca**: pesquisa por texto livre em descrições e notas
 - **Conta**: filtre por uma conta específica
-- **Categoria**: filtre por uma ou mais categorias, ou mostre apenas transações **sem categoria**
+- **Categoria**: filtre por uma ou mais categorias, ou mostre apenas transações **sem categoria**. Uma transação dividida aparece quando alguma das partes está nas categorias filtradas, e os totais no rodapé contam só essas partes
 - **Beneficiário**: filtre por estabelecimento ou pessoa
-- **Tipo**: mostre só entradas, só despesas ou **transferências** (pares vinculados e transações em categoria marcada como transferência)
+- **Tipo**: mostre só entradas, só despesas ou **transferências** (pares vinculados e transações em categoria marcada como transferência, incluindo transações divididas com uma parte numa delas; os totais contam então só as partes de transferência)
 - **Status**: todas, só lançadas ou só pendentes
 - **Ocultar ignoradas**: tira as linhas ignoradas da lista
 - **Valor**: defina um valor mínimo e/ou máximo
@@ -117,11 +139,13 @@ Todos os filtros podem ser combinados para criar consultas precisas como "todas 
 
 Clique em **Exportar CSV** para baixar suas transações como um arquivo CSV. A exportação respeita seus filtros e seleção atuais, então você pode exportar um subconjunto específico de transações.
 
+Uma transação dividida por categoria sai como **uma linha por parte**, ligadas pelas colunas `split_group` e `split_index`, então o arquivo soma certo por categoria e pode ser [importado de volta](/pt-BR/docs/features/import#transações-divididas-num-csv) com a mesma divisão. O backup completo do workspace também guarda as partes das transações e dos recorrentes divididos.
+
 ## Ações em Lote
 
 Selecione várias transações com os checkboxes para mostrar a barra de ações em lote. A partir dela você pode:
 
-- **Categorizar** todas as transações selecionadas de uma só vez
+- **Categorizar** todas as transações selecionadas de uma só vez. Transações divididas por categoria mantêm as partes, e o Securo avisa quantas ficaram como estavam
 - **Adicionar tags** à seleção
 - **Adicionar a um grupo** com uma regra de divisão
 - **Vincular** duas transações como um par de transferência
