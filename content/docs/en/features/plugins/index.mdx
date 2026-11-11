@@ -1,0 +1,79 @@
+---
+title: Plugins
+description: Install categories and rules made by the community, with a preview of every change before it's applied.
+---
+
+Plugins bring ready-made categories, category groups and rules into a workspace. Someone who already sorted out how to categorize their pet shop, their country's supermarkets or their streaming services can publish it once, and you install it in a couple of clicks instead of rebuilding it by hand.
+
+Plugins only add data. They don't run code, don't change the interface and can't send anything anywhere.
+
+## Enabling Plugins
+
+Plugins are off by default. Set this in the backend environment and restart it:
+
+```bash
+PLUGINS_ENABLED=true
+```
+
+No extra container starts. While plugins are off, Securo never contacts the catalog and the plugin screens are hidden.
+
+## Browsing the Catalog
+
+Go to **Workspace settings**, find the **Plugins** section and click **Browse catalog**. The catalog lists every published plugin with its author, what it brings (for example "2 categories, 5 rules"), its languages and its GitHub stars.
+
+- **All**, **Trending** and **New** switch between the full list, the plugins gaining stars fastest relative to their size, and those added in the last 30 days
+- Search by name, author, description or topic, and filter by type, content, language or status (installed, updates available)
+- Sort by popularity, trend, last update, newest or name
+
+Click a plugin to open its page: the author's README, and under **What's inside** every category, group and rule it would add, with each rule's conditions and actions spelled out.
+
+Plugins are not reviewed by the Securo team. That's why the preview below exists, and why it's worth reading.
+
+## Installing
+
+Click **Install**. Before anything happens, Securo shows exactly what changes in this workspace:
+
+- **Adds**: the categories, groups and rules that will be created
+- **Skips ... you already have**: a category with the same name as one of yours isn't duplicated; the plugin's rules use yours
+- **Also creates default categories its rules need**: when a rule points at a built-in category you deleted
+
+Nothing is applied until you confirm. Your existing transactions keep the categories they already have; the plugin's rules apply to new transactions, or to old ones when you [re-apply your rules](/docs/features/rules#re-applying-rules).
+
+If something changes in the workspace or the catalog while the preview is open, confirming fails safely and asks you to review it again.
+
+Only members who can edit the workspace can install, update or remove plugins. Viewers can browse the catalog.
+
+## Updating
+
+When the author publishes a new version, the plugin shows **Update available** in the catalog. Open it and click **Update**. The update preview works like the install one, and adds what happens to what you've changed:
+
+- Items you **edited** (renamed a category, changed a rule) are **left as they are**. Your edit always wins
+- Items the plugin no longer ships are **deleted**, unless you edited them or they're still in use, in which case they're **handed over to you** and become ordinary categories and rules
+
+A plugin that needs a newer Securo shows **Needs Securo x.y.z** instead of offering the update.
+
+## Removing
+
+In **Workspace settings**, the **Plugins** section lists what's installed in the workspace, with its version. Click the trash icon next to a plugin to remove it. The preview lists what goes and what stays:
+
+- Rules and categories you never touched are deleted
+- Anything you edited, and any category still used by transactions, budgets, recurring transactions or your own rules, is **handed over to you** and stays exactly as it is
+
+Removing always works, even if the plugin was later revoked or the catalog can't be reached.
+
+## Revoked Plugins
+
+A plugin found to be harmful or broken can be revoked in the catalog. It can no longer be installed or updated, and shows **Revoked** with the reason. Workspaces that already have it can still remove it.
+
+## Privacy
+
+- Securo downloads the catalog only when someone opens it, and a plugin's files only when you open or install that plugin
+- Every file is checked against the checksum the catalog lists before it's used
+- Nothing about your workspace is sent: there's no account, no install counter and no telemetry. Popularity comes from GitHub stars
+- Your server only ever talks to the catalog host, never to GitHub
+
+You can point Securo at a mirror or your own catalog with `PLUGINS_INDEX_URL` (default `https://plugins.usesecuro.com/v1/index.json`).
+
+## Writing a Plugin
+
+Anyone can publish a plugin from their own GitHub repository. See [Writing a plugin](/docs/features/plugins/authoring).
