@@ -1,0 +1,79 @@
+---
+title: Plugins
+description: Instale categorias e regras feitas pela comunidade, com uma prévia de cada mudança antes de ela ser aplicada.
+---
+
+Plugins trazem categorias, grupos de categorias e regras prontos para um workspace. Quem já resolveu como categorizar o pet shop, os supermercados do seu país ou os serviços de streaming publica isso uma vez, e você instala em dois cliques em vez de montar tudo à mão.
+
+Plugins só adicionam dados. Eles não rodam código, não mudam a interface e não conseguem enviar nada para lugar nenhum.
+
+## Ativando os Plugins
+
+Os plugins vêm desligados. Defina isto no ambiente do backend e reinicie:
+
+```bash
+PLUGINS_ENABLED=true
+```
+
+Nenhum container extra sobe. Com os plugins desligados, o Securo nunca contata o catálogo e as telas de plugins ficam escondidas.
+
+## Explorando o Catálogo
+
+Vá em **Configurações do workspace**, encontre a seção **Plugins** e clique em **Ver catálogo**. O catálogo lista cada plugin publicado com o autor, o que ele traz (por exemplo "2 categorias, 5 regras"), os idiomas e as estrelas no GitHub.
+
+- **Todos**, **Em alta** e **Novos** alternam entre a lista completa, os plugins que mais ganham estrelas em relação ao próprio tamanho e os adicionados nos últimos 30 dias
+- Busque por nome, autor, descrição ou tópico, e filtre por tipo, conteúdo, idioma ou status (instalados, com atualização)
+- Ordene por popularidade, tendência, última atualização, mais novos ou nome
+
+Clique em um plugin para abrir a página dele: o README do autor e, em **O que vem nele**, cada categoria, grupo e regra que ele adicionaria, com as condições e ações de cada regra por extenso.
+
+Os plugins não são revisados pela equipe do Securo. É por isso que a prévia abaixo existe, e vale a pena lê-la.
+
+## Instalando
+
+Clique em **Instalar**. Antes de qualquer coisa, o Securo mostra exatamente o que muda neste workspace:
+
+- **Adiciona**: as categorias, grupos e regras que serão criados
+- **Pula ... que você já tem**: uma categoria com o mesmo nome de uma sua não é duplicada; as regras do plugin usam a sua
+- **Também cria categorias padrão que as regras usam**: quando uma regra aponta para uma categoria padrão que você apagou
+
+Nada é aplicado até você confirmar. As transações que você já tem mantêm as categorias atuais; as regras do plugin valem para transações novas, ou para as antigas quando você [reaplica suas regras](/pt-BR/docs/features/rules#reaplicando-regras).
+
+Se algo mudar no workspace ou no catálogo enquanto a prévia está aberta, a confirmação falha sem aplicar nada e pede que você revise de novo.
+
+Só membros que podem editar o workspace instalam, atualizam ou removem plugins. Quem só visualiza pode explorar o catálogo.
+
+## Atualizando
+
+Quando o autor publica uma versão nova, o plugin mostra **Atualização disponível** no catálogo. Abra o plugin e clique em **Atualizar**. A prévia funciona como a da instalação e mostra também o que acontece com o que você mudou:
+
+- Itens que você **editou** (renomeou uma categoria, mudou uma regra) **ficam como estão**. A sua edição sempre vence
+- Itens que o plugin deixou de trazer são **apagados**, a menos que você os tenha editado ou que ainda estejam em uso; nesse caso eles **passam para você** e viram categorias e regras comuns
+
+Um plugin que precisa de um Securo mais novo mostra **Requer Securo x.y.z** em vez de oferecer a atualização.
+
+## Removendo
+
+Em **Configurações do workspace**, a seção **Plugins** lista o que está instalado no workspace, com a versão. Clique no ícone de lixeira ao lado de um plugin para removê-lo. A prévia lista o que sai e o que fica:
+
+- Regras e categorias que você nunca mexeu são apagadas
+- Tudo o que você editou, e qualquer categoria ainda usada por transações, orçamentos, transações recorrentes ou regras suas, **passa para você** e fica exatamente como está
+
+Remover sempre funciona, mesmo que o plugin tenha sido revogado depois ou que o catálogo esteja fora do ar.
+
+## Plugins Revogados
+
+Um plugin que se mostrou nocivo ou quebrado pode ser revogado no catálogo. Ele não pode mais ser instalado nem atualizado e aparece como **Revogado**, com o motivo. Workspaces que já o têm continuam podendo removê-lo.
+
+## Privacidade
+
+- O Securo baixa o catálogo só quando alguém o abre, e os arquivos de um plugin só quando você abre ou instala aquele plugin
+- Cada arquivo é conferido contra o checksum listado no catálogo antes de ser usado
+- Nada sobre o seu workspace é enviado: não há conta, nem contador de instalações, nem telemetria. A popularidade vem das estrelas no GitHub
+- O seu servidor só conversa com o host do catálogo, nunca com o GitHub
+
+Você pode apontar o Securo para um espelho ou para o seu próprio catálogo com `PLUGINS_INDEX_URL` (padrão `https://plugins.usesecuro.com/v1/index.json`).
+
+## Criando um Plugin
+
+Qualquer pessoa pode publicar um plugin a partir do próprio repositório no GitHub. Veja [Criando um plugin](/pt-BR/docs/features/plugins/authoring).

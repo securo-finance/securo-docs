@@ -1,0 +1,215 @@
+---
+title: Criando um Plugin
+description: Publique categorias e regras a partir do seu próprio repositório no GitHub, teste localmente e lance atualizações.
+---
+
+Um plugin é um repositório público no GitHub com um arquivo `securo-plugin.json` na raiz. Não há conta para criar nem pull request para abrir: adicione um tópico, publique uma release e ele aparece no catálogo.
+
+## O que um Plugin Pode Conter
+
+- **Categorias**, dentro de um grupo seu ou de um grupo padrão
+- **Grupos de categorias**
+- **Regras** que categorizam, renomeiam, anotam ou ignoram transações
+
+Plugins não rodam código. Um manifesto que declara `runtime`, `network` ou `api_scopes` é recusado.
+
+## Começo Rápido
+
+1. Crie um repositório público no GitHub, por exemplo `seu-nome/streaming`
+2. Adicione o `securo-plugin.json` na raiz (o exemplo completo abaixo é um bom começo)
+3. Adicione um `README.md`: ele aparece na página do plugin no catálogo, então explique o que o plugin resolve e para quem ele é
+4. [Teste localmente](#testando-localmente) no seu próprio Securo
+5. Adicione o **tópico** `securo-plugin` ao repositório (no GitHub: a engrenagem ao lado de **About**)
+6. Publique uma **release** (por exemplo `v1.0.0`)
+
+O catálogo é reconstruído a cada 6 horas. Seu plugin aparece depois da próxima execução.
+
+## O Manifesto
+
+```json
+{
+  "id": "seu-nome/streaming",
+  "name": { "en": "Streaming", "pt-BR": "Streaming" },
+  "description": {
+    "en": "A Streaming category with rules for the common video and music services.",
+    "pt-BR": "Uma categoria Streaming com regras para os serviços de vídeo e música mais comuns."
+  },
+  "version": "1.0.0",
+  "repository": "https://github.com/seu-nome/streaming",
+  "license": "MIT",
+  "min_securo_version": "0.19.0",
+  "contributes": {
+    "categories": [
+      {
+        "key": "streaming",
+        "name": { "en": "Streaming", "pt-BR": "Streaming" },
+        "group": "lifestyle",
+        "icon": "tv",
+        "color": "#8B5CF6"
+      }
+    ],
+    "rules": [
+      {
+        "key": "video-and-music",
+        "name": "Serviços de streaming",
+        "conditions_op": "or",
+        "conditions": [
+          { "field": "description", "op": "contains", "value": "NETFLIX" },
+          { "field": "description", "op": "contains", "value": "SPOTIFY" }
+        ],
+        "actions": [{ "op": "set_category", "value": "streaming" }]
+      }
+    ]
+  }
+}
+```
+
+### Campos principais
+
+| Campo | Descrição |
+|-------|-----------|
+| `id` | `dono/repositório`, em minúsculas. Precisa ser o repositório onde o plugin está |
+| `name`, `description` | Texto mostrado no catálogo |
+| `version` | `MAJOR.MINOR.PATCH`. Suba a cada release |
+| `repository` | `https://github.com/dono/repositório` |
+| `license` | A licença do plugin, por exemplo `MIT` |
+| `min_securo_version` | O Securo mais antigo que consegue instalá-lo. Plugins existem a partir da `0.19.0` |
+| `contributes` | O que o plugin adiciona: `category_groups`, `categories` e `rules` |
+
+### Texto traduzido
+
+Qualquer nome ou descrição pode ser um texto simples ou um mapa de idiomas com uma entrada `en`, usada quando o idioma de quem lê não está lá:
+
+```json
+"name": { "en": "Coffee", "pt-BR": "Café", "de": "Kaffee" }
+```
+
+O catálogo lista os idiomas em que o plugin foi escrito, e as pessoas podem filtrar por eles. Nomes de regras são texto simples.
+
+### Chaves
+
+Todo item tem uma `key`: letras minúsculas, números, `-` e `_`, até 64 caracteres, única dentro do seu tipo. A chave é como o Securo reconhece um item entre versões, então **mantenha as chaves estáveis**. Renomear um item não tem problema; mudar a chave apaga o item antigo e cria um novo.
+
+O `group` de uma categoria e o `set_category` de uma regra apontam para itens pela chave: primeiro um item do seu plugin, senão um item padrão.
+
+- **Grupos padrão**: `housing`, `food`, `transport`, `lifestyle`, `income`, `other`
+- **Categorias padrão**: `housing`, `food`, `transport`, `groceries`, `health`, `leisure`, `subscriptions`, `education`, `transfers`, `investments`, `salary`, `shopping`, `donations`, `personal_care`, `taxes`, `other`
+
+Um plugin não pode apontar para itens de outro plugin.
+
+### Grupos de categorias
+
+| Campo | Descrição |
+|-------|-----------|
+| `key` | Obrigatório |
+| `name` | Obrigatório, até 100 caracteres em cada idioma |
+| `icon` | Opcional |
+| `color` | Opcional, `#RRGGBB` |
+
+### Categorias
+
+| Campo | Descrição |
+|-------|-----------|
+| `key` | Obrigatório |
+| `name` | Obrigatório, até 100 caracteres em cada idioma |
+| `group` | Opcional: a chave de um grupo |
+| `icon` | Opcional: o nome de um ícone do [Lucide](https://lucide.dev/icons), como `coffee`, `tv` ou `dog`, entre os que o editor de categorias oferece |
+| `color` | Opcional, `#RRGGBB` |
+| `treat_as_transfer` | Opcional, `true` para deixar as transações da categoria fora dos totais de receitas e despesas |
+
+### Regras
+
+As regras funcionam como as que você [cria à mão](/pt-BR/docs/features/rules).
+
+| Campo | Descrição |
+|-------|-----------|
+| `key` | Obrigatório |
+| `name` | Obrigatório, texto simples, único dentro do plugin |
+| `conditions_op` | `and` ou `or`: como as condições se combinam |
+| `conditions` | Uma ou mais condições ou grupos de condições |
+| `actions` | Uma ou mais ações |
+| `priority` | Opcional, de 0 a 1000, padrão 0. Números menores rodam primeiro, e a primeira regra que define uma categoria vence |
+
+Uma **condição** compara um campo com um valor:
+
+```json
+{ "field": "description", "op": "contains", "value": "STARBUCKS" }
+```
+
+- `field`: `description`, `payee`, `notes`, `amount`, `type`, `date` ou `status`
+- `op`: `contains`, `not_contains`, `equals`, `not_equals`, `starts_with`, `ends_with`, `regex`, `gt`, `gte`, `lt`, `lte`
+- `status` compara com `equals` ou `not_equals` a `pending` ou `posted`
+- Um `regex` segue a mesma política do app: precisa compilar e não pode casar com tudo (`.*` é recusado)
+
+Contas e beneficiários são dados do próprio workspace, então um plugin não consegue apontar para eles por id.
+
+Um **grupo de condições** junta as próprias condições com o outro operador:
+
+```json
+{
+  "conditions_op": "and",
+  "conditions": [
+    { "field": "description", "op": "contains", "value": "UBER" },
+    { "op": "or", "conditions": [
+      { "field": "description", "op": "contains", "value": "EATS" },
+      { "field": "description", "op": "contains", "value": "FOOD" }
+    ] }
+  ]
+}
+```
+
+**Ações**:
+
+| `op` | `value` |
+|------|---------|
+| `set_category` | A chave de uma categoria |
+| `set_description` | A nova descrição, até 500 caracteres |
+| `append_notes` | O texto a acrescentar às notas |
+| `ignore` | Nenhum |
+
+## Testando Localmente
+
+Você não precisa publicar nada para testar o seu plugin. O repositório [`securo-finance/plugins`](https://github.com/securo-finance/plugins) tem o `build_index.py`, que monta um catálogo a partir de pastas de plugin no seu disco (Python 3.11+, sem dependências):
+
+```bash
+git clone https://github.com/securo-finance/plugins securo-plugins
+python3 securo-plugins/build_index.py local caminho/do/seu-plugin --out site
+python3 -m http.server 8787 --bind 127.0.0.1 --directory site
+```
+
+Inicie o Securo apontando para ele:
+
+```bash
+PLUGINS_ENABLED=true
+PLUGINS_INDEX_URL=http://127.0.0.1:8787/v1/index.json
+```
+
+Se o Securo roda no Docker, use `http://host.docker.internal:8787/v1/index.json`. Abra o catálogo, instale o seu plugin e confira a prévia.
+
+O script valida a forma do manifesto; o Securo valida todo o resto ao montar a prévia, então um erro aparece ali com o motivo. Depois de cada mudança, rode o `build_index.py` de novo: o Securo confere cada arquivo contra o checksum listado no catálogo.
+
+## Publicando Atualizações
+
+O catálogo fixa cada plugin no **commit da última release**, nunca numa branch. Um push na `main` não muda nada para ninguém; uma release, sim.
+
+1. Mude o manifesto e suba a `version`
+2. Publique uma nova release no GitHub
+
+Depois da próxima execução do catálogo, os workspaces que têm o seu plugin veem **Atualização disponível**. O que eles recebem:
+
+- Itens que você mudou são atualizados, os novos são criados e os removidos são apagados
+- Tudo o que a pessoa **editou** fica como ela deixou
+- Uma categoria removida que ainda tem transações ou é usada em outro lugar passa para a pessoa em vez de ser apagada
+
+Então é seguro melhorar um plugin com o tempo: você não consegue sobrescrever as mudanças de ninguém.
+
+Se uma atualização precisa de um Securo mais novo, suba o `min_securo_version`. Instâncias mais antigas ficam com a versão que têm e mostram o que falta.
+
+## Regras do Catálogo
+
+- O repositório precisa ser público, não pode ser fork nem estar arquivado
+- `id` e `repository` precisam bater com o repositório que o catálogo encontrou
+- Nomes de repositório com caracteres fora de `a-z`, `0-9` e `-` não podem ser usados como `id`
+- O manifesto é limitado a 2 MB e o README a 256 KB
+
+Não há revisão, e estar listado não é um endosso. Um plugin nocivo ou quebrado pode ser revogado: ele sai do catálogo para novas instalações e atualizações, e os workspaces que já o têm continuam podendo removê-lo. Para denunciar um plugin, abra uma issue em [`securo-finance/plugins`](https://github.com/securo-finance/plugins/issues).
