@@ -31,7 +31,9 @@ Enable Banking offers a **free restricted mode** that lets you access your *own*
 
 ## 2. Drop the PEM into Securo's secrets folder
 
-Securo expects the PEM under `./secrets/` (gitignored). Move the downloaded file there and use any filename you like:
+Skip this step if you will paste the key in **Admin Settings** (step 4).
+
+For the `.env` setup, Securo expects the PEM under `./secrets/` (gitignored). Move the downloaded file there and use any filename you like:
 
 ```bash
 mv ~/Downloads/<your-app-id>.pem ./secrets/enable_banking.pem
@@ -52,7 +54,11 @@ If you skip this step, the connection inside Securo will come back with no accou
 
 ## 4. Configure Securo
 
-Add the following to your Securo `.env`:
+**In Admin Settings (no restart).** As an administrator, open **Admin Settings**, find **Enable Banking** under **Bank connections**, click **Set up**, and enter your Application ID and the contents of the PEM file. Enable Banking is available as soon as you save.
+
+The redirect URI is not set there. Securo derives it from `FRONTEND_URL` (`<FRONTEND_URL>/oauth/callback`); set `ENABLE_BANKING_OAUTH_REDIRECT_URI` in `.env` only if it must be different. Either way it must match one of the Allowed Redirect URLs you registered with Enable Banking. See [Provider Settings](/docs/deployment/provider-settings) for how saved values work.
+
+**Or in `.env`.** Add the following to your Securo `.env`:
 
 ```bash
 ENABLE_BANKING_APP_ID=your-application-id

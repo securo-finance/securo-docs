@@ -31,7 +31,9 @@ A Enable Banking oferece um **modo restrito gratuito** que permite acessar as *s
 
 ## 2. Coloque o PEM na pasta de secrets do Securo
 
-O Securo espera o PEM em `./secrets/` (gitignored). Mova o arquivo baixado para lá com o nome que preferir:
+Pule este passo se você for colar a chave nas **Configurações Admin** (passo 4).
+
+Na configuração pelo `.env`, o Securo espera o PEM em `./secrets/` (gitignored). Mova o arquivo baixado para lá com o nome que preferir:
 
 ```bash
 mv ~/Downloads/<seu-app-id>.pem ./secrets/enable_banking.pem
@@ -52,7 +54,11 @@ Se você pular esse passo, a conexão dentro do Securo volta sem nenhuma conta. 
 
 ## 4. Configure o Securo
 
-Adicione o seguinte ao `.env` do Securo:
+**Nas Configurações Admin (sem reiniciar).** Como administrador, abra as **Configurações Admin**, encontre a **Enable Banking** em **Conexões bancárias**, clique em **Configurar** e informe o Application ID e o conteúdo do arquivo PEM. A Enable Banking fica disponível assim que você salva.
+
+A redirect URI não fica nessa tela. O Securo deriva o valor do `FRONTEND_URL` (`<FRONTEND_URL>/oauth/callback`); defina `ENABLE_BANKING_OAUTH_REDIRECT_URI` no `.env` só se ela precisar ser diferente. Nos dois casos, ela tem que coincidir com uma das Allowed Redirect URLs registradas na Enable Banking. Veja [Configuração de Provedores](/pt-BR/docs/deployment/provider-settings) para entender como os valores salvos funcionam.
+
+**Ou no `.env`.** Adicione o seguinte ao `.env` do Securo:
 
 ```bash
 ENABLE_BANKING_APP_ID=seu-application-id
