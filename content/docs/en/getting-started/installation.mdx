@@ -138,10 +138,13 @@ docker compose -f docker-compose.prod.yml ps
 # Stop Securo
 docker compose -f docker-compose.prod.yml down
 
-# Update to latest version
+# Update to the latest version
+git pull
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
+
+Run `git pull` before pulling the images: a new version can change `docker-compose.prod.yml` (new or optional services, new settings), and new images with an old compose file can miss them. See [Updating](/docs/deployment/docker#updating) for backups and release notes.
 
 ## Verifying the Installation
 
