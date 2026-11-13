@@ -1,11 +1,14 @@
 ---
 title: Plugins
-description: Instale categorias e regras feitas pela comunidade, com uma prévia de cada mudança antes de ela ser aplicada.
+description: Instale categorias, regras e integrações feitas pela comunidade, com uma prévia de cada mudança antes de ela ser aplicada.
 ---
 
 Plugins trazem categorias, grupos de categorias e regras prontos para um workspace. Quem já resolveu como categorizar o pet shop, os supermercados do seu país ou os serviços de streaming publica isso uma vez, e você instala em dois cliques em vez de montar tudo à mão.
 
-Plugins só adicionam dados. Eles não rodam código, não mudam a interface e não conseguem enviar nada para lugar nenhum.
+Há dois tipos:
+
+- **Plugins de dados** só adicionam categorias, grupos e regras. Eles não rodam código, não mudam a interface e não conseguem enviar nada para lugar nenhum
+- **Plugins com código** ligam um workspace a um serviço de fora (um meio de pagamento, uma conta de e-mail, um serviço de armazenamento). O código deles roda no seu servidor, isolado do Securo e dos seus dados, e só alcança os hosts que declara. Eles precisam de um container a mais; veja [Plugins com código](#plugins-com-código)
 
 ## Ativando os Plugins
 
@@ -65,15 +68,66 @@ Remover sempre funciona, mesmo que o plugin tenha sido revogado depois ou que o 
 
 Um plugin que se mostrou nocivo ou quebrado pode ser revogado no catálogo. Ele não pode mais ser instalado nem atualizado e aparece como **Revogado**, com o motivo. Workspaces que já o têm continuam podendo removê-lo.
 
+## Plugins com Código
+
+Um plugin com código adiciona **integrações**: conexões com serviços de fora que o Securo sincroniza num agendamento. O código dele nunca roda dentro do Securo. Ele roda num container separado, o **runner de plugins**, com um usuário próprio, sem acesso ao banco, às configurações nem aos segredos do Securo, e só alcança os hosts da internet que declara.
+
+### Ativando o Runner
+
+Plugins com código precisam, além de `PLUGINS_ENABLED=true`:
+
+- Dois containers a mais, iniciados com o profile `plugins`: `docker compose --profile plugins up -d` (ou adicione `plugins` ao `COMPOSE_PROFILES`)
+- No ambiente do backend:
+
+```bash
+PLUGINS_RUNNER_URL=http://plugins-runner:8090
+# Valores longos e aleatórios, por exemplo de `openssl rand -hex 32`
+PLUGINS_RUNNER_TOKEN=...
+PLUGINS_EGRESS_SECRET=...
+```
+
+O `plugins-runner` roda os plugins e o `plugins-egress` é a única saída deles para a internet. Sem eles, plugins com código aparecem como indisponíveis no catálogo e todo o resto continua funcionando.
+
+### Instalando
+
+Só o **dono** do workspace pode instalar, atualizar ou remover um plugin com código. Antes de você confirmar, a prévia mostra:
+
+- Um aviso de que o plugin roda código que não é revisado pela equipe do Securo
+- **Acessa**: cada host da internet que o código pode contatar, com o motivo dado pelo autor. Sem nenhum, nada sai do seu servidor
+- **Usa neste workspace**: o que ele pode ler ou alterar no Securo (por exemplo "Ler e alterar transações"), com o motivo dado pelo autor
+
+Uma atualização marca os hosts e as permissões que a nova versão adiciona, então você vê exatamente com o que está concordando. O Securo só instala o código a partir da cópia do catálogo, depois de conferir o checksum. Cada workspace roda a versão que o dono aprovou.
+
+### Conexões
+
+Depois de instalar, abra a página do plugin e vá para a aba **Conexões**. Quem pode editar o workspace consegue:
+
+- **Adicionar uma conexão**: preencha com o que o serviço te deu (uma chave de API, por exemplo). Campos secretos ficam criptografados e nunca são mostrados de novo. Para serviços com login, o Securo mostra o endereço de retorno para cadastrar no serviço e depois te leva até lá para fazer login
+- **Sincronizar agora**, ou deixar o Securo sincronizar no agendamento do plugin. Uma conexão com falha é tentada com menos frequência até voltar a funcionar
+- **Fazer login de novo** quando o serviço pedir
+- **Remover** uma conexão: as chaves salvas e o acesso dela são apagados, e o que ela já trouxe continua
+
+Quem só visualiza vê as conexões e o estado delas, nunca as chaves.
+
+### O que o Código Pode e Não Pode Fazer
+
+- Ele só alcança os hosts que declarou, e nunca um endereço dentro da sua rede
+- Quando declarou o que usa no workspace, cada conexão recebe um token de acesso limitado exatamente a isso, revogado quando a conexão ou o plugin são removidos
+- Ele só vê as configurações e chaves das próprias conexões, nunca as de outro plugin
+- Cada execução tem limites de tempo, memória e processos, e nada do que ela inicia sobrevive ao fim dela
+
+Remover o plugin apaga as conexões e as chaves delas, revoga os tokens e tira o código do seu servidor quando nenhum workspace usa mais. Uma atualização para uma versão sem código faz o mesmo, e a prévia avisa.
+
 ## Privacidade
 
 - O Securo baixa o catálogo só quando alguém o abre, e os arquivos de um plugin só quando você abre ou instala aquele plugin
 - Cada arquivo é conferido contra o checksum listado no catálogo antes de ser usado
 - Nada sobre o seu workspace é enviado: não há conta, nem contador de instalações, nem telemetria. A popularidade vem das estrelas no GitHub
 - O seu servidor só conversa com o host do catálogo, nunca com o GitHub
+- Um plugin com código conversa com os hosts que declarou, que a prévia lista antes de instalar; plugins de dados não conversam com nada
 
 Você pode apontar o Securo para um espelho ou para o seu próprio catálogo com `PLUGINS_INDEX_URL` (padrão `https://plugins.usesecuro.com/v1/index.json`).
 
 ## Criando um Plugin
 
-Qualquer pessoa pode publicar um plugin a partir do próprio repositório no GitHub. Veja [Criando um plugin](/pt-BR/docs/features/plugins/authoring).
+Qualquer pessoa pode publicar um plugin a partir do próprio repositório no GitHub. Veja [Criando um plugin](/pt-BR/docs/features/plugins/authoring) e, para integrações, [Criando um plugin com código](/pt-BR/docs/features/plugins/code).

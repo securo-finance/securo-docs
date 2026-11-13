@@ -1,11 +1,14 @@
 ---
 title: Plugins
-description: Install categories and rules made by the community, with a preview of every change before it's applied.
+description: Install categories, rules and integrations made by the community, with a preview of every change before it's applied.
 ---
 
 Plugins bring ready-made categories, category groups and rules into a workspace. Someone who already sorted out how to categorize their pet shop, their country's supermarkets or their streaming services can publish it once, and you install it in a couple of clicks instead of rebuilding it by hand.
 
-Plugins only add data. They don't run code, don't change the interface and can't send anything anywhere.
+There are two kinds:
+
+- **Data plugins** only add categories, groups and rules. They don't run code, don't change the interface and can't send anything anywhere
+- **Plugins with code** connect a workspace to an outside service (a payment provider, an email account, a storage service). Their code runs on your server, isolated from Securo and your data, and only reaches the hosts it declares. They need an extra container; see [Plugins with code](#plugins-with-code)
 
 ## Enabling Plugins
 
@@ -65,15 +68,66 @@ Removing always works, even if the plugin was later revoked or the catalog can't
 
 A plugin found to be harmful or broken can be revoked in the catalog. It can no longer be installed or updated, and shows **Revoked** with the reason. Workspaces that already have it can still remove it.
 
+## Plugins with Code
+
+A plugin with code adds **integrations**: connections to outside services that Securo syncs on a schedule. Its code never runs inside Securo. It runs in a separate container, the **plugin runner**, under its own user, with no access to Securo's database, settings or secrets, and it can only reach the internet hosts it declares.
+
+### Enabling the Runner
+
+Plugins with code need, on top of `PLUGINS_ENABLED=true`:
+
+- Two extra containers, started with the `plugins` profile: `docker compose --profile plugins up -d` (or add `plugins` to `COMPOSE_PROFILES`)
+- In the backend environment:
+
+```bash
+PLUGINS_RUNNER_URL=http://plugins-runner:8090
+# Long random values, for example from `openssl rand -hex 32`
+PLUGINS_RUNNER_TOKEN=...
+PLUGINS_EGRESS_SECRET=...
+```
+
+`plugins-runner` runs the plugins and `plugins-egress` is their only way out to the internet. Without them, plugins with code show as unavailable in the catalog and everything else keeps working.
+
+### Installing
+
+Only the workspace **owner** can install, update or remove a plugin with code. Before you confirm, the preview shows:
+
+- A warning that the plugin runs code that isn't reviewed by the Securo team
+- **Reaches**: every internet host the code may contact, each with the author's reason. With none, nothing leaves your server
+- **Uses in this workspace**: what it may read or change in Securo (for example "Read and change transactions"), each with the author's reason
+
+An update marks the hosts and permissions the new version adds, so you see exactly what you're agreeing to. Securo installs the code only from the catalog's copy, after checking its checksum. Each workspace runs the version its owner approved.
+
+### Connections
+
+After installing, open the plugin's page and go to the **Connections** tab. Members who can edit the workspace can:
+
+- **Add a connection**: fill in what the service gave you (an API key, say). Secret fields are stored encrypted and are never shown again. For services you sign in to, Securo shows the return address to register with the service, then sends you there to sign in
+- **Sync now**, or let Securo sync on the plugin's schedule. A failing connection is retried less often until it works again
+- **Sign in again** when the service asks for it
+- **Remove** a connection: its saved keys and access are deleted, and what it already brought in stays
+
+Viewers see the connections and their status, never their keys.
+
+### What the Code Can and Can't Do
+
+- It reaches only the hosts it declared, and never an address inside your network
+- When it declared what it uses in the workspace, each connection gets an access token limited to exactly that, revoked when the connection or the plugin is removed
+- It sees only its own connections' settings and keys, never another plugin's
+- Each run has time, memory and process limits, and nothing it starts outlives the run
+
+Removing the plugin deletes its connections and their keys, revokes their tokens and removes its code from your server once no workspace uses it. An update to a version without code does the same, and the preview says so.
+
 ## Privacy
 
 - Securo downloads the catalog only when someone opens it, and a plugin's files only when you open or install that plugin
 - Every file is checked against the checksum the catalog lists before it's used
 - Nothing about your workspace is sent: there's no account, no install counter and no telemetry. Popularity comes from GitHub stars
 - Your server only ever talks to the catalog host, never to GitHub
+- A plugin with code talks to the hosts it declared, which the preview lists before you install it; data plugins talk to nothing
 
 You can point Securo at a mirror or your own catalog with `PLUGINS_INDEX_URL` (default `https://plugins.usesecuro.com/v1/index.json`).
 
 ## Writing a Plugin
 
-Anyone can publish a plugin from their own GitHub repository. See [Writing a plugin](/docs/features/plugins/authoring).
+Anyone can publish a plugin from their own GitHub repository. See [Writing a plugin](/docs/features/plugins/authoring), and [Writing a plugin with code](/docs/features/plugins/code) for integrations.
