@@ -139,9 +139,12 @@ docker compose -f docker-compose.prod.yml ps
 docker compose -f docker-compose.prod.yml down
 
 # Atualizar para a versão mais recente
+git pull
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
+
+Rode o `git pull` antes de baixar as imagens: uma versão nova pode mudar o `docker-compose.prod.yml` (serviços novos ou opcionais, configurações novas), e imagens novas com um arquivo compose antigo podem ficar sem eles. Veja [Atualizando](/pt-BR/docs/deployment/docker#atualizando) para backup e notas de versão.
 
 ## Verificando a Instalação
 

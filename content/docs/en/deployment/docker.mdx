@@ -184,7 +184,7 @@ crontab -e
 
 ## Updating
 
-Pull the latest images and restart:
+Update the compose file, pull the latest images and restart:
 
 ```bash
 cd /path/to/securo
@@ -192,6 +192,8 @@ git pull
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
+
+`git pull` comes first because a new version can change `docker-compose.prod.yml` (new or optional services, new settings); the images and the compose file should come from the same version. Your `.env` is not tracked by git, so it stays as it is.
 
 The database migrations run automatically on startup (`alembic upgrade head`), so schema changes are applied during the update. Take a database backup before updating, and check the [releases page](https://github.com/securo-finance/securo/releases) for the notes of what changed.
 

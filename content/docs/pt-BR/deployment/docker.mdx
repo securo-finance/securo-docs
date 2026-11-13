@@ -184,7 +184,7 @@ crontab -e
 
 ## Atualizando
 
-Baixe as imagens mais recentes e reinicie:
+Atualize o arquivo compose, baixe as imagens mais recentes e reinicie:
 
 ```bash
 cd /caminho/para/securo
@@ -192,6 +192,8 @@ git pull
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
+
+O `git pull` vem primeiro porque uma versão nova pode mudar o `docker-compose.prod.yml` (serviços novos ou opcionais, configurações novas); as imagens e o arquivo compose devem ser da mesma versão. O seu `.env` não é versionado pelo git, então continua como está.
 
 As migrations do banco de dados rodam automaticamente na inicialização (`alembic upgrade head`), então mudanças de schema são aplicadas durante a atualização. Faça um backup do banco antes de atualizar, e confira a [página de releases](https://github.com/securo-finance/securo/releases) para as notas do que mudou.
 
