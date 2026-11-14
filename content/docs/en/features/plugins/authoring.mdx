@@ -10,6 +10,7 @@ A plugin is a public GitHub repository with a `securo-plugin.json` file at its r
 - **Categories**, placed in one of your groups or in a built-in one
 - **Category groups**
 - **Rules** that categorize, rename, annotate or ignore transactions
+- **Themes** that give Securo a new look
 
 These are data plugins: nothing in them runs. To connect a workspace to an outside service, see [Writing a plugin with code](/docs/features/plugins/code).
 
@@ -74,7 +75,7 @@ The catalog is rebuilt every 6 hours. Your plugin shows up after the next run.
 | `repository` | `https://github.com/owner/repository` |
 | `license` | The plugin's license, for example `MIT` |
 | `min_securo_version` | The oldest Securo that can install it. Plugins exist from `0.19.0` |
-| `contributes` | What the plugin adds: `category_groups`, `categories` and `rules` |
+| `contributes` | What the plugin adds: `category_groups`, `categories`, `rules` and `themes` |
 
 ### Translated text
 
@@ -166,6 +167,44 @@ A **condition group** joins its own conditions with the other operator:
 | `set_description` | The new description, up to 500 characters |
 | `append_notes` | The text to add to the notes |
 | `ignore` | None |
+
+### Themes
+
+A theme gives Securo a new look: colors for its design tokens, in light and dark, plus an optional corner radius and font. Installed themes show in the **Library** (**Themes** tab, opened from the dashboard's customize button) next to Securo's own, for every member of the workspace.
+
+```json
+"themes": [
+  {
+    "key": "matrix",
+    "name": "Matrix",
+    "radius": 0,
+    "font": "mono",
+    "dark": {
+      "background": "#000000",
+      "foreground": "#B6FFB9",
+      "card": "#020A03",
+      "primary": "#00FF41",
+      "primary-foreground": "#001A07",
+      "muted-foreground": "#5FD068",
+      "border": "#0F3315",
+      "chart-1": "#00FF41"
+    },
+    "light": { "background": "#F3FFF4", "foreground": "#002B0A", "primary": "#007A1F", "primary-foreground": "#FFFFFF" }
+  }
+]
+```
+
+| Field | Description |
+|-------|-------------|
+| `key` | Required |
+| `name` | Required, up to 100 characters in every language |
+| `light`, `dark` | Colors for the tokens below, each `#RRGGBB`. Tokens you leave out keep Securo's own color; a mode you leave out keeps Securo's look |
+| `radius` | Optional, 0 to 1 (rem). Securo's own is 0.625 |
+| `font` | Optional: `sans` (Securo's own), `mono` or `serif`, from the device's own fonts |
+
+**Tokens**: `background`, `foreground`, `card`, `primary`, `primary-foreground`, `muted`, `muted-foreground`, `border`, `chart-1` to `chart-12`, `chart-muted`, `chart-income`, `chart-expense`.
+
+A theme is only colors: no CSS, no images and no fonts to download, so nothing leaves the person's server. Text must stay readable: `foreground` and `muted-foreground` on `background` and `card`, and `primary-foreground` on `primary`, need a contrast of at least 4.5:1 when you set both colors.
 
 ## Testing Locally
 

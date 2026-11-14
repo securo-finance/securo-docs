@@ -10,6 +10,7 @@ Um plugin é um repositório público no GitHub com um arquivo `securo-plugin.js
 - **Categorias**, dentro de um grupo seu ou de um grupo padrão
 - **Grupos de categorias**
 - **Regras** que categorizam, renomeiam, anotam ou ignoram transações
+- **Temas** que dão um visual novo ao Securo
 
 Estes são plugins de dados: nada neles roda. Para ligar um workspace a um serviço de fora, veja [Criando um plugin com código](/pt-BR/docs/features/plugins/code).
 
@@ -74,7 +75,7 @@ O catálogo é reconstruído a cada 6 horas. Seu plugin aparece depois da próxi
 | `repository` | `https://github.com/dono/repositório` |
 | `license` | A licença do plugin, por exemplo `MIT` |
 | `min_securo_version` | O Securo mais antigo que consegue instalá-lo. Plugins existem a partir da `0.19.0` |
-| `contributes` | O que o plugin adiciona: `category_groups`, `categories` e `rules` |
+| `contributes` | O que o plugin adiciona: `category_groups`, `categories`, `rules` e `themes` |
 
 ### Texto traduzido
 
@@ -166,6 +167,44 @@ Um **grupo de condições** junta as próprias condições com o outro operador:
 | `set_description` | A nova descrição, até 500 caracteres |
 | `append_notes` | O texto a acrescentar às notas |
 | `ignore` | Nenhum |
+
+### Temas
+
+Um tema dá um visual novo ao Securo: cores para os tokens de design, no claro e no escuro, mais um raio de cantos e uma fonte opcionais. Os temas instalados aparecem na **Biblioteca** (aba **Temas**, aberta pelo botão de personalizar do dashboard) ao lado dos do Securo, para todos os membros do workspace.
+
+```json
+"themes": [
+  {
+    "key": "matrix",
+    "name": "Matrix",
+    "radius": 0,
+    "font": "mono",
+    "dark": {
+      "background": "#000000",
+      "foreground": "#B6FFB9",
+      "card": "#020A03",
+      "primary": "#00FF41",
+      "primary-foreground": "#001A07",
+      "muted-foreground": "#5FD068",
+      "border": "#0F3315",
+      "chart-1": "#00FF41"
+    },
+    "light": { "background": "#F3FFF4", "foreground": "#002B0A", "primary": "#007A1F", "primary-foreground": "#FFFFFF" }
+  }
+]
+```
+
+| Campo | Descrição |
+|-------|-----------|
+| `key` | Obrigatório |
+| `name` | Obrigatório, até 100 caracteres em cada idioma |
+| `light`, `dark` | Cores para os tokens abaixo, cada uma `#RRGGBB`. Tokens que você não define ficam com a cor do Securo; um modo que você não define fica com o visual do Securo |
+| `radius` | Opcional, de 0 a 1 (rem). O do Securo é 0.625 |
+| `font` | Opcional: `sans` (a do Securo), `mono` ou `serif`, das fontes do próprio aparelho |
+
+**Tokens**: `background`, `foreground`, `card`, `primary`, `primary-foreground`, `muted`, `muted-foreground`, `border`, `chart-1` a `chart-12`, `chart-muted`, `chart-income`, `chart-expense`.
+
+Um tema é só cores: sem CSS, sem imagens e sem fontes para baixar, então nada sai do servidor da pessoa. O texto precisa continuar legível: `foreground` e `muted-foreground` sobre `background` e `card`, e `primary-foreground` sobre `primary`, precisam de contraste de pelo menos 4.5:1 quando você define as duas cores.
 
 ## Testando Localmente
 
