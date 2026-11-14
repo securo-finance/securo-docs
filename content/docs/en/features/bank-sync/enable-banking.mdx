@@ -22,6 +22,7 @@ Enable Banking offers a **free restricted mode** that lets you access your *own*
       ```
       https://<your-securo-host>/oauth/callback
       ```
+      If Securo is already running, the exact URL is shown in **Admin Settings**, in the Enable Banking dialog under **Bank connections**, with a copy button.
     - **Email for data protection matters**: your email
     - **Privacy Policy / Terms of Service URLs**: any reachable URL (in restricted mode these aren't validated)
 3. On submit, the browser downloads a `.pem` file with your application's private key — **save it somewhere safe**, Enable Banking will not show it again
@@ -31,7 +32,9 @@ Enable Banking offers a **free restricted mode** that lets you access your *own*
 
 ## 2. Drop the PEM into Securo's secrets folder
 
-Securo expects the PEM under `./secrets/` (gitignored). Move the downloaded file there and use any filename you like:
+Skip this step if you will paste the key in **Admin Settings** (step 4).
+
+For the `.env` setup, Securo expects the PEM under `./secrets/` (gitignored). Move the downloaded file there and use any filename you like:
 
 ```bash
 mv ~/Downloads/<your-app-id>.pem ./secrets/enable_banking.pem
@@ -52,7 +55,11 @@ If you skip this step, the connection inside Securo will come back with no accou
 
 ## 4. Configure Securo
 
-Add the following to your Securo `.env`:
+**In Admin Settings (no restart).** As an administrator, open **Admin Settings**, find **Enable Banking** under **Bank connections**, click **Set up**, and enter your Application ID and the contents of the PEM file. Enable Banking is available as soon as you save.
+
+The dialog opens with the **Redirect URL** Securo will use, with a copy button: register exactly that URL as an Allowed Redirect URL in Enable Banking. It is read-only. Securo derives it from `FRONTEND_URL` (`<FRONTEND_URL>/oauth/callback`); set `ENABLE_BANKING_OAUTH_REDIRECT_URI` in `.env` only if it must be different, and the dialog shows the new value. See [Provider Settings](/docs/deployment/provider-settings) for how saved values work.
+
+**Or in `.env`.** Add the following to your Securo `.env`:
 
 ```bash
 ENABLE_BANKING_APP_ID=your-application-id

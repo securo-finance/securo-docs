@@ -13,7 +13,9 @@ Securo's SimpleFIN connector uses the same `BankProvider` abstraction as the oth
 
 ## 1. Enable SimpleFIN in Securo
 
-Add the following to your Securo `.env`:
+**In Admin Settings (no restart).** As an administrator, open **Admin Settings**, find **SimpleFIN** under **Bank connections**, and turn on **Allow SimpleFIN connections**. The Bridge host still comes from `SIMPLEFIN_API_URL` in `.env` (the sandbox host by default). See [Provider Settings](/docs/deployment/provider-settings).
+
+**Or in `.env`.** Add the following to your Securo `.env`:
 
 ```bash
 SIMPLEFIN_ENABLED=true

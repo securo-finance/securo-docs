@@ -116,6 +116,8 @@ PLUGGY_CLIENT_SECRET=seu-client-secret
 
 Em seguida, reinicie: `docker compose -f docker-compose.prod.yml up -d`
 
+Você também pode informar essas credenciais nas **Configurações Admin**, em **Conexões bancárias**, sem reiniciar. O mesmo vale para a Enable Banking e o SimpleFIN. Veja [Configuração de Provedores](/pt-BR/docs/deployment/provider-settings).
+
 ### Taxas de Câmbio
 
 Para conversão automática de moedas, adicione uma API key gratuita do [Open Exchange Rates](https://openexchangerates.org/):
@@ -123,6 +125,8 @@ Para conversão automática de moedas, adicione uma API key gratuita do [Open Ex
 ```ini
 OPENEXCHANGERATES_APP_ID=seu-app-id
 ```
+
+Você também pode informar o App ID nas **Configurações Admin**, em **Taxas de câmbio**, sem reiniciar.
 
 As taxas são buscadas sob demanda quando transações em moeda estrangeira são criadas. Sem uma key, valores entre moedas usam por padrão uma taxa fallback de 1:1, com um aviso visual.
 

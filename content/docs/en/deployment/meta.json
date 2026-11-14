@@ -3,6 +3,7 @@
   "pages": [
     "index",
     "docker",
+    "provider-settings",
     "kubernetes",
     "kubernetes-prod",
     "railway"

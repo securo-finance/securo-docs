@@ -116,6 +116,8 @@ PLUGGY_CLIENT_SECRET=your-client-secret
 
 Then restart: `docker compose -f docker-compose.prod.yml up -d`
 
+You can also enter these credentials in **Admin Settings**, under **Bank connections**, without a restart. The same goes for Enable Banking and SimpleFIN. See [Provider Settings](/docs/deployment/provider-settings).
+
 ### Exchange Rates
 
 For automatic currency conversion, add a free [Open Exchange Rates](https://openexchangerates.org/) API key:
@@ -123,6 +125,8 @@ For automatic currency conversion, add a free [Open Exchange Rates](https://open
 ```ini
 OPENEXCHANGERATES_APP_ID=your-app-id
 ```
+
+You can also enter the App ID in **Admin Settings**, under **Exchange rates**, without a restart.
 
 Rates are fetched on-demand when foreign-currency transactions are created. Without a key, cross-currency amounts default to a 1:1 fallback rate with a visual warning.
 
