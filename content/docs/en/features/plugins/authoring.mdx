@@ -75,6 +75,7 @@ The catalog is rebuilt every 6 hours. Your plugin shows up after the next run.
 | `repository` | `https://github.com/owner/repository` |
 | `license` | The plugin's license, for example `MIT` |
 | `min_securo_version` | The oldest Securo that can install it. Plugins exist from `0.19.0` |
+| `workspaces` | Optional. The workspace types it's for: `["personal"]`, `["business"]` or both. Left out, it fits both. A plugin can't be installed in a type it doesn't list |
 | `contributes` | What the plugin adds: `category_groups`, `categories`, `rules` and `themes` |
 
 ### Translated text
