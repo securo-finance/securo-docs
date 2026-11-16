@@ -24,6 +24,7 @@
     "net-worth",
     "security",
     "bank-sync",
-    "agents"
+    "agents",
+    "plugins"
   ]
 }

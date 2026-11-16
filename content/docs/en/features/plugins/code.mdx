@@ -1,0 +1,151 @@
+---
+title: Writing a Plugin with Code
+description: Connect Securo to an outside service with an integration that runs isolated on the user's server.
+---
+
+A plugin with code adds **integrations**: a connection to an outside service (a payment provider, a mailbox, a storage service) that Securo sets up with the person's keys or sign-in and syncs on a schedule. Everything in [Writing a plugin](/docs/features/plugins/authoring) still applies: a public repository, the `securo-plugin` topic and a release. A plugin with code can also ship categories and rules.
+
+The [`examples/hello-sync`](https://github.com/securo-finance/plugins/tree/main/examples/hello-sync) folder in `securo-finance/plugins` is the smallest working plugin with code. Start from it.
+
+## How It Runs
+
+Your code never runs inside Securo. Each call starts a new process in the **plugin runner**, a separate container, under a user of its own:
+
+- Only the standard library, your code and the packages your lockfile pins are importable
+- It can reach only the hosts you declare in `network`, never an address inside the person's network
+- It can write only to its home folder (`HOME`), and its own code is read-only
+- Each call has a time limit (60 seconds by default), a memory limit and a process limit, and any process it starts is stopped when the call ends
+
+Securo decides when to call your plugin; the runner runs it. The person installing it sees, before confirming, every host you declare and everything you ask to use in their workspace, each with the reason you give.
+
+## The Manifest
+
+On top of the [usual fields](/docs/features/plugins/authoring#the-manifest):
+
+```json
+{
+  "id": "your-name/payouts",
+  "name": "Payouts",
+  "description": "Brings in your payouts from Example Pay.",
+  "version": "1.0.0",
+  "repository": "https://github.com/your-name/payouts",
+  "license": "MIT",
+  "min_securo_version": "0.19.0",
+  "runtime": { "entrypoint": "payouts.plugin:plugin", "lockfile": "requirements.txt" },
+  "network": [
+    { "host": "api.examplepay.com", "purpose": "Reads your payouts with the key you enter" }
+  ],
+  "api_scopes": [
+    { "scope": "transactions:write", "purpose": "Adds your payouts as transactions" }
+  ],
+  "contributes": {
+    "integrations": [
+      {
+        "key": "account",
+        "name": "Example Pay",
+        "auth": "credentials",
+        "fields": [{ "key": "api_key", "label": "Restricted API key", "secret": true }],
+        "sync_minutes": 60
+      }
+    ]
+  }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `runtime.entrypoint` | `package.module:attribute`: the object whose methods Securo calls |
+| `runtime.lockfile` | Optional. A requirements file with a hash for every package |
+| `network` | Every host the code may reach (`host` or `host:port`, no wildcards or IP addresses), each with a `purpose` |
+| `api_scopes` | Optional. What the code may read or change in the workspace, each with a `purpose` |
+| `contributes.integrations` | One or more integrations |
+
+`network` and `api_scopes` are what the person agrees to: keep them to what the plugin needs, and write each `purpose` for someone deciding whether to trust you. Without `network`, the preview says nothing leaves their server.
+
+### Integrations
+
+| Field | Description |
+|-------|-------------|
+| `key` | Required, stable across versions |
+| `name`, `description` | Shown when setting up a connection |
+| `auth` | `credentials` (a form), `oauth` (sign in at the service) or `none` |
+| `fields` | The form: each field has `key`, `label`, `secret` (default `false`) and `required` (default `true`) |
+| `sync_minutes` | Optional, 15 to 10080. Securo calls `sync` this often |
+
+Secret fields are stored encrypted and passed only to your plugin. Other fields are settings the person can see.
+
+### Scopes
+
+`api_scopes` uses the same vocabulary as Securo's access tokens: `accounts`, `connections`, `transactions`, `categories`, `payees`, `rules`, `budgets`, `goals`, `recurring`, `assets`, `invoices` with `:read` or `:write` (write includes read), and `reports:read`. Each connection gets a token with exactly these scopes, acting as the member who created the connection.
+
+### Dependencies
+
+`runtime.lockfile` is a requirements file with a hash for every package, for example from `uv export --format requirements-txt > requirements.txt`. Packages are installed as wheels for Python 3.14, with no dependencies beyond the list. Option lines (`--no-binary`, `-r`, `-e`, index options) and direct URLs are refused. A plugin that needs only the standard library can leave it out.
+
+## The Code
+
+Securo calls `<entrypoint>.<method>(params, context)`. Methods can be regular or `async`, and return JSON-serializable values.
+
+```python
+class NeedsAuth(Exception):
+    pass
+
+
+class Payouts:
+    def sync(self, params, context):
+        key = context.secrets["api_key"]
+        cursor = params["state"].get("cursor")
+        # Fetch what changed since `cursor` from api.examplepay.com,
+        # then write it to Securo with context.securo["token"].
+        return {"state": {"cursor": "next-cursor"}}
+
+
+plugin = Payouts()
+```
+
+`context` carries:
+
+| Attribute | Content |
+|-----------|---------|
+| `context.secrets` | The connection's secret fields, plus what your plugin returned as secrets |
+| `context.config` | The connection's other fields |
+| `context.securo` | `api_url`, `workspace_id`, `connection_id`, `integration` and, with `api_scopes`, `token` |
+
+### `sync(params, context)`
+
+Called on the integration's schedule, right after a connection is created and when someone clicks **Sync now**. `params` has `state` (what you returned last time, `{}` the first time) and `last_sync_at`.
+
+Return a dict with:
+
+- `state`: your cursor for the next run. Keep runs short and continue from the cursor next time
+- `secrets` (optional): values to store with the connection's secrets, such as a refreshed token
+
+Raise an exception to report a failure; its message is shown to the person, with any secret value masked. Raise an exception named `NeedsAuth` when the person has to sign in again or replace a key.
+
+### Signing in (`auth: "oauth"`)
+
+- `oauth_url(params, context)` gets `redirect_uri` and `state`, and returns `{"url": "https://..."}`: the service's sign-in link, with that state and return address
+- `oauth_exchange(params, context)` gets `code` and `redirect_uri`, and returns `{"secrets": {...}}` with the tokens to keep
+
+Each Securo instance has its own return address, `https://<instance>/plugins/oauth/callback`, shown when someone adds the connection. People self-hosting register it with the service, usually in an app of their own on that service, and put its client ID in a field.
+
+### Calling Securo
+
+With `api_scopes`, send `context.securo["token"]` as a bearer token to `context.securo["api_url"]`, Securo's REST API (the same routes the app uses, under `/api`). It reaches Securo over the runner's internal network, not through the proxy. Requests outside the declared scopes are refused.
+
+## Testing Locally
+
+Build a catalog from your plugin folder as in [Testing locally](/docs/features/plugins/authoring#testing-locally). The catalog copies your code and records its checksum. Then start Securo with the runner:
+
+```bash
+PLUGINS_ENABLED=true
+PLUGINS_INDEX_URL=http://host.docker.internal:8787/v1/index.json
+PLUGINS_RUNNER_URL=http://plugins-runner:8090
+COMPOSE_PROFILES=plugins
+```
+
+Install the plugin as the workspace owner, add a connection and click **Sync now**. The runner's log (`docker compose logs plugins-runner`) shows what your plugin prints, and the proxy's log (`docker compose logs plugins-egress`) every host it reached or was refused. After each change, run `build_index.py` again and update the plugin in Securo.
+
+## Updating
+
+Publish a new release as usual. A new version that adds hosts or scopes shows them as new in the update preview, and connections get the new scopes once the owner confirms. Each workspace keeps running the version its owner approved until they update.

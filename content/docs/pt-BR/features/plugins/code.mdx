@@ -1,0 +1,151 @@
+---
+title: Criando um Plugin com Código
+description: Ligue o Securo a um serviço de fora com uma integração que roda isolada no servidor de quem usa.
+---
+
+Um plugin com código adiciona **integrações**: uma conexão com um serviço de fora (um meio de pagamento, uma caixa de e-mail, um serviço de armazenamento) que o Securo configura com as chaves ou o login da pessoa e sincroniza num agendamento. Tudo em [Criando um plugin](/pt-BR/docs/features/plugins/authoring) continua valendo: um repositório público, o tópico `securo-plugin` e uma release. Um plugin com código também pode trazer categorias e regras.
+
+A pasta [`examples/hello-sync`](https://github.com/securo-finance/plugins/tree/main/examples/hello-sync) em `securo-finance/plugins` é o menor plugin com código que funciona. Comece por ela.
+
+## Como Ele Roda
+
+O seu código nunca roda dentro do Securo. Cada chamada inicia um processo novo no **runner de plugins**, um container separado, com um usuário próprio:
+
+- Só a biblioteca padrão, o seu código e os pacotes que o seu lockfile fixa podem ser importados
+- Ele só alcança os hosts que você declarar em `network`, nunca um endereço dentro da rede da pessoa
+- Ele só escreve na própria pasta (`HOME`), e o próprio código é só leitura
+- Cada chamada tem limite de tempo (60 segundos por padrão), de memória e de processos, e todo processo que ela inicia é encerrado quando a chamada termina
+
+O Securo decide quando chamar o seu plugin; o runner executa. Quem instala vê, antes de confirmar, cada host que você declara e tudo o que você pede para usar no workspace, com o motivo que você der.
+
+## O Manifesto
+
+Além dos [campos de sempre](/pt-BR/docs/features/plugins/authoring#o-manifesto):
+
+```json
+{
+  "id": "your-name/payouts",
+  "name": "Repasses",
+  "description": "Traz os seus repasses do Example Pay.",
+  "version": "1.0.0",
+  "repository": "https://github.com/your-name/payouts",
+  "license": "MIT",
+  "min_securo_version": "0.19.0",
+  "runtime": { "entrypoint": "payouts.plugin:plugin", "lockfile": "requirements.txt" },
+  "network": [
+    { "host": "api.examplepay.com", "purpose": "Lê os seus repasses com a chave que você informar" }
+  ],
+  "api_scopes": [
+    { "scope": "transactions:write", "purpose": "Adiciona os seus repasses como transações" }
+  ],
+  "contributes": {
+    "integrations": [
+      {
+        "key": "account",
+        "name": "Example Pay",
+        "auth": "credentials",
+        "fields": [{ "key": "api_key", "label": "Chave de API restrita", "secret": true }],
+        "sync_minutes": 60
+      }
+    ]
+  }
+}
+```
+
+| Campo | Descrição |
+|-------|-----------|
+| `runtime.entrypoint` | `pacote.modulo:atributo`: o objeto cujos métodos o Securo chama |
+| `runtime.lockfile` | Opcional. Um arquivo de requirements com hash em todo pacote |
+| `network` | Cada host que o código pode alcançar (`host` ou `host:porta`, sem curinga nem endereço IP), cada um com um `purpose` |
+| `api_scopes` | Opcional. O que o código pode ler ou alterar no workspace, cada um com um `purpose` |
+| `contributes.integrations` | Uma ou mais integrações |
+
+`network` e `api_scopes` são aquilo com que a pessoa concorda: mantenha só o que o plugin precisa e escreva cada `purpose` para alguém decidindo se confia em você. Sem `network`, a prévia diz que nada sai do servidor dela.
+
+### Integrações
+
+| Campo | Descrição |
+|-------|-----------|
+| `key` | Obrigatório, estável entre versões |
+| `name`, `description` | Mostrados ao configurar uma conexão |
+| `auth` | `credentials` (um formulário), `oauth` (login no serviço) ou `none` |
+| `fields` | O formulário: cada campo tem `key`, `label`, `secret` (padrão `false`) e `required` (padrão `true`) |
+| `sync_minutes` | Opcional, de 15 a 10080. O Securo chama `sync` nesse intervalo |
+
+Campos secretos ficam criptografados e só são passados para o seu plugin. Os outros campos são configurações que a pessoa consegue ver.
+
+### Escopos
+
+`api_scopes` usa o mesmo vocabulário dos tokens de acesso do Securo: `accounts`, `connections`, `transactions`, `categories`, `payees`, `rules`, `budgets`, `goals`, `recurring`, `assets`, `invoices` com `:read` ou `:write` (write inclui read), e `reports:read`. Cada conexão recebe um token com exatamente esses escopos, agindo como o membro que criou a conexão.
+
+### Dependências
+
+`runtime.lockfile` é um arquivo de requirements com hash em todo pacote, por exemplo de `uv export --format requirements-txt > requirements.txt`. Os pacotes são instalados como wheels para Python 3.14, sem dependências além da lista. Linhas de opção (`--no-binary`, `-r`, `-e`, opções de índice) e URLs diretas são recusadas. Um plugin que só precisa da biblioteca padrão pode deixar o campo de fora.
+
+## O Código
+
+O Securo chama `<entrypoint>.<método>(params, context)`. Os métodos podem ser normais ou `async` e devolvem valores serializáveis em JSON.
+
+```python
+class NeedsAuth(Exception):
+    pass
+
+
+class Payouts:
+    def sync(self, params, context):
+        key = context.secrets["api_key"]
+        cursor = params["state"].get("cursor")
+        # Busque o que mudou desde `cursor` em api.examplepay.com
+        # e grave no Securo com context.securo["token"].
+        return {"state": {"cursor": "proximo-cursor"}}
+
+
+plugin = Payouts()
+```
+
+O `context` traz:
+
+| Atributo | Conteúdo |
+|----------|----------|
+| `context.secrets` | Os campos secretos da conexão, mais o que o seu plugin devolveu como segredo |
+| `context.config` | Os outros campos da conexão |
+| `context.securo` | `api_url`, `workspace_id`, `connection_id`, `integration` e, com `api_scopes`, `token` |
+
+### `sync(params, context)`
+
+Chamado no agendamento da integração, logo depois de uma conexão ser criada e quando alguém clica em **Sincronizar agora**. `params` tem `state` (o que você devolveu da última vez, `{}` na primeira) e `last_sync_at`.
+
+Devolva um dict com:
+
+- `state`: o seu cursor para a próxima execução. Mantenha as execuções curtas e continue do cursor na próxima vez
+- `secrets` (opcional): valores para guardar com os segredos da conexão, como um token renovado
+
+Lance uma exceção para avisar de uma falha; a mensagem dela é mostrada para a pessoa, com qualquer valor secreto mascarado. Lance uma exceção chamada `NeedsAuth` quando a pessoa precisar fazer login de novo ou trocar uma chave.
+
+### Login (`auth: "oauth"`)
+
+- `oauth_url(params, context)` recebe `redirect_uri` e `state` e devolve `{"url": "https://..."}`: o link de login do serviço, com esse state e esse endereço de retorno
+- `oauth_exchange(params, context)` recebe `code` e `redirect_uri` e devolve `{"secrets": {...}}` com os tokens a guardar
+
+Cada instância do Securo tem o próprio endereço de retorno, `https://<instância>/plugins/oauth/callback`, mostrado quando alguém adiciona a conexão. Quem hospeda o próprio Securo cadastra esse endereço no serviço, normalmente num app próprio nesse serviço, e coloca o client ID dele num campo.
+
+### Chamando o Securo
+
+Com `api_scopes`, envie `context.securo["token"]` como bearer token para `context.securo["api_url"]`, a API REST do Securo (as mesmas rotas que o app usa, em `/api`). Ela é acessada pela rede interna do runner, não pelo proxy. Requisições fora dos escopos declarados são recusadas.
+
+## Testando Localmente
+
+Monte um catálogo a partir da pasta do seu plugin como em [Testando localmente](/pt-BR/docs/features/plugins/authoring#testando-localmente). O catálogo copia o seu código e registra o checksum dele. Depois inicie o Securo com o runner:
+
+```bash
+PLUGINS_ENABLED=true
+PLUGINS_INDEX_URL=http://host.docker.internal:8787/v1/index.json
+PLUGINS_RUNNER_URL=http://plugins-runner:8090
+COMPOSE_PROFILES=plugins
+```
+
+Instale o plugin como dono do workspace, adicione uma conexão e clique em **Sincronizar agora**. O log do runner (`docker compose logs plugins-runner`) mostra o que o seu plugin imprime, e o log do proxy (`docker compose logs plugins-egress`) cada host que ele alcançou ou teve recusado. Depois de cada mudança, rode o `build_index.py` de novo e atualize o plugin no Securo.
+
+## Atualizando
+
+Publique uma nova release como de costume. Uma versão nova que adiciona hosts ou escopos os mostra como novos na prévia da atualização, e as conexões recebem os escopos novos quando o dono confirma. Cada workspace continua rodando a versão que o dono aprovou até atualizar.
