@@ -90,6 +90,8 @@ On the **Tools** tab, you choose which actions the agent is allowed to take. Too
 
 Transaction tools return the parts of a transaction [split across categories](/docs/features/transactions#splitting-across-categories), totals by category count each part in its own category, and an agent can propose a new transaction or recurring bill already split. Proposals to set a single category leave a split transaction alone.
 
+Two read-only tools look ahead: **get_recurring_subscriptions** finds recurring expenses, subscriptions and periodic income in your history, and **get_cashflow_forecast** simulates your balance day by day over the next 7 to 365 days (90 by default), with how long your money lasts and the risk of running short. The same data is on the API at `/api/forecast/recurring` and `/api/forecast/cashflow`. Transactions that already come from one of your [recurring schedules](/docs/features/recurring) aren't detected again.
+
 ## Chatting with an Agent
 
 Open an agent and use the **Chat** tab to talk to it. Conversations are multi-turn and stream responses as they're generated. The agent is aware of the page you're on, so you can ask about "this list" or "this transaction" and it understands the context. Past conversations are saved and listed in the sidebar.
