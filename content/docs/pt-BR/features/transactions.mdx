@@ -17,7 +17,13 @@ A visão principal mostra uma tabela ordenável da sua atividade. Cada linha pod
 
 Transações marcadas como **transferências** entre suas próprias contas recebem um selo especial para você distingui-las das entradas e saídas comuns; o selo também **diz o nome da conta vinculada**, então uma página cheia de transferências já informa para onde o dinheiro foi sem abrir cada linha. Transações sincronizadas também mostram um status **pendente** ou **lançada**, e uma linha pendente pode ser **marcada como lançada em um clique**, direto na linha, sem abrir o diálogo de edição. Compras parceladas exibem o número da parcela (ex.: 3/12).
 
-A **descrição** de uma transação sincronizada também é editável: renomeie, e o texto original do banco fica embaixo com um link **Restaurar original**. Valor, data e conta continuam exatamente como o banco enviou.
+A **descrição** de uma transação sincronizada também é editável: renomeie, e o texto original do banco fica embaixo com um link **Restaurar original**. Valor, data e conta continuam exatamente como o banco enviou; editar o lado manual de uma transferência também nunca muda o valor ou a data da contraparte sincronizada.
+
+### Data de Competência
+
+Às vezes uma cobrança sincronizada cai no período errado para as suas contas: o aluguel debitado no dia 31 que pertence ao mês seguinte, um salário pago um dia antes. Em vez de mudar a data do banco, defina uma **Data de competência** no diálogo de edição (no cartão de crédito, a data efetiva da fatura faz esse papel). Relatórios, orçamentos, o painel e a lista de transações passam a contar a linha no período da data de competência, enquanto a **Data do banco** fica como o banco enviou; uma linha movida mostra um selo com a data de competência e mantém a data do banco na lista. **Redefinir data de competência** volta ao período automático, e as próximas sincronizações mantêm a data que você definiu.
+
+O saldo corrente das contas continua seguindo a data do banco. Uma despesa já lançada movida para um período futuro aparece na saída de caixa daquele período sem ser descontada duas vezes do saldo projetado. No [calendário](#visão-de-calendário), você pode alternar entre a visão por data de competência e por data do banco.
 
 ### Personalizando a Tabela
 
@@ -138,6 +144,8 @@ Todos os filtros podem ser combinados para criar consultas precisas como "todas 
 ## Exportar
 
 Clique em **Exportar CSV** para baixar suas transações como um arquivo CSV. A exportação respeita seus filtros e seleção atuais, então você pode exportar um subconjunto específico de transações.
+
+Células de texto que começam com `=`, `+`, `-`, `@`, uma tabulação ou um retorno de carro (uma descrição, pessoa, conta, categoria ou nota) ganham um apóstrofo na frente, para que a planilha as abra como texto em vez de executá-las como fórmula. Isso importa porque a sincronização bancária e as importações trazem texto escrito por outra pessoa. Valores e datas saem como valores simples, então um valor negativo continua sendo um número.
 
 Uma transação dividida por categoria sai como **uma linha por parte**, ligadas pelas colunas `split_group` e `split_index`, então o arquivo soma certo por categoria e pode ser [importado de volta](/pt-BR/docs/features/import#transações-divididas-num-csv) com a mesma divisão. O backup completo do workspace também guarda as partes das transações e dos recorrentes divididos.
 

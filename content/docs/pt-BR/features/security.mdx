@@ -24,7 +24,7 @@ Adicione um código temporário (TOTP) como segunda etapa depois da senha:
 2. Escaneie o QR code com qualquer app autenticador (Aegis, Google Authenticator, 1Password, ...)
 3. Confirme com um código de 6 dígitos, e o 2FA está ligado
 
-Códigos das janelas de tempo adjacentes são aceitos, então um autenticador com o relógio alguns segundos fora ainda funciona, e o endpoint de verificação tem limite de tentativas contra adivinhação. Desativar o 2FA exige a senha e um código atual.
+Códigos das janelas de tempo adjacentes são aceitos, então um autenticador com o relógio alguns segundos fora ainda funciona, e o endpoint de verificação tem limite de tentativas contra adivinhação. Desativar o 2FA exige a senha e um código atual. Para trocar de autenticador, desative o 2FA e configure de novo: com o 2FA ligado a configuração é recusada, então ninguém com uma sessão aberta consegue trocar o seu segredo sem a senha e um código.
 
 ## Single Sign-On (OIDC)
 
@@ -78,3 +78,15 @@ OIDC_WORKSPACE_ROLE_MAP={"securo-owners":"owner","securo-editors":"editor","secu
 ## Senhas
 
 O login com senha está disponível sempre que a autenticação local estiver ligada. Você pode trocar sua senha nas configurações da conta, e proprietários de workspace que criam contas para novos membros definem apenas uma senha inicial, que o membro pode trocar depois do primeiro login.
+
+## Tokens de Acesso
+
+Scripts e integrações podem chamar a API REST sem sessão por meio de um **token de acesso**. Cada token pertence a **um workspace** e ao membro que o criou, e carrega escopos como `transactions:read` ou `accounts:write` (escrita inclui leitura). Os recursos são `accounts`, `connections`, `transactions`, `categories`, `payees`, `rules`, `budgets`, `goals`, `recurring`, `assets` e `invoices`, mais `reports:read`.
+
+Os tokens são gerenciados pela API, a partir de uma sessão logada, em `/api/access-tokens`:
+
+- `POST` com um `name`, os `scopes` e `expires_in_days` (90 por padrão, ou `null` para um token que nunca expira) cria um. O segredo, que começa com `sct_`, é **mostrado uma única vez**; o Securo guarda só o hash dele
+- `GET` lista os tokens com o último uso de cada um. Proprietários veem todos os tokens do workspace, os outros membros só os próprios
+- `DELETE /api/access-tokens/{id}` revoga um
+
+Envie o token como `Authorization: Bearer sct_...`. Uma requisição feita com ele sempre roda no workspace do token e com o papel **atual** do membro: um visualizador só emite escopos de leitura, e um membro rebaixado ou removido perde o acesso na hora. Configurações da conta, membros do workspace, administração e gestão de tokens continuam acessíveis só por uma sessão logada, então um token nunca amplia o próprio acesso, e ele não vê despesas que outros workspaces compartilham com o criador dele por [grupos](/pt-BR/docs/features/groups).

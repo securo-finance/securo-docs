@@ -15,37 +15,30 @@ Por exemplo, se você orçar R$500 para Mercado e já gastou R$320 neste mês, a
 
 Uma transação [dividida por categoria](/pt-BR/docs/features/transactions#dividindo-por-categoria) conta em cada orçamento só com a parte daquela categoria: R$60 de mercado dentro de uma compra de R$150 somam R$60 ao orçamento de Mercado.
 
-## Criando um Orçamento
+## Definindo Orçamentos
+
+A página **Orçamentos** lista todas as categorias do workspace, agrupadas por grupo de categoria, para o mês que você escolhe com as setas (ou o seletor de mês) no topo. Cada categoria tem o limite na própria linha:
 
 1. Navegue até **Orçamentos** na barra lateral
-2. Clique em **+ Adicionar Orçamento**
-3. Selecione uma categoria no menu suspenso
-4. Informe o valor do limite mensal
-5. Clique em **Salvar**
+2. Digite um limite ao lado de cada categoria que quiser orçar. Embaixo do nome, **normalmente X** mostra quanto você costuma gastar ali, e um pequeno gráfico mostra os últimos meses
+3. Clique no ícone de **repetir** para manter o limite **todo mês**, ou deixe desligado para um limite que vale só neste mês
+4. Clique em **Salvar** na barra de baixo, que também mostra o orçamento total do mês. **Cancelar** descarta as edições
 
-Você pode criar orçamentos para quantas categorias quiser. Cada orçamento funciona de forma independente.
+Categorias ocultas também aparecem, marcadas como **Oculta**, para que um orçamento numa delas nunca se perca.
 
-## Visão Mensal
+## Acompanhando os Gastos
 
-A página de orçamentos mostra o mês atual por padrão, com setas de navegação para percorrer meses anteriores. Para cada orçamento você vê:
+Cada linha mostra os **gastos** do mês ao lado do limite, com uma **barra de progresso** de quanto do orçamento já foi usado. Os gastos incluem transações pendentes e projetadas, então uma conta que você sabe que vem já conta. Quando você ultrapassa um orçamento, a barra fica vermelha. Estornos contam de volta: dinheiro que **entra** numa categoria reduz o que aquela categoria gastou.
 
-- O **nome** e o **ícone** da categoria
-- O valor **orçado** (seu limite)
-- O valor **gasto** até agora
-- O valor **restante**
-- Uma **barra de progresso** mostrando o quão perto você está do limite
+Clique no nome de uma categoria para abrir o painel lateral com **as transações** por trás dos gastos dela naquele mês.
 
-Quando você ultrapassa um orçamento, a barra de progresso e o valor restante ficam vermelhos para te avisar. Estornos contam de volta: dinheiro que **entra** numa categoria reduz o que aquela categoria gastou.
+## Sugerir pelo Histórico
 
-## Repetição, superávit e previsão
+**Sugerir pelo histórico** propõe limites com base na sua média de gastos mensais nos últimos **3, 6 ou 12 meses**. Cada sugestão mostra quanto foi gasto no período; marque as que quiser, ajuste os valores, escolha se elas **repetem todo mês** e clique em **Criar orçamentos**.
 
-Orçamentos rodam por mês, mas não precisam começar do zero toda vez:
+## Repetição, Superávit e Previsão
 
-- **Copie os orçamentos de um mês para frente** para levar os mesmos limites ao próximo mês em um clique
-- A **visão de superávit** mostra, por categoria, o que sobrou ou o que estourou no mês passado, para que os limites seguintes levem isso em conta
-- A **previsão** projeta seus orçamentos pelos próximos meses, para planejar à frente em vez de só acompanhar o mês atual
-
-**Sugerir limites** propõe orçamentos iniciais construídos a partir dos seus gastos recentes, em um clique: escolha, revise os números e salve só o que você gostar.
+Pela API, os orçamentos também podem ser **copiados** de um mês para o seguinte, lidos como **sobra ou estouro** por categoria no fim de um mês e **projetados** pelos próximos meses. O [servidor MCP](/pt-BR/docs/features/agents) embutido pode propor atualizações de orçamentos e excluir um.
 
 ## Dicas para Orçar com Eficiência
 

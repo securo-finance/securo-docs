@@ -15,37 +15,30 @@ For example, if you budget R$500 for Groceries and you've spent R$320 so far thi
 
 A transaction [split across categories](/docs/features/transactions#splitting-across-categories) counts toward each budget with only the part in that category: R$60 of groceries inside a R$150 supermarket receipt adds R$60 to the Groceries budget.
 
-## Creating a Budget
+## Setting Budgets
+
+The **Budgets** page lists every category of the workspace, grouped by category group, for the month you pick with the arrows (or the month picker) at the top. Each category has its limit right on the row:
 
 1. Navigate to **Budgets** in the sidebar
-2. Click **+ Add Budget**
-3. Select a category from the dropdown
-4. Enter the monthly limit amount
-5. Click **Save**
+2. Type a limit next to each category you want to budget. Under the name, **usually X** shows what you typically spend there, and a small chart shows the last few months
+3. Click the **repeat** icon to keep that limit **every month**, or leave it off for a limit that applies to this month only
+4. Click **Save** in the bar at the bottom, which also shows the month's total budget. **Cancel** throws away the edits
 
-You can create budgets for as many categories as you like. Each budget operates independently.
+Hidden categories are listed too, marked **Hidden**, so a budget on one of them is never lost.
 
-## Monthly View
+## Tracking Spending
 
-The budgets page shows the current month by default, with navigation arrows to browse past months. For each budget you'll see:
+Each row shows the **spending** of the month next to its limit, with a **progress bar** of how much of the budget is used. Spending includes pending and projected transactions, so a bill you know is coming already counts. When you exceed a budget, the bar turns red. Refunds count back: money coming **into** a category reduces what that category has spent.
 
-- The **category** name and icon
-- The **budgeted** amount (your limit)
-- The **spent** amount so far
-- The **remaining** amount
-- A **progress bar** showing how close you are to the limit
+Click a category's name to open the side panel with **the transactions** behind its spending for that month.
 
-When you exceed a budget, the progress bar and remaining amount turn red to alert you. Refunds count back: money coming **into** a category reduces what that category has spent.
+## Suggest From History
+
+**Suggest from history** proposes limits based on your average monthly spending over the last **3, 6 or 12 months**. Each suggestion shows what was spent in the period; tick the ones you want, adjust the amounts, choose whether they **repeat every month**, and click **Create budgets**.
 
 ## Rollover, Surplus and Forecasting
 
-Budgets run monthly, but they don't have to start from zero each time:
-
-- **Copy a month's budgets forward** to carry the same limits into the next month in one click
-- The **surplus view** shows, per category, what was left over or overspent last month, so the next month's limits can account for it
-- The **forecast** projects your budgets across the coming months, for planning ahead rather than just tracking the current one
-
-**Suggest limits** proposes starting budgets built from your recent spending, in one click: pick it, review the numbers, and save only the ones you like.
+Through the API, budgets can also be **copied** from one month to the next, read as a **surplus or overspend** per category at the end of a month, and **forecast** across the coming months. The built-in [MCP server](/docs/features/agents) can propose updates to budgets and delete one.
 
 ## Tips for Effective Budgeting
 

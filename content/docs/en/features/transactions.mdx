@@ -17,7 +17,13 @@ The main transactions view shows a sortable table of your activity. Each row can
 
 Transactions tagged as **transfers** between your own accounts are marked with a special badge so you can tell them apart from regular income and expenses; the badge also **names the linked account**, so a page full of transfers says where the money went without opening each row. Synced transactions also show a **pending** or **posted** status, and a pending row can be **marked as posted in one click**, straight from the row, without opening the edit dialog. Purchases paid in installments display their installment number (e.g., 3/12).
 
-The **description** of a synced transaction is editable too: rename it, and the bank's own text stays underneath with a **Restore original** link. The amount, date and account stay exactly as the bank sent them.
+The **description** of a synced transaction is editable too: rename it, and the bank's own text stays underneath with a **Restore original** link. The amount, date and account stay exactly as the bank sent them; editing the manual side of a transfer never changes the amount or date of a synced counterpart either.
+
+### Reporting Date
+
+Sometimes a synced charge lands in the wrong period for your books: the rent debited on the 31st that belongs to next month, a salary paid a day early. Instead of changing the bank's date, set a **Reporting date** in its edit dialog (on a credit card, the effective bill date does this job). Reports, budgets, the dashboard and the transaction list then count the row in the reporting date's period, while the **Bank date** stays as the bank sent it; a moved row shows a badge with its reporting date and keeps its bank date in the list. **Reset reporting date** goes back to the automatic period, and later syncs keep the date you set.
+
+Account running balances still follow the bank date. A posted expense moved to a future period shows in that period's cash-flow outflow without being deducted from the projected balance twice. In the [calendar](#calendar-view), you can switch between the reporting-date and the bank-date view.
 
 ### Customizing the Table
 
@@ -138,6 +144,8 @@ All filters can be combined to create precise queries like "all uncategorized ex
 ## Export
 
 Click **Export CSV** to download your transactions as a CSV file. The export respects your current filters and selection, so you can export a specific subset of transactions.
+
+Text cells that start with `=`, `+`, `-`, `@`, a tab or a carriage return (a description, payee, account, category or note) get a leading apostrophe, so a spreadsheet opens them as text instead of running them as a formula. This matters because bank sync and imports bring in text written by someone else. Amounts and dates are exported as plain values, so a negative amount stays a number.
 
 A transaction split across categories is exported as **one row per part**, tied together by the `split_group` and `split_index` columns, so the file adds up by category and can be [imported back](/docs/features/import#split-transactions-in-a-csv) as the same split. The full workspace backup keeps the parts of split transactions and of split recurring bills as well.
 

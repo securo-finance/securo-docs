@@ -24,7 +24,7 @@ Add a time-based one-time code (TOTP) as a second step after your password:
 2. Scan the QR code with any authenticator app (Aegis, Google Authenticator, 1Password, ...)
 3. Confirm with a 6-digit code, and 2FA is on
 
-Codes from the adjacent time windows are accepted, so an authenticator whose clock drifts a few seconds still works, and the verification endpoint is rate-limited against guessing. Disabling 2FA requires both your password and a current code.
+Codes from the adjacent time windows are accepted, so an authenticator whose clock drifts a few seconds still works, and the verification endpoint is rate-limited against guessing. Disabling 2FA requires both your password and a current code. To move to a new authenticator, disable 2FA first and set it up again: while 2FA is on, setup is refused, so nobody holding a session can swap your secret without the password and a code.
 
 ## Single Sign-On (OIDC)
 
@@ -78,3 +78,15 @@ OIDC_WORKSPACE_ROLE_MAP={"securo-owners":"owner","securo-editors":"editor","secu
 ## Passwords
 
 Password login is available whenever local auth is on. You can change your password from account settings, and workspace owners who create accounts for new members set only an initial password, which the member can change after their first login.
+
+## Access Tokens
+
+Scripts and integrations can call the REST API without a session through an **access token**. Each token belongs to **one workspace** and to the member who created it, and carries scopes such as `transactions:read` or `accounts:write` (write includes read). The resources are `accounts`, `connections`, `transactions`, `categories`, `payees`, `rules`, `budgets`, `goals`, `recurring`, `assets` and `invoices`, plus `reports:read`.
+
+Tokens are managed through the API, from a signed-in session, under `/api/access-tokens`:
+
+- `POST` with a `name`, the `scopes` and `expires_in_days` (90 by default, or `null` for a token that never expires) creates one. The secret, starting with `sct_`, is **shown only once**; Securo stores only its hash
+- `GET` lists the tokens with when each was last used. Owners see every token in the workspace, other members only their own
+- `DELETE /api/access-tokens/{id}` revokes one
+
+Send the token as `Authorization: Bearer sct_...`. A request made with it always runs in the token's workspace and with the member's **current** role: a viewer can only issue read scopes, and a member who is demoted or removed loses access right away. Account settings, workspace membership, admin and token management stay reachable only from a signed-in session, so a token can never widen its own access, and it doesn't see expenses that other workspaces share with its creator through [groups](/docs/features/groups).
