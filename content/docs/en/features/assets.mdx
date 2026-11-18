@@ -55,6 +55,10 @@ For market-priced holdings, the transactions are the source of truth: record eac
 
 Editing a past entry (including its date) recomputes everything in the new order, so a correction never leaves stale numbers behind. Holdings you price yourself and positions you have already closed report their return too, in currency and percent.
 
+### Stock Splits
+
+When a stock splits, record a **split** in the same ledger instead of editing past orders. A split is written as old units → new units: a 100-for-1 split is 1 → 100, a 1-for-10 reverse split is 10 → 1. Date it on the first day the holding trades at the new price. Securo rescales the units held and the average price from that date on, so the cost basis stays the same. Splits are available for market-priced holdings without a bank connection, can't be dated in the future, and a split that a later sale depends on can't be deleted.
+
 ### Importing Orders From a Broker
 
 Instead of typing each order, go to **Import → Investments** and upload your broker's CSV: one row per order with **ticker, date, quantity and price**, a negative quantity read as a sale. Map the columns like a statement import (a template with the expected structure is available), tickers are resolved against the price provider, and orders for a ticker already in your portfolio land on the existing holding. Every run is listed with its own history and can be undone.

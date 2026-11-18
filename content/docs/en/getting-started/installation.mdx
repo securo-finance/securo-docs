@@ -97,11 +97,13 @@ The install script generates a `.env` file automatically. For manual setups, cre
 SECRET_KEY=your-random-secret-key
 ```
 
-The `SECRET_KEY` is used for JWT authentication tokens. Generate a strong random value:
+The `SECRET_KEY` signs sign-in tokens and encrypts saved credentials (bank connections, LLM keys, plugin secrets). It is optional: left empty, Securo generates a unique key on the first start and keeps it in the database, shared by every Securo service. To manage it yourself, generate a strong random value:
 
 ```bash
 openssl rand -hex 32
 ```
+
+The old placeholders (`change-me-in-production`, `dev-secret-change-in-production`) are treated as empty, so an install that still carries one gets its own key too.
 
 ## Optional Integrations
 

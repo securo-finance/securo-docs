@@ -97,11 +97,13 @@ O script de instalação gera o arquivo `.env` automaticamente. Para configuraç
 SECRET_KEY=sua-secret-key-aleatoria
 ```
 
-A `SECRET_KEY` é usada para os tokens JWT de autenticação. Gere um valor aleatório forte:
+A `SECRET_KEY` assina os tokens de login e criptografa as credenciais salvas (conexões bancárias, chaves de LLM, segredos de plugins). Ela é opcional: se ficar vazia, o Securo gera uma chave única na primeira inicialização e a guarda no banco de dados, compartilhada por todos os serviços do Securo. Para gerenciá-la você mesmo, gere um valor aleatório forte:
 
 ```bash
 openssl rand -hex 32
 ```
+
+Os placeholders antigos (`change-me-in-production`, `dev-secret-change-in-production`) contam como vazios, então uma instalação que ainda usa um deles também ganha uma chave própria.
 
 ## Integrações Opcionais
 

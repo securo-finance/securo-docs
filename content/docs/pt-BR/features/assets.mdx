@@ -55,6 +55,10 @@ Para posições com preço de mercado, as transações são a fonte da verdade: 
 
 Editar um lançamento antigo (inclusive a data) recalcula tudo na nova ordem, então uma correção nunca deixa números defasados para trás. Posições que você mesmo precifica e posições já encerradas também informam o retorno, em moeda e em percentual.
 
+### Desdobramentos
+
+Quando uma ação passa por desdobramento (ou grupamento), registre um **desdobramento** no mesmo livro em vez de editar as ordens antigas. Ele é escrito como cotas antigas → cotas novas: um desdobramento de 1 para 100 é 1 → 100, um grupamento de 10 para 1 é 10 → 1. Use como data o primeiro dia em que o papel negocia no novo preço. O Securo reajusta a quantidade em carteira e o preço médio a partir dessa data, então o custo de aquisição não muda. Desdobramentos estão disponíveis para posições com preço de mercado sem conexão bancária, não podem ter data no futuro, e um desdobramento do qual uma venda posterior depende não pode ser excluído.
+
 ### Importando Ordens da Corretora
 
 Em vez de digitar cada ordem, vá em **Importar → Investimentos** e envie o CSV da sua corretora: uma linha por ordem com **ticker, data, quantidade e preço**, quantidade negativa lida como venda. Mapeie as colunas como numa importação de extrato (há um modelo com a estrutura esperada), os tickers são resolvidos no provedor de preços, e ordens de um ticker que já está na carteira caem na posição existente. Cada execução fica listada com seu próprio histórico e pode ser desfeita.

@@ -28,6 +28,10 @@ A **Loan** account tracks debt: its balance reads as what you still owe, and its
 
 If you connect your bank through the bank sync feature, those accounts appear in a separate section, with the institution's logo next to the connection. Connected accounts can automatically import transactions from your bank, show the account's **masked number** so you can tell similar accounts apart, and can be given a **display name** of your own when the bank's name is unhelpful.
 
+Some banks keep money set aside inside an account, like the piggy banks ("cofrinhos", "caixinhas") of Brazilian banks synced through Pluggy. The account page lists them under **Reserved balances**, each in its own currency, with a subtotal for the ones in the account's currency. Reserved balances are never added to the account balance, net worth or any total, and credit cards don't show them.
+
+Disconnecting a bank keeps these accounts and their history unless you choose to delete them; see [Disconnecting a Bank](/docs/features/bank-sync#disconnecting-a-bank).
+
 ### Credit Cards
 
 Credit card accounts carry extra fields that model how a card actually works: **credit limit**, **statement close day**, and **payment due day**. Securo uses them to compute billing cycles and group each purchase into the right statement, so a purchase made after the close date lands on next month's bill, exactly like your card does it.

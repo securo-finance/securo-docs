@@ -34,12 +34,14 @@ Persistence is enabled by default for the database, attachments, and the agents 
 | --- | --- | --- |
 | `global.domain` | `securo.local` | Public domain of the app; OAuth callback URLs are derived from it |
 | `global.tls` | `false` | Whether derived URLs use `https://` |
-| `secret.secretKey` | dev placeholder | JWT signing key. **Always set your own** |
+| `secret.secretKey` | empty | Signs sign-in tokens and encrypts saved credentials. Left empty, Securo generates a unique key on the first start and keeps it in the database; set your own to manage it yourself |
 | `ingress.enabled` | `false` | Create an Ingress; `/api` is routed straight to the backend, everything else to the frontend |
 | `httpRoute.enabled` | `false` | Gateway API HTTPRoute, as an alternative to Ingress, with the same `/api` split |
 | `frontend.backendUrl` | derived | Where the frontend's nginx proxies `/api`. Defaults to the backend service's fully qualified name (`<release>-backend.<namespace>.svc.cluster.local`); override for a non-standard cluster domain |
 | `persistence.*` | `enabled` | PVCs for database, attachments, agents knowledge |
+| `config.storageProvider` | `"local"` | `s3` keeps attachments in an S3-compatible bucket instead of the attachments PVC; see [Kubernetes (Helm) Production](/docs/deployment/kubernetes-prod#s3-compatible-object-storage) |
 | `config.agentsEnabled` | `"false"` | Optional AI agents feature |
+| `mcpServer.publicRoute` | `false` | Adds `/mcp` to the Ingress or HTTPRoute so external MCP clients can reach the agents' MCP server. Set `config.agentsExternalMcpUrl` to the public URL with it |
 | `postgresql.enabled` / `redis.enabled` | `true` | Disable to bring your own database or Redis |
 
 Optional integrations (bank sync, exchange rates, OIDC) take the same settings documented in the [Docker guide](/docs/deployment/docker), exposed as `secret.*` and `config.*` values. Inspect the full annotated list for your version with:
@@ -55,6 +57,8 @@ helm upgrade securo oci://ghcr.io/securo-finance/charts/securo --version <NEW_VE
 ```
 
 Database migrations run automatically via a Helm hook on install and upgrade. Back up your database before upgrading, as with any deployment method.
+
+Upgrading to 0.20.0 with `mcpServer.enabled: true`: `/mcp` is no longer routed by that setting alone. Set `mcpServer.publicRoute: true` and point `config.agentsExternalMcpUrl` at the public URL, or external MCP clients get a 404 after the upgrade. The [Docker guide](/docs/deployment/docker#updating-to-v0200) lists the other changes of that version (the generated `SECRET_KEY` and the MCP tokens to create again).
 
 ## Production Deployments
 

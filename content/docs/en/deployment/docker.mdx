@@ -50,6 +50,8 @@ Create a `.env` file with a strong secret key:
 echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
 ```
 
+Setting `SECRET_KEY` yourself is recommended, so you can keep it with your backups. If you leave it out, Securo generates a unique key on the first start and keeps it in the database.
+
 If you want bank sync or exchange rates, add those keys too:
 
 ```ini
@@ -131,8 +133,30 @@ Set these in `.env` when the defaults do not fit your setup:
 | `BANK_SYNC_MIN_INTERVAL_HOURS` | `4` | Minimum hours between automatic bank syncs per connection. Raise it for banks that cap unattended access to four fetches a day |
 | `OPENEXCHANGERATES_APP_ID` | none | Enables automatic currency conversion with a free [Open Exchange Rates](https://openexchangerates.org/) key. Rates are fetched on demand when foreign-currency transactions are created; without a key, cross-currency amounts fall back to a 1:1 rate with a visual warning |
 | `TZ` | host timezone | The startup default for the application timezone when no value has been saved in Admin Settings: Securo follows `TZ`, then the host timezone, then UTC, so an existing installation keeps behaving as before until someone picks a timezone in **Admin Settings → Date and time** |
+| `FRONTEND_DIST_PATH` | none | Off by default. Point it at a built frontend (the `dist` folder from `npm run build`) and the backend serves the app itself on its own port, without the frontend container. Health checks should then use `/api/health` |
 
 The application **timezone** (the one that decides which day "today" is for balances, budgets, due dates and scheduled work) is set in the admin settings and follows an IANA name like `America/Sao_Paulo`; individual workspaces can override it, see [Workspaces](/docs/features/workspaces).
+
+## Storing Attachments in S3
+
+By default, attachments are files in the `attachments` volume. To keep them in an S3-compatible bucket instead (AWS S3, MinIO, Garage and others), create a private bucket and set in `.env`:
+
+```ini
+STORAGE_PROVIDER=s3
+STORAGE_S3_BUCKET=securo-attachments
+STORAGE_S3_REGION=garage
+STORAGE_S3_ENDPOINT_URL=https://s3.example.com
+STORAGE_S3_ADDRESSING_STYLE=path
+STORAGE_S3_ACCESS_KEY=...
+STORAGE_S3_SECRET_KEY=...
+```
+
+- For AWS S3, leave out `STORAGE_S3_ENDPOINT_URL` and use `STORAGE_S3_ADDRESSING_STYLE=auto`. MinIO and Garage usually need `path`
+- Leave out both keys to use the SDK's own credential chain (an IAM role, for example). `STORAGE_S3_SESSION_TOKEN` is there for temporary credentials
+- The bucket also holds invoice attachments and logos. Knowledge files of the AI agents stay on local storage
+- The regular backend image already supports it; nothing extra to install
+
+Files already in the `attachments` volume are not moved for you: copy them to the bucket before switching, using each file's path inside the volume as its object key.
 
 ## Backups
 
@@ -196,6 +220,12 @@ docker compose -f docker-compose.prod.yml up -d
 `git pull` comes first because a new version can change `docker-compose.prod.yml` (new or optional services, new settings); the images and the compose file should come from the same version. Your `.env` is not tracked by git, so it stays as it is.
 
 The database migrations run automatically on startup (`alembic upgrade head`), so schema changes are applied during the update. Take a database backup before updating, and check the [releases page](https://github.com/securo-finance/securo/releases) for the notes of what changed.
+
+### Updating to v0.20.0
+
+- If your install never set its own `SECRET_KEY` (or still had `change-me-in-production` or `dev-secret-change-in-production`), Securo generates a unique key on the first start and keeps it in the database. Everyone is signed out once, and password reset or verification links sent before the update stop working. Saved bank credentials, LLM keys and plugin secrets keep working: they are re-encrypted under the new key
+- External MCP tokens created without your own `AGENTS_MCP_JWT_SECRET` stop working, because they were signed with a public key. Create a new one under **Agents → Connections → External MCP access**
+- To roll back to v0.19.x afterwards, first set `SECRET_KEY` to the value stored in the `instance_secrets` table, or saved credentials won't open
 
 ## Monitoring
 
