@@ -28,6 +28,10 @@ Uma conta de **Empréstimo / financiamento** acompanha dívida: o saldo lê a d�
 
 Se você conecta seu banco através do recurso de sincronização bancária, essas contas aparecem em uma seção separada, com o logo da instituição ao lado da conexão. Contas conectadas podem importar transações automaticamente do seu banco, mostram o **número mascarado** da conta para você distinguir contas parecidas, e podem receber um **nome de exibição** seu quando o nome vindo do banco não ajuda.
 
+Alguns bancos guardam dinheiro separado dentro da conta, como os cofrinhos e caixinhas dos bancos sincronizados pela Pluggy. A página da conta lista esses valores em **Saldos reservados**, cada um na própria moeda, com um subtotal dos que estão na moeda da conta. Saldos reservados nunca entram no saldo da conta, no patrimônio líquido nem em nenhum total, e cartões de crédito não os mostram.
+
+Desconectar um banco mantém essas contas e o histórico delas, a menos que você escolha apagá-las; veja [Desconectando um Banco](/pt-BR/docs/features/bank-sync#desconectando-um-banco).
+
 ### Cartões de Crédito
 
 Contas de cartão de crédito carregam campos extras que modelam como um cartão funciona de verdade: **limite de crédito**, **dia de fechamento da fatura** e **dia de vencimento**. O Securo os usa para calcular os ciclos de cobrança e agrupar cada compra na fatura certa, então uma compra feita depois do fechamento cai na fatura do mês seguinte, exatamente como o seu cartão faz.

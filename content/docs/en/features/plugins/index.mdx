@@ -92,7 +92,7 @@ PLUGINS_EGRESS_SECRET=...
 
 ### Installing
 
-Only the workspace **owner** can install, update or remove a plugin with code. Before you confirm, the preview shows:
+Only the workspace **owner** or a **manager** can install, update or remove a plugin with code. Before you confirm, the preview shows:
 
 - A warning that the plugin runs code that isn't reviewed by the Securo team
 - **Reaches**: every internet host the code may contact, each with the author's reason. With none, nothing leaves your server
@@ -110,6 +110,10 @@ After installing, open the plugin's page and go to the **Connections** tab. Memb
 - **Remove** a connection: its saved keys and access are deleted, and what it already brought in stays
 
 Viewers see the connections and their status, never their keys.
+
+### Bank Provider Plugins
+
+A plugin with code can also bring a bank Securo doesn't ship. Its connections aren't added in the plugin's page: go to **Accounts → Connect Bank**, where it shows up next to the built-in providers. They are listed under Bank Connections with the plugin's badge and sync like any [bank connection](/docs/features/bank-sync); removing one disconnects it like a built-in bank. Removing the plugin keeps the accounts it brought in as manual accounts. To write one, see the [bank provider plugin guide](https://github.com/securo-finance/securo/blob/main/docs/plugins/bank-provider-plugins.md) and the demo in `examples/plugins/demo-bank`.
 
 ### What the Code Can and Can't Do
 

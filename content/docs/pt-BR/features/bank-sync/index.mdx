@@ -14,6 +14,9 @@ O sistema de provedores do Securo foi pensado para suportar várias integraçõe
 | [Pluggy](/pt-BR/docs/features/bank-sync/pluggy) | Brasil | Disponível |
 | [Enable Banking](/pt-BR/docs/features/bank-sync/enable-banking) | Europa (~2500 bancos PSD2 em 29 países) | Disponível |
 | [SimpleFIN](/pt-BR/docs/features/bank-sync/simplefin) | Bancos dos EUA e internacionais via SimpleFIN Bridge | Disponível |
+| [Plugins de provedor bancário](/pt-BR/docs/features/plugins) | O banco que o plugin conecta | Disponível desde a v0.20.0 |
+
+Um plugin de provedor bancário é um plugin com código que traz um banco que o Securo não tem de fábrica. Depois que o dono do workspace ou um gerente o instala, ele aparece em **Conectar Banco** ao lado dos provedores nativos, e as conexões dele ficam listadas em Conexões Bancárias com o selo do plugin. Remover uma dessas conexões funciona como em qualquer outro banco. Remover o próprio plugin mantém as contas dele como contas manuais. Plugins com código precisam do plugin runner, que o Helm chart ainda não traz; para escrever um, veja o [guia de plugins de provedor bancário](https://github.com/securo-finance/securo/blob/main/docs/plugins/bank-provider-plugins.md).
 
 ## Como a Sincronização Bancária Funciona
 
@@ -47,6 +50,7 @@ Você pode disparar uma sincronização imediata na página de Contas clicando n
 - Transações lançadas manualmente são comparadas com as sincronizadas por correspondência aproximada (mesmo valor, data parecida, descrição parecida)
 - As categorias são mapeadas automaticamente das categorias do provedor para as suas categorias do Securo quando o provedor expõe essas informações
 - Pares de transferência entre contas são detectados automaticamente
+- Quando o banco limita as requisições de uma conta, só essa conta espera (o tempo que o banco pedir, ou 6 horas) e o resto da conexão continua sincronizando
 - Cartões que compartilham uma linha de crédito consolidada no provedor reportam esse saldo **uma única vez** nos totais do painel e da barra lateral, enquanto cada cartão mantém suas transações, sua fatura e seu saldo em aberto próprios; a lista de contas diz quais cartões dividem a linha
 
 ## Configurações da Conexão
@@ -68,6 +72,12 @@ Controla como o nome do beneficiário é extraído dos dados do banco:
 ### Importar Pendentes
 
 Quando ativado (padrão), as transações pendentes são importadas junto com as lançadas. Desative se preferir importar apenas transações finalizadas.
+
+## Desconectando um Banco
+
+Desconectar mantém as contas da conexão e o histórico delas: as contas param de sincronizar e o resto do Securo continua mostrando-as. Para apagá-las também, marque **Também apagar contas e transações** na caixa de diálogo; a opção vem desmarcada.
+
+Uma conexão desconectada continua na lista com o status, um botão para reconectar e **Remover conexão**. Ao reconectar, o Securo casa as contas pelos ids do próprio provedor, então nada que já foi importado entra duas vezes. Uma conexão desconectada nunca é sincronizada.
 
 ## Solução de Problemas
 

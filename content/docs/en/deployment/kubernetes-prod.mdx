@@ -22,7 +22,7 @@ metadata:
   namespace: default
 type: Opaque
 stringData:
-  SECRET_KEY: "your-strong-random-secret-key"
+  SECRET_KEY: "your-strong-random-secret-key"   # optional: left out, Securo generates one and keeps it in the database
   DATABASE_URL: "postgresql+asyncpg://securo_user:strong_password@postgres-ha.database.svc.cluster.local:5432/securo"
   # Optional integrations
   PLUGGY_CLIENT_ID: "your-pluggy-client-id"
@@ -112,6 +112,29 @@ persistence:
 
 <Callout type="warn">
 `ReadWriteOnce` (RWO) storage only works if all pods mounting the volume are scheduled onto the same single node.
+</Callout>
+
+### S3-Compatible Object Storage
+
+Instead of an RWX volume for attachments, Securo can keep them in an S3-compatible bucket (AWS S3, MinIO, Garage and others). Create a private bucket, then:
+
+```yaml
+# values-production.yaml
+config:
+  storageProvider: "s3"
+  storageS3Bucket: "securo-attachments"
+  storageS3Region: "us-east-1"
+  storageS3EndpointUrl: ""          # empty for AWS S3; your endpoint for MinIO or Garage
+  storageS3AddressingStyle: "auto"  # use path for Garage/MinIO
+persistence:
+  attachments:
+    enabled: false
+```
+
+Put `STORAGE_S3_ACCESS_KEY` and `STORAGE_S3_SECRET_KEY` in your `existingSecret` (or `secret.storageS3AccessKey` and `secret.storageS3SecretKey`). Leave both out to use the SDK's credential chain, such as an IAM role for the service account. Invoice attachments and logos go to the bucket too; agent knowledge files and embedding models still need their volumes when agents are on.
+
+<Callout type="warn">
+Copy the files already in the attachments volume to the bucket before you disable that PVC, using each file's path inside the volume as its object key.
 </Callout>
 
 ### Singleton Celery Beat Scheduler

@@ -22,7 +22,7 @@ metadata:
   namespace: default
 type: Opaque
 stringData:
-  SECRET_KEY: "sua-chave-secreta-aleatoria-e-forte"
+  SECRET_KEY: "sua-chave-secreta-aleatoria-e-forte"   # opcional: sem ela, o Securo gera uma e a guarda no banco
   DATABASE_URL: "postgresql+asyncpg://securo_user:senha_forte@postgres-ha.database.svc.cluster.local:5432/securo"
   # Integrações opcionais
   PLUGGY_CLIENT_ID: "seu-pluggy-client-id"
@@ -112,6 +112,29 @@ persistence:
 
 <Callout type="warn">
 Armazenamento `ReadWriteOnce` (RWO) só funciona se todos os pods que montam o volume forem agendados no mesmo nó.
+</Callout>
+
+### Armazenamento de Objetos Compatível com S3
+
+Em vez de um volume RWX para os anexos, o Securo pode guardá-los num bucket compatível com S3 (AWS S3, MinIO, Garage e outros). Crie um bucket privado e então:
+
+```yaml
+# values-production.yaml
+config:
+  storageProvider: "s3"
+  storageS3Bucket: "securo-attachments"
+  storageS3Region: "us-east-1"
+  storageS3EndpointUrl: ""          # vazio no AWS S3; o seu endpoint no MinIO ou Garage
+  storageS3AddressingStyle: "auto"  # use path no Garage/MinIO
+persistence:
+  attachments:
+    enabled: false
+```
+
+Coloque `STORAGE_S3_ACCESS_KEY` e `STORAGE_S3_SECRET_KEY` no seu `existingSecret` (ou em `secret.storageS3AccessKey` e `secret.storageS3SecretKey`). Deixe as duas de fora para usar a cadeia de credenciais do SDK, como um papel IAM da service account. Os anexos e logos de faturas também vão para o bucket; os arquivos de conhecimento dos agentes e os modelos de embedding continuam precisando dos volumes deles quando os agentes estão ligados.
+
+<Callout type="warn">
+Copie para o bucket os arquivos que já estão no volume de anexos antes de desabilitar esse PVC, usando o caminho de cada arquivo dentro do volume como a chave do objeto.
 </Callout>
 
 ### Celery Beat como Instância Única

@@ -50,6 +50,8 @@ Crie um arquivo `.env` com uma secret key forte:
 echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
 ```
 
+Definir a `SECRET_KEY` você mesmo é o recomendado, para guardá-la junto com os seus backups. Se ela ficar de fora, o Securo gera uma chave única na primeira inicialização e a guarda no banco de dados.
+
 Se você quiser sincronização bancária ou taxas de câmbio, adicione essas chaves também:
 
 ```ini
@@ -131,8 +133,30 @@ Defina no `.env` quando os padrões não servirem para o seu ambiente:
 | `BANK_SYNC_MIN_INTERVAL_HOURS` | `4` | Horas mínimas entre sincronizações automáticas do bank sync por conexão. Aumente para bancos que limitam o acesso desacompanhado a quatro buscas por dia |
 | `OPENEXCHANGERATES_APP_ID` | nenhuma | Ativa a conversão automática de moedas com uma chave gratuita do [Open Exchange Rates](https://openexchangerates.org/). As taxas são buscadas sob demanda quando transações em moeda estrangeira são criadas; sem chave, valores entre moedas caem no fallback 1:1 com um aviso visual |
 | `TZ` | fuso do host | O padrão de inicialização do fuso da aplicação quando não há valor salvo em Admin Settings: o Securo segue `TZ`, depois o fuso do host, depois UTC, então uma instalação existente continua se comportando como antes até alguém escolher um fuso em **Admin Settings → Date and time** |
+| `FRONTEND_DIST_PATH` | nenhum | Desligado por padrão. Aponte para um frontend já compilado (a pasta `dist` do `npm run build`) e o próprio backend serve o app na porta dele, sem o container do frontend. Os health checks passam a usar `/api/health` |
 
 O **fuso horário** da aplicação (o que decide qual dia é o "hoje" para saldos, orçamentos, vencimentos e trabalhos agendados) é definido nas configurações de administração e segue um nome IANA como `America/Sao_Paulo`; workspaces individuais podem sobrescrevê-lo, veja [Workspaces](/pt-BR/docs/features/workspaces).
+
+## Guardando Anexos no S3
+
+Por padrão, os anexos são arquivos no volume `attachments`. Para guardá-los num bucket compatível com S3 (AWS S3, MinIO, Garage e outros), crie um bucket privado e defina no `.env`:
+
+```ini
+STORAGE_PROVIDER=s3
+STORAGE_S3_BUCKET=securo-attachments
+STORAGE_S3_REGION=garage
+STORAGE_S3_ENDPOINT_URL=https://s3.example.com
+STORAGE_S3_ADDRESSING_STYLE=path
+STORAGE_S3_ACCESS_KEY=...
+STORAGE_S3_SECRET_KEY=...
+```
+
+- No AWS S3, deixe de fora `STORAGE_S3_ENDPOINT_URL` e use `STORAGE_S3_ADDRESSING_STYLE=auto`. MinIO e Garage costumam precisar de `path`
+- Deixe de fora as duas chaves para usar a cadeia de credenciais do próprio SDK (um papel IAM, por exemplo). `STORAGE_S3_SESSION_TOKEN` serve para credenciais temporárias
+- O bucket também guarda os anexos e logos de faturas. Os arquivos de conhecimento dos agentes de IA continuam no armazenamento local
+- A imagem normal do backend já tem suporte; não há nada extra para instalar
+
+Os arquivos que já estão no volume `attachments` não são movidos sozinhos: copie-os para o bucket antes de trocar, usando o caminho de cada arquivo dentro do volume como a chave do objeto.
 
 ## Backups
 
@@ -196,6 +220,12 @@ docker compose -f docker-compose.prod.yml up -d
 O `git pull` vem primeiro porque uma versão nova pode mudar o `docker-compose.prod.yml` (serviços novos ou opcionais, configurações novas); as imagens e o arquivo compose devem ser da mesma versão. O seu `.env` não é versionado pelo git, então continua como está.
 
 As migrations do banco de dados rodam automaticamente na inicialização (`alembic upgrade head`), então mudanças de schema são aplicadas durante a atualização. Faça um backup do banco antes de atualizar, e confira a [página de releases](https://github.com/securo-finance/securo/releases) para as notas do que mudou.
+
+### Atualizando para a v0.20.0
+
+- Se a sua instalação nunca definiu uma `SECRET_KEY` própria (ou ainda tinha `change-me-in-production` ou `dev-secret-change-in-production`), o Securo gera uma chave única na primeira inicialização e a guarda no banco de dados. Todo mundo é deslogado uma vez, e os links de redefinição de senha ou de verificação enviados antes da atualização param de funcionar. As credenciais bancárias, chaves de LLM e segredos de plugins salvos continuam funcionando: eles são criptografados de novo com a chave nova
+- Tokens de MCP externo criados sem uma `AGENTS_MCP_JWT_SECRET` própria param de funcionar, porque foram assinados com uma chave pública. Crie um novo em **Agentes → Conexões → Acesso MCP externo**
+- Para voltar para a v0.19.x depois, defina antes a `SECRET_KEY` com o valor guardado na tabela `instance_secrets`, senão as credenciais salvas não abrem
 
 ## Monitoramento
 

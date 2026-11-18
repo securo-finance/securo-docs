@@ -144,7 +144,7 @@ PLUGINS_RUNNER_URL=http://plugins-runner:8090
 COMPOSE_PROFILES=plugins
 ```
 
-Install the plugin as the workspace owner, add a connection and click **Sync now**. The runner's log (`docker compose logs plugins-runner`) shows what your plugin prints, and the proxy's log (`docker compose logs plugins-egress`) every host it reached or was refused. After each change, run `build_index.py` again and update the plugin in Securo.
+Install the plugin as the workspace owner or a manager, add a connection and click **Sync now**. The runner's log (`docker compose logs plugins-runner`) shows what your plugin prints, and the proxy's log (`docker compose logs plugins-egress`) every host it reached or was refused. After each change, run `build_index.py` again and update the plugin in Securo.
 
 ## Updating
 

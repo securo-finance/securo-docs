@@ -14,6 +14,9 @@ Securo's provider system is designed to support multiple bank sync integrations.
 | [Pluggy](/docs/features/bank-sync/pluggy) | Brazil | Available |
 | [Enable Banking](/docs/features/bank-sync/enable-banking) | Europe (~2500 PSD2 banks across 29 countries) | Available |
 | [SimpleFIN](/docs/features/bank-sync/simplefin) | US and international banks via the SimpleFIN Bridge | Available |
+| [Bank provider plugins](/docs/features/plugins) | Whatever bank the plugin connects to | Available since v0.20.0 |
+
+A bank provider plugin is a plugin with code that brings a bank Securo doesn't ship. Once the workspace owner or a manager installs it, it shows up in **Connect Bank** next to the built-in providers, and its connections are listed under Bank Connections with the plugin's badge. Removing such a connection works like any other bank. Removing the plugin itself keeps its accounts as manual ones. Plugins with code need the plugin runner, which the Helm chart doesn't ship yet; to write one, see the [bank provider plugin guide](https://github.com/securo-finance/securo/blob/main/docs/plugins/bank-provider-plugins.md).
 
 ## How Bank Sync Works
 
@@ -47,6 +50,7 @@ You can trigger an immediate sync from the Accounts page by clicking the sync ic
 - Manually entered transactions are matched against synced ones using fuzzy matching (same amount, similar date, similar description)
 - Categories are auto-mapped from the provider's categories to your Securo categories when the provider exposes them
 - Transfer pairs between accounts are detected automatically
+- When the bank rate-limits one account, that account waits (as long as the bank asks, or 6 hours) and the rest of the connection keeps syncing
 - Cards that share one consolidated credit line at the provider report that balance **once** in the dashboard and sidebar totals, while each card keeps its own transactions, its own bill, and its own open balance; the account list says which cards share a line
 
 ## Connection Settings
@@ -68,6 +72,12 @@ Controls how the payee name is extracted from bank data:
 ### Import Pending
 
 When enabled (default), pending transactions are imported alongside posted ones. Disable this if you prefer to only import finalized transactions.
+
+## Disconnecting a Bank
+
+Disconnecting keeps the connection's accounts and their history: the accounts stop syncing and the rest of Securo keeps showing them. To erase them too, check **Also delete accounts and transactions** in the dialog; it is unchecked by default.
+
+A disconnected connection stays in the list with its status, a button to reconnect and **Remove connection**. Reconnecting matches the accounts by the provider's own ids, so nothing already imported comes in twice. A disconnected connection is never synced.
 
 ## Troubleshooting
 

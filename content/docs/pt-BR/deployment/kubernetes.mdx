@@ -34,12 +34,14 @@ A persistência vem habilitada por padrão para o banco, os anexos e a base de c
 | --- | --- | --- |
 | `global.domain` | `securo.local` | Domínio público do app; as URLs de callback OAuth derivam dele |
 | `global.tls` | `false` | Se as URLs derivadas usam `https://` |
-| `secret.secretKey` | placeholder de dev | Chave de assinatura JWT. **Sempre defina a sua** |
+| `secret.secretKey` | vazio | Assina os tokens de login e criptografa as credenciais salvas. Se ficar vazia, o Securo gera uma chave única na primeira inicialização e a guarda no banco; defina a sua para gerenciá-la você mesmo |
 | `ingress.enabled` | `false` | Cria um Ingress; `/api` vai direto para o backend, o resto para o frontend |
 | `httpRoute.enabled` | `false` | HTTPRoute da Gateway API, alternativa ao Ingress, com a mesma divisão de `/api` |
 | `frontend.backendUrl` | derivado | Para onde o nginx do frontend encaminha `/api`. O padrão é o nome completo do serviço do backend (`<release>-backend.<namespace>.svc.cluster.local`); sobrescreva num cluster com domínio fora do padrão |
 | `persistence.*` | habilitada | PVCs para banco, anexos e conhecimento dos agentes |
+| `config.storageProvider` | `"local"` | `s3` guarda os anexos num bucket compatível com S3 em vez do PVC de anexos; veja [Kubernetes (Helm) em Produção](/pt-BR/docs/deployment/kubernetes-prod) |
 | `config.agentsEnabled` | `"false"` | Recurso opcional de agentes de IA |
+| `mcpServer.publicRoute` | `false` | Adiciona `/mcp` ao Ingress ou ao HTTPRoute para que clientes MCP externos alcancem o servidor MCP dos agentes. Junto com ele, defina `config.agentsExternalMcpUrl` com a URL pública |
 | `postgresql.enabled` / `redis.enabled` | `true` | Desabilite para usar seu próprio banco ou Redis |
 
 As integrações opcionais (sincronização bancária, taxas de câmbio, OIDC) usam as mesmas configurações documentadas no [guia de Docker](/pt-BR/docs/deployment/docker), expostas como valores `secret.*` e `config.*`. Inspecione a lista completa e comentada da sua versão com:
@@ -55,6 +57,8 @@ helm upgrade securo oci://ghcr.io/securo-finance/charts/securo --version <NOVA_V
 ```
 
 As migrações do banco rodam automaticamente por um hook do Helm na instalação e na atualização. Faça backup do banco antes de atualizar, como em qualquer método de deploy.
+
+Atualizando para a 0.20.0 com `mcpServer.enabled: true`: essa opção sozinha não roteia mais o `/mcp`. Defina `mcpServer.publicRoute: true` e aponte `config.agentsExternalMcpUrl` para a URL pública, senão os clientes MCP externos recebem 404 depois da atualização. O [guia de Docker](/pt-BR/docs/deployment/docker) lista as outras mudanças dessa versão (a `SECRET_KEY` gerada e os tokens MCP que precisam ser criados de novo).
 
 ## Deploys de Produção
 
