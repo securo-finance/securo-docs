@@ -75,9 +75,10 @@ Se você conectar uma corretora ou conta de investimentos por meio da [Sincroniz
 
 - Recebem o selo **Sincronizado** e são agrupados em uma carteira com o nome da instituição
 - Têm seus valores atualizados automaticamente em cada sincronização
-- São somente leitura — são gerenciados pela conexão, então edição e exclusão ficam desativadas
+- São somente leitura — são gerenciados pela conexão, então a edição fica desativada
+- Mostram **sem atualização desde** uma data quando o provedor ainda informa a posição, mas não atualiza o valor há mais de uma semana. Ela pode ter sido resgatada, ou a conexão pode estar falhando ao atualizar investimentos: confira com o seu banco. Nada é encerrado ou escondido por você. Hoje o Pluggy informa essa data
 
-Você ainda pode renomear uma carteira sincronizada e mover ativos sincronizados entre carteiras.
+Você ainda pode renomear uma carteira sincronizada, mover ativos sincronizados entre carteiras e excluir um ativo sincronizado. Se a importação de ativos estiver ligada nessa conexão, a próxima sincronização traz o ativo de volta; desligue a importação de ativos nas configurações da conexão para que ele continue excluído.
 
 ## O imóvel e os empréstimos sobre ele
 
@@ -86,6 +87,8 @@ Um ativo imobiliário pode ter **empréstimos que usam ele como garantia**. Vinc
 ## Valor da Carteira de Investimentos
 
 No topo da página, o gráfico **Valor do Portfólio** mostra o valor total dos seus ativos ao longo do tempo, em um gráfico de área empilhada. Alterne entre **Por Carteira** e **Por Ativo** para mudar como o valor é detalhado.
+
+Os ativos com preço de mercado são cotados de novo periodicamente. Para fazer isso agora, clique em **Atualizar preços** no topo da página: todos os ativos com preço de mercado do workspace são cotados de novo, e uma mensagem diz quantos preços foram atualizados e quantos ficaram sem cotação nova. Se o provedor de cotações começar a limitar as requisições, os preços já atualizados ficam; tente de novo em um minuto.
 
 ## Patrimônio e Patrimônio Líquido
 

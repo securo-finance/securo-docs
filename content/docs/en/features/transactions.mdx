@@ -149,6 +149,15 @@ Text cells that start with `=`, `+`, `-`, `@`, a tab or a carriage return (a des
 
 A transaction split across categories is exported as **one row per part**, tied together by the `split_group` and `split_index` columns, so the file adds up by category and can be [imported back](/docs/features/import#split-transactions-in-a-csv) as the same split. The full workspace backup keeps the parts of split transactions and of split recurring bills as well.
 
+### For Your Accountant
+
+A **Business** workspace also has an **Accountant export** card in the workspace settings. Pick a start and end date (it starts on the first day of the current month and ends today) and click **Download package** to get one zip with two files:
+
+- `transactions.csv`: one row per category part, with split shares and both legs of a transfer included
+- `profit-and-loss.csv`: income and expenses per category and the result of the period, in the workspace's primary currency, with transfers and ignored categories left out
+
+Both files use semicolons, decimal commas, `DD/MM/YYYY` dates and UTF-8 with a BOM, so spreadsheets and accounting tools open them without adjustment. Amounts are the full value of each transaction, before splits with other people, so the result can differ from the in-app income and expense report. A viewer can download it too, and the period goes back at most ten years.
+
 ## Bulk Actions
 
 Select multiple transactions using the checkboxes to reveal the bulk action bar. From there you can:

@@ -96,6 +96,8 @@ Two read-only tools look ahead: **get_recurring_subscriptions** finds recurring 
 
 Open an agent and use the **Chat** tab to talk to it. Conversations are multi-turn and stream responses as they're generated. The agent is aware of the page you're on, so you can ask about "this list" or "this transaction" and it understands the context. Past conversations are saved and listed in the sidebar.
 
+A message can be up to 4,000 characters. Since every message spends tokens with your LLM provider, the chat is limited per client address to `AGENTS_CHAT_RATE_LIMIT_PER_MINUTE` messages a minute (default `30`; a turn that runs several tools is still one message). Lower it, to `5` for example, on a public demo, or set `0` to turn the limit off. The limit is counted in Redis, and the client address is read through `TRUSTED_PROXY_HOPS` (see [Docker](/docs/deployment/docker)), so behind a proxy set that too, or every visitor shares one limit.
+
 ## The Global Chat
 
 Press **⌘J** (or **Ctrl+J**) anywhere in Securo to open the global chat — a slide-over panel powered by your **default agent**. It's the fastest way to ask a quick question without leaving the page you're on. You can switch agents, start a new conversation, or browse recent ones from the panel header.

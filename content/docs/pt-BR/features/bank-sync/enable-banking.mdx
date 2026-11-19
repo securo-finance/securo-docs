@@ -84,6 +84,8 @@ O Securo detecta os provedores configurados na inicialização. Com as variávei
 6. Seu navegador é redirecionado de volta ao Securo, que mostra uma tela de loading enquanto importa suas contas, saldos e transações
 7. Você volta para a página de Contas com a nova conexão bancária na lista
 
+A primeira sincronização, logo depois da autorização, pede ao banco o **maior histórico que ele consegue enviar**, até dois anos para trás, em vez dos 90 dias de sempre. Um banco que recusa o período maior recebe a janela comum, então nada que conectava antes passa a falhar. Uma sincronização manual também pode pedir o histórico completo; as agendadas, que rodam sem você, ficam na janela de 90 dias que a PSD2 permite a elas.
+
 ## Reconectando
 
 Consentimentos PSD2 têm tempo de vida fixo — em geral cerca de 6 meses, dependendo do banco. Quando um consentimento expira, o status da conexão vira **expirada** e a página de Contas mostra um botão **Reconectar**.

@@ -149,6 +149,15 @@ Células de texto que começam com `=`, `+`, `-`, `@`, uma tabulação ou um ret
 
 Uma transação dividida por categoria sai como **uma linha por parte**, ligadas pelas colunas `split_group` e `split_index`, então o arquivo soma certo por categoria e pode ser [importado de volta](/pt-BR/docs/features/import#transações-divididas-num-csv) com a mesma divisão. O backup completo do workspace também guarda as partes das transações e dos recorrentes divididos.
 
+### Para o Seu Contador
+
+Um workspace de **Negócios** também tem o card **Exportação para o contador** nas configurações do workspace. Escolha a data inicial e a final (o padrão vai do primeiro dia do mês atual até hoje) e clique em **Baixar pacote** para receber um zip com dois arquivos:
+
+- `transactions.csv`: uma linha por parte de categoria, incluindo as partes divididas com outras pessoas e as duas pontas de cada transferência
+- `profit-and-loss.csv`: a DRE, com receitas e despesas por categoria e o resultado do período, na moeda principal do workspace, sem transferências nem categorias ignoradas
+
+Os dois arquivos usam ponto e vírgula, vírgula decimal, datas `DD/MM/AAAA` e UTF-8 com BOM, então planilhas e softwares contábeis abrem sem ajuste. Os valores são o valor cheio de cada transação, antes de dividir com outras pessoas, por isso o resultado pode diferir do relatório de receitas e despesas do app. Um leitor também pode baixar, e o período volta no máximo dez anos.
+
 ## Ações em Lote
 
 Selecione várias transações com os checkboxes para mostrar a barra de ações em lote. A partir dela você pode:

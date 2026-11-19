@@ -20,6 +20,8 @@ Securo accepts four file formats:
 | **QIF** | Quicken Interchange Format, used by Quicken and other tools |
 | **CAMT** | ISO 20022 bank statement format, used by European banks |
 
+Files don't have to be UTF-8: a CSV or QIF saved by Excel or an older bank system in Windows-1252 or Latin-1 is read with its accents intact.
+
 QIF files from Quicken read the dates it writes for 2000 to 2009 with a space-padded year (`3/ 1' 8` is 1 March 2008), so an old history comes in without a ten-year gap.
 
 ## How to Import

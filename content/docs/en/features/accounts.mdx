@@ -36,6 +36,12 @@ Disconnecting a bank keeps these accounts and their history unless you choose to
 
 Credit card accounts carry extra fields that model how a card actually works: **credit limit**, **statement close day**, and **payment due day**. Securo uses them to compute billing cycles and group each purchase into the right statement, so a purchase made after the close date lands on next month's bill, exactly like your card does it.
 
+A card account synced through Pluggy often holds purchases from more than one physical card, like a main card, an additional card and a virtual one. Securo reads the card's last four digits from each purchase and lists the cards it has seen under **Linked cards** in the card's settings, where you can give each one a **label** ("Ana's card", "Virtual"). The transaction list and the transaction dialog then show which card made each purchase, and the **Card** filter on Transactions narrows the list to one or more of them. On a row shared with another member, the owner's card ending stays hidden.
+
+<Callout type="info">
+Purchases synced before this feature have no card ending. A self-hosted install can fill them from the data the provider already sent with `backend/scripts/backfill_transaction_card_numbers.py`: run it once without arguments for a dry run that only prints counts, then again with `--apply`, with the Celery worker stopped while it runs.
+</Callout>
+
 ## Multi-Currency Support
 
 One of Securo's standout features is **native multi-currency support**. Each account has its own currency, and Securo handles conversion automatically.

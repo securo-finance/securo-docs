@@ -86,6 +86,15 @@ A disconnected connection stays in the list with its status, a button to reconne
 - **Error**: the credentials the provider gave us failed unexpectedly. Click **Reconnect** to retry authentication.
 - **Expired**: the user-granted consent reached its end date (common with PSD2 providers like Enable Banking, which cap consent at around 6 months), or the bank ended it earlier. Click **Reconnect** to start a fresh consent flow.
 
+When a sync fails, the connection card says when and why, with the action that fixes it:
+
+- **The bank only shares this data while you are using Securo**: some PSD2 banks refuse unattended syncs. Click **Sync now** while you are in the app
+- **The bank needs you to authorize access again**: click **Reconnect**
+- **Reauthorize this bank in your SimpleFIN Bridge account**: do it in the Bridge, then sync again
+- **The bank returned an error**: try again later; if the bank's daily limit was reached, it only needs time
+
+The message clears on the next sync that reads data, or on a reconnect. If a new connection is created but its first import fails, the connection is kept and the Accounts page asks you to retry the sync to finish.
+
 ### Duplicate Transactions
 
 Securo tracks each synced transaction by its external ID. If you see duplicates, it may be because you entered a transaction manually before it was synced. Securo attempts to match these automatically (within 3 days, same amount, 60%+ description similarity), but some edge cases may require manual cleanup.

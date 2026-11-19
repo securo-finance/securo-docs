@@ -84,6 +84,8 @@ Securo detects configured providers on startup. Once the variables are set and t
 6. Your browser is redirected back to Securo, which shows a loading screen while it imports your accounts, balances and transactions
 7. You land back on the Accounts page with your new bank connection in the list
 
+The first sync, right after you authorize, asks the bank for the **longest history it can serve**, up to two years back, instead of the usual 90 days. A bank that refuses the longer period gets the ordinary window, so nothing that connected before fails now. A manual sync can ask for the full history too; scheduled syncs, which run without you, keep the 90-day window PSD2 allows them.
+
 ## Reconnecting
 
 PSD2 consents have a fixed lifetime — typically around 6 months, depending on the bank. When a consent expires, the connection's status flips to **expired** and the Accounts page shows a "Reconnect" button.

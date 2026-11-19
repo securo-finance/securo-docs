@@ -96,6 +96,8 @@ Duas ferramentas somente leitura olham para frente: **get_recurring_subscription
 
 Abra um agente e use a aba **Chat** para falar com ele. As conversas são de múltiplos turnos e exibem as respostas em streaming conforme são geradas. O agente conhece a página em que você está, então você pode perguntar sobre "esta lista" ou "esta transação" e ele entende o contexto. Conversas anteriores ficam salvas e listadas na barra lateral.
 
+Uma mensagem pode ter até 4.000 caracteres. Como cada mensagem gasta tokens do seu provedor de LLM, o chat é limitado por endereço de cliente a `AGENTS_CHAT_RATE_LIMIT_PER_MINUTE` mensagens por minuto (padrão `30`; um turno que roda várias ferramentas continua sendo uma mensagem). Baixe para `5`, por exemplo, numa demo pública, ou use `0` para desligar o limite. A contagem fica no Redis, e o endereço do cliente é lido via `TRUSTED_PROXY_HOPS` (veja [Docker](/pt-BR/docs/deployment/docker)), então atrás de um proxy configure isso também, ou todos os visitantes dividem o mesmo limite.
+
 ## O Chat Global
 
 Pressione **⌘J** (ou **Ctrl+J**) em qualquer lugar do Securo para abrir o chat global — um painel lateral movido pelo seu **agente padrão**. É o jeito mais rápido de fazer uma pergunta sem sair da página atual. Você pode trocar de agente, iniciar uma nova conversa ou navegar pelas recentes a partir do cabeçalho do painel.
