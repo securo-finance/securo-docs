@@ -13,7 +13,9 @@ O conector SimpleFIN do Securo usa a mesma abstração `BankProvider` dos outros
 
 ## 1. Habilite o SimpleFIN no Securo
 
-Adicione o seguinte ao `.env` do Securo:
+**Nas Configurações Admin (sem reiniciar).** Como administrador, abra as **Configurações Admin**, encontre o **SimpleFIN** em **Conexões bancárias** e ligue **Permitir conexões SimpleFIN**. O host do Bridge continua vindo do `SIMPLEFIN_API_URL` no `.env` (por padrão, o host de sandbox). Veja [Configuração de Provedores](/pt-BR/docs/deployment/provider-settings).
+
+**Ou no `.env`.** Adicione o seguinte ao `.env` do Securo:
 
 ```bash
 SIMPLEFIN_ENABLED=true

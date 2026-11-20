@@ -1,0 +1,42 @@
+---
+title: Provider Settings
+description: Set bank sync and exchange-rate credentials in Admin Settings, and how they work alongside your .env.
+---
+
+Administrators can set the credentials for Pluggy, Enable Banking and Open Exchange Rates, and turn SimpleFIN on or off, in **Admin Settings**, under **Bank connections** and **Exchange rates**. Changes apply to the next connection or sync, without restarting any container.
+
+## What you can set in Admin Settings
+
+| Provider | In Admin Settings | Still in `.env` only |
+| --- | --- | --- |
+| Pluggy | Client ID, Client Secret | `PLUGGY_OAUTH_REDIRECT_URI` |
+| Enable Banking | Application ID, private key (paste the PEM) | `ENABLE_BANKING_OAUTH_REDIRECT_URI` (derived from `FRONTEND_URL` when empty; the dialog shows it read-only so you can copy it), `ENABLE_BANKING_API_URL` |
+| SimpleFIN | Allow SimpleFIN connections (on or off) | `SIMPLEFIN_API_URL` |
+| Open Exchange Rates | App ID | `FX_SYNC_MODE`, `SUPPORTED_CURRENCIES` |
+
+Everything else (`SECRET_KEY`, the database, `FRONTEND_URL`, single sign-on, AI agents, plugins) stays in `.env`.
+
+## How it works with your `.env`
+
+- **Existing setups keep working.** A provider configured in `.env` keeps working with no change. Admin Settings shows it as configured, with the environment as the source.
+- **A saved value takes precedence**, field by field, over the same variable in `.env`.
+- **Removing a saved value** brings the `.env` value back. Admin Settings asks for confirmation and says whether an environment value exists.
+- **Saved values are write-only.** They are never shown again. Leave a field blank to keep its current value.
+- **A pasted Enable Banking key** takes precedence over `ENABLE_BANKING_PRIVATE_KEY_FILE`.
+- **"Configured" means the required fields are present.** Securo does not test them against the provider until the next connection or sync.
+
+## SECRET_KEY
+
+Saved credentials are encrypted with a key derived from `SECRET_KEY`.
+
+- It must have at least 32 characters. The install script generates one. With a shorter or default key, Admin Settings does not save credentials; values in `.env` still work.
+- Keep it stable. If `SECRET_KEY` changes, saved credentials can no longer be read: Admin Settings marks the provider with **Needs attention** and the provider stays unavailable until you enter them again. It never falls back to a different value from `.env` on its own.
+- The same key also protects AI agent provider keys and plugin connection secrets, so changing it means entering those again too.
+
+## Rolling back to an older version
+
+Older versions read providers only from `.env` and do not know about saved credentials. Before going back to one:
+
+1. Set the environment variables for every provider configured in Admin Settings (for Enable Banking, `ENABLE_BANKING_PRIVATE_KEY_FILE`).
+2. Remove each saved value in Admin Settings. The source then shows the environment.
+3. Run `docker compose -f docker-compose.prod.yml exec backend alembic downgrade 112`, then deploy the older version.
