@@ -11,8 +11,9 @@ Um plugin é um repositório público no GitHub com um arquivo `securo-plugin.js
 - **Grupos de categorias**
 - **Regras** que categorizam, renomeiam, anotam ou ignoram transações
 - **Temas** que dão um visual novo ao Securo
+- **Relatórios** para a página de relatórios, a partir de uma consulta que o Securo roda ou do código do próprio plugin
 
-Estes são plugins de dados: nada neles roda. Para ligar um workspace a um serviço de fora, veja [Criando um plugin com código](/pt-BR/docs/features/plugins/code).
+Fora os relatórios com código, estes são plugins de dados: nada neles roda. Para ligar um workspace a um serviço de fora, veja [Criando um plugin com código](/pt-BR/docs/features/plugins/code).
 
 ## Começo Rápido
 
@@ -76,7 +77,7 @@ O catálogo é reconstruído a cada 6 horas. Seu plugin aparece depois da próxi
 | `license` | A licença do plugin, por exemplo `MIT` |
 | `min_securo_version` | O Securo mais antigo que consegue instalá-lo. Plugins existem a partir da `0.19.0` |
 | `workspaces` | Opcional. Os tipos de workspace a que ele se destina: `["personal"]`, `["business"]` ou os dois. Se ficar de fora, serve para os dois. O plugin não pode ser instalado num tipo que não está na lista |
-| `contributes` | O que o plugin adiciona: `category_groups`, `categories`, `rules` e `themes` |
+| `contributes` | O que o plugin adiciona: `category_groups`, `categories`, `rules`, `themes` e `reports` |
 
 ### Texto traduzido
 
@@ -206,6 +207,44 @@ Um tema dá um visual novo ao Securo: cores para os tokens de design, no claro e
 **Tokens**: `background`, `foreground`, `card`, `primary`, `primary-foreground`, `muted`, `muted-foreground`, `border`, `chart-1` a `chart-12`, `chart-muted`, `chart-income`, `chart-expense`.
 
 Um tema é só cores: sem CSS, sem imagens e sem fontes para baixar, então nada sai do servidor da pessoa. O texto precisa continuar legível: `foreground` e `muted-foreground` sobre `background` e `card`, e `primary-foreground` sobre `primary`, precisam de contraste de pelo menos 4.5:1 quando você define as duas cores.
+
+### Relatórios
+
+Os relatórios de um plugin aparecem na **Biblioteca** de relatórios ao lado dos do Securo, e cada pessoa guarda os que quiser como abas. Um relatório usa o seletor de período da página, o idioma e a moeda de quem vê, e respeita o modo privacidade. Um plugin pode declarar até 20.
+
+Um **relatório de consulta** é só dados: o Securo soma os valores com as mesmas regras do dashboard, e nada do plugin roda.
+
+```json
+"reports": [
+  {
+    "key": "streaming-by-month",
+    "name": { "en": "Streaming by month", "pt-BR": "Streaming por mês" },
+    "measure": "expenses",
+    "group_by": "month",
+    "categories": ["streaming"],
+    "chart": "line"
+  }
+]
+```
+
+| Campo | Descrição |
+|-------|-----------|
+| `key` | Obrigatório |
+| `name` | Obrigatório |
+| `description` | Opcional |
+| `measure` | `expenses` (padrão), `income` ou `net` |
+| `group_by` | `category`, `category_group`, `payee`, `account` ou `month` |
+| `categories` | Opcional, até 50: chaves das categorias do seu plugin ou das padrão. Sem ele, todas as categorias contam |
+| `chart` | `bar` (padrão), `line`, `area`, `pie` ou `table`. `line` e `area` pedem `group_by: "month"`; um `pie` não mostra meses nem `net` |
+| `limit` | De 3 a 20, padrão 10: os maiores grupos mostrados, com o resto somado em um só. Não vale por mês |
+
+Um **relatório com código** (`"code": true`) é calculado pelo próprio plugin, então precisa de um [`runtime`](/pt-BR/docs/features/plugins/code). Deixe de fora `group_by` e `categories` e liste em `inputs` os dados que ele recebe: `transactions`, `accounts` e `categories`, cada um com seu escopo de leitura (`transactions:read`, `accounts:read`, `categories:read`) em `api_scopes`. Quem instala vê isso e concorda. Veja [Relatórios](/pt-BR/docs/features/plugins/code#reportparams-context) para o método que ele implementa.
+
+### Limites de um relatório de plugin
+
+Um relatório de plugin lê no máximo 731 dias (cerca de dois anos) de dados; pedir mais faz a API responder 422. A página de relatórios corta um período maior para os últimos 731 dias e diz na aba qual intervalo leu.
+
+A view que o código de um plugin devolve é checada antes de ser desenhada: no máximo 24 blocos, 12 séries num gráfico, 1.000 pontos numa série e 12.000 pontos de gráfico na view inteira (`len(x) * número de séries`, somado entre os gráficos). Um gráfico no limite por gráfico (12 séries de 1.000 pontos) cabe exatamente no total. Uma view acima de qualquer um desses é recusada com 502, e a mensagem diz o motivo ("the report returned an invalid view: ..."). O Securo não reduz os pontos por conta própria, então um plugin que precisa mostrar mais deve agregar: menos pontos por série, ou menos gráficos.
 
 ## Testando Localmente
 

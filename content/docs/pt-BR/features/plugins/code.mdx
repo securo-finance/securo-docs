@@ -133,6 +133,12 @@ Cada instância do Securo tem o próprio endereço de retorno, `https://<instân
 
 Com `api_scopes`, envie `context.securo["token"]` como bearer token para `context.securo["api_url"]`, a API REST do Securo (as mesmas rotas que o app usa, em `/api`). Ela é acessada pela rede interna do runner, não pelo proxy. Requisições fora dos escopos declarados são recusadas.
 
+### `report(params, context)`
+
+Chamado toda vez que alguém abre a aba de um dos [relatórios com código](/pt-BR/docs/features/plugins/authoring#relatórios) do plugin. `params` traz `report` (a chave do relatório), `start_date` e `end_date` (o período que a pessoa escolheu), `today`, `currency`, `lang`, `account_ids` (`None` para todas as contas) e `data`: os `inputs` que o relatório declarou, lidos daquele workspace, período e contas. Ele recebe no máximo 20.000 transações por execução.
+
+Devolva uma view: uma lista de `blocks` dispostos numa grade de 12 colunas pela `width` de cada um. Os blocos são `kpi`, `chart`, `heatmap`, `treemap`, `sankey`, `waterfall`, `progress`, `table` e `text`. Uma view é só dados (sem HTML, script, estilo ou URL, cores em `#RRGGBB`) e é checada contra os [limites de um relatório de plugin](/pt-BR/docs/features/plugins/authoring#limites-de-um-relatório-de-plugin) antes de alguém vê-la. Uma exceção ou uma view que não passa aparece na aba como falha (502).
+
 ## Testando Localmente
 
 Monte um catálogo a partir da pasta do seu plugin como em [Testando localmente](/pt-BR/docs/features/plugins/authoring#testando-localmente). O catálogo copia o seu código e registra o checksum dele. Depois inicie o Securo com o runner:

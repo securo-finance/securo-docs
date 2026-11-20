@@ -11,8 +11,9 @@ A plugin is a public GitHub repository with a `securo-plugin.json` file at its r
 - **Category groups**
 - **Rules** that categorize, rename, annotate or ignore transactions
 - **Themes** that give Securo a new look
+- **Reports** for the reports page, from a query Securo runs or from the plugin's own code
 
-These are data plugins: nothing in them runs. To connect a workspace to an outside service, see [Writing a plugin with code](/docs/features/plugins/code).
+Apart from code reports, these are data plugins: nothing in them runs. To connect a workspace to an outside service, see [Writing a plugin with code](/docs/features/plugins/code).
 
 ## Quick Start
 
@@ -76,7 +77,7 @@ The catalog is rebuilt every 6 hours. Your plugin shows up after the next run.
 | `license` | The plugin's license, for example `MIT` |
 | `min_securo_version` | The oldest Securo that can install it. Plugins exist from `0.19.0` |
 | `workspaces` | Optional. The workspace types it's for: `["personal"]`, `["business"]` or both. Left out, it fits both. A plugin can't be installed in a type it doesn't list |
-| `contributes` | What the plugin adds: `category_groups`, `categories`, `rules` and `themes` |
+| `contributes` | What the plugin adds: `category_groups`, `categories`, `rules`, `themes` and `reports` |
 
 ### Translated text
 
@@ -206,6 +207,44 @@ A theme gives Securo a new look: colors for its design tokens, in light and dark
 **Tokens**: `background`, `foreground`, `card`, `primary`, `primary-foreground`, `muted`, `muted-foreground`, `border`, `chart-1` to `chart-12`, `chart-muted`, `chart-income`, `chart-expense`.
 
 A theme is only colors: no CSS, no images and no fonts to download, so nothing leaves the person's server. Text must stay readable: `foreground` and `muted-foreground` on `background` and `card`, and `primary-foreground` on `primary`, need a contrast of at least 4.5:1 when you set both colors.
+
+### Reports
+
+A plugin's reports show in the reports **Library** next to Securo's own, and each person keeps the ones they want as tabs. A report is drawn with the page's period picker, in the viewer's language and currency, and respects privacy mode. A plugin can declare up to 20.
+
+A **query report** is data only: Securo adds up the figures with the same rules as the dashboard, and nothing of the plugin runs.
+
+```json
+"reports": [
+  {
+    "key": "streaming-by-month",
+    "name": { "en": "Streaming by month", "pt-BR": "Streaming por mês" },
+    "measure": "expenses",
+    "group_by": "month",
+    "categories": ["streaming"],
+    "chart": "line"
+  }
+]
+```
+
+| Field | Description |
+|-------|-------------|
+| `key` | Required |
+| `name` | Required |
+| `description` | Optional |
+| `measure` | `expenses` (default), `income` or `net` |
+| `group_by` | `category`, `category_group`, `payee`, `account` or `month` |
+| `categories` | Optional, up to 50: keys of your plugin's categories or of the built-in ones. Left out, all categories count |
+| `chart` | `bar` (default), `line`, `area`, `pie` or `table`. `line` and `area` need `group_by: "month"`; a `pie` can't show months or `net` |
+| `limit` | 3 to 20, default 10: the largest groups shown, with the rest added up as one. Not used by month |
+
+A **code report** (`"code": true`) is computed by the plugin itself, so it needs a [`runtime`](/docs/features/plugins/code). Leave out `group_by` and `categories`, and list in `inputs` the data it gets: `transactions`, `accounts` and `categories`, each with its read scope (`transactions:read`, `accounts:read`, `categories:read`) in `api_scopes`. The person installing sees and agrees to that. See [Reports](/docs/features/plugins/code#reportparams-context) for the method it implements.
+
+### Limits of a plugin report
+
+A plugin report reads at most 731 days (about two years) of data; ask for more and the API answers 422. The reports page trims a longer range to the last 731 days and says on the tab which span it read.
+
+A view a plugin's code returns is checked before it is drawn: at most 24 blocks, 12 series in a chart, 1,000 points in a series, and 12,000 chart points across the whole view (`len(x) * number of series`, added up over the charts). One chart at the per-chart limits (12 series of 1,000 points) fits the total exactly. A view over any of those is refused with a 502 whose message gives the reason ("the report returned an invalid view: ..."). Nothing is downsampled for you, so a plugin that needs to show more should aggregate: fewer points per series, or fewer charts.
 
 ## Testing Locally
 
