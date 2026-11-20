@@ -120,6 +120,8 @@ Em seguida, reinicie o Securo: `docker compose -f docker-compose.prod.yml up -d`
 
 O backend limita por endereço do cliente o login e outros endpoints sensíveis. Atrás de um proxy reverso toda requisição chega vinda do proxy, então o backend precisa saber quantos proxies confiar antes de ler o endereço real do cliente em `X-Forwarded-For`. O Compose de produção já define `TRUSTED_PROXY_HOPS=1` para o nginx embutido; some um para cada proxy extra na frente dele (Caddy na frente do nginx embutido é `2`). Um valor maior que o número real de saltos deixa um cliente forjar o próprio endereço, então conte com cuidado.
 
+O cabeçalho só é lido depois de um proxy cujo endereço esteja em `TRUSTED_PROXY_NETWORKS`, que por padrão cobre o loopback e as faixas privadas (`127.0.0.0/8,::1/128,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,fc00::/7`). Um visitante público que chega direto na porta do backend ou do frontend passa a ser contado pelo próprio endereço, seja qual for o `X-Forwarded-For` que ele mandar. Quem está dentro dessas faixas ainda conta como proxy, então se clientes não confiáveis da LAN ou da VPN dividem essas faixas, ou se o Docker mostra quem chama direto como o gateway da bridge, defina só os endereços dos seus proxies (redes ou endereços separados por vírgula), ou mantenha a porta do backend fechada.
+
 O nginx embutido resolve o backend pelo DNS da plataforma na inicialização, o que funciona igual em Docker, Podman e Kubernetes. Se a sua plataforma precisar de um resolvedor específico, defina `NGINX_RESOLVER` no serviço do frontend.
 
 Se quem roda na frente é o **Traefik**, o serviço do frontend aceita os labels dele como opt-in: defina `TRAEFIK_ENABLE=true` e `TRAEFIK_NETWORK=<a rede em que o Traefik escuta>` (opcionalmente `TRAEFIK_RESOURCE_NAME`, único por implantação). Desligado por padrão, então configurações existentes ficam intactas.
@@ -160,7 +162,18 @@ Os arquivos que já estão no volume `attachments` não são movidos sozinhos: c
 
 ## Backups
 
-De dentro do app, **Backup** (no menu do usuário) baixa o workspace ativo como um zip de JSON puro, cada conta, transação e regra, opcionalmente **criptografado com senha** (AES-256, abre em qualquer compactador comum). Os passos abaixo são o backup do servidor da instância inteira, que é de onde você restaura.
+De dentro do app, **Baixar backup** (no menu do usuário) baixa o workspace ativo como um zip de JSON puro, cada conta, transação e regra, opcionalmente **criptografado com senha** (AES-256, abre em qualquer compactador comum). Os passos mais abaixo são o backup do servidor da instância inteira, que é de onde você restaura o servidor todo.
+
+### Backups Gerenciados no App
+
+A página **Backups** (pelo diálogo de backup, ou em `/backups`) trabalha sobre o workspace ativo:
+
+- **Executar backup** grava um ZIP no servidor, com a configuração (categorias, pessoas, regras, orçamentos, recorrentes, metas, produtos e configurações de cobrança), os dados (contas, transações, patrimônio, cobranças, arquivos anexados e o resto) ou os dois. **Baixar ZIP** entrega o mesmo arquivo direto
+- **Agendamento e retenção** cria um backup diário ou semanal, mantém os N mais recentes (10 por padrão) e também pode apagar os mais velhos que um número de dias. Um worker confere os agendamentos a cada hora
+- **Restaurar** recebe um backup guardado ou um ZIP enviado (um protegido por senha pede a senha), mostra o que ele contém e restaura num **novo workspace** por padrão. Restaurar sobre o **workspace atual** substitui os dados correspondentes dele numa única transação e pede que você digite `RESTORE`
+- Os backups deixam de fora dados de login, passkeys, credenciais de provedores e tokens de banco, então um workspace restaurado precisa das conexões bancárias configuradas de novo
+
+Executar, agendar e restaurar exigem um papel no workspace que possa escrever; quem só visualiza pode listar e baixar. O servidor grava os ZIPs em `/app/data/backups` dentro dos containers, que o Compose de produção mapeia para `./data/backups` no host. Defina `BACKUP_HOST_PATH` no `.env` para guardá-los em outro lugar (`BACKUP_HOST_PATH=/srv/securo/backups`) e inclua essa pasta nas suas cópias fora do servidor.
 
 ### Backup do Banco de Dados
 

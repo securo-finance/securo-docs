@@ -150,6 +150,10 @@ persistence:
 Armazenamento `ReadWriteOnce` (RWO) só funciona se todos os pods que montam o volume forem agendados no mesmo nó.
 </Callout>
 
+### Backups Gerenciados
+
+Os [backups gerenciados](/pt-BR/docs/deployment/docker#backups-gerenciados-no-app) do app precisam de um volume próprio, que vem desligado. Ligue com `persistence.backups.enabled: true` (5Gi, `ReadWriteOnce` a menos que você mude `accessMode` e `storageClass`); os pods do Backend, do Celery Worker e do Celery Beat passam a montá-lo em `/app/data/backups`, com a mesma regra de RWX acima. Sem ele, os backups executados no servidor ficam no armazenamento local do pod e se perdem quando o pod é substituído, e os backups agendados ficam desligados porque a API e o worker não dividem um sistema de arquivos. Baixar um backup direto da página funciona dos dois jeitos.
+
 ### Armazenamento de Objetos Compatível com S3
 
 Em vez de um volume RWX para os anexos, o Securo pode guardá-los num bucket compatível com S3 (AWS S3, MinIO, Garage e outros). Crie um bucket privado e então:

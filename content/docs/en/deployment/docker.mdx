@@ -120,6 +120,8 @@ Then restart Securo: `docker compose -f docker-compose.prod.yml up -d`
 
 The backend rate-limits login and other sensitive endpoints per client address. Behind a reverse proxy every request arrives from the proxy, so the backend has to be told how many proxies to trust before reading the real client address from `X-Forwarded-For`. The production Compose file already sets `TRUSTED_PROXY_HOPS=1` for the bundled nginx; add one per extra proxy in front of it (Caddy in front of the bundled nginx is `2`). Setting it higher than the real number of hops lets a client forge its address, so count carefully.
 
+The header is only read past a proxy whose address is in `TRUSTED_PROXY_NETWORKS`, which by default covers loopback and the private ranges (`127.0.0.0/8,::1/128,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,fc00::/7`). A public visitor who reaches the backend or frontend port directly is then keyed by its own address, whatever `X-Forwarded-For` it sends. Callers inside those ranges still count as proxies, so if untrusted LAN or VPN clients share them, or Docker shows direct callers as the bridge gateway, set it to your proxies' own addresses only (comma-separated networks or single addresses), or keep the backend port closed.
+
 The bundled nginx resolves the backend through the platform's DNS at startup, which works on Docker, Podman and Kubernetes alike. If your platform needs a specific resolver, set `NGINX_RESOLVER` on the frontend service.
 
 If you run **Traefik** instead of wiring your own proxy, the frontend service supports its labels as an opt-in: set `TRAEFIK_ENABLE=true` and `TRAEFIK_NETWORK=<the network Traefik listens on>` (optionally `TRAEFIK_RESOURCE_NAME`, unique per deployment). Off by default, so existing setups are untouched.
@@ -160,7 +162,18 @@ Files already in the `attachments` volume are not moved for you: copy them to th
 
 ## Backups
 
-From inside the app, **Backup** (in the user menu) downloads the active workspace as a zip of plain JSON, every account, transaction and rule, optionally **encrypted with a password** (AES-256, opens in any standard archiver). The steps below are the server-side backup of the whole instance, which is what you restore from.
+From inside the app, **Download backup** (in the user menu) downloads the active workspace as a zip of plain JSON, every account, transaction and rule, optionally **encrypted with a password** (AES-256, opens in any standard archiver). The steps further down are the server-side backup of the whole instance, which is what you restore the whole server from.
+
+### Managed Backups in the App
+
+The **Backups** page (from the Backup dialog, or `/backups`) works on the active workspace:
+
+- **Run backup** writes a ZIP on the server, with the configuration (categories, payees, rules, budgets, recurring bills, goals, products and invoice settings), the data (accounts, transactions, assets, invoices, attachment files and the rest), or both. **Download ZIP** gives you the same file directly
+- **Schedule and retention** creates one daily or weekly, keeps the latest N (10 by default) and can also drop the ones older than a number of days. A worker checks the schedules every hour
+- **Restore** takes a stored backup or an uploaded ZIP (a password-protected one asks for its password), shows what it holds, and restores it into a **new workspace** by default. Restoring over the **current workspace** replaces its matching data in one transaction and asks you to type `RESTORE`
+- Backups leave out sign-in data, passkeys, provider credentials and bank tokens, so a restored workspace needs its bank connections set up again
+
+Running, scheduling and restoring need a workspace role that can write; viewers can list and download. The server writes the ZIPs to `/app/data/backups` inside the containers, which the production Compose file maps to `./data/backups` on the host. Set `BACKUP_HOST_PATH` in `.env` to keep them somewhere else (`BACKUP_HOST_PATH=/srv/securo/backups`), and include that folder in your own off-site copies.
 
 ### Database Backup
 

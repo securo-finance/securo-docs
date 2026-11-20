@@ -123,6 +123,14 @@ When an expense is shared with other people — a dinner, a trip, a shared apart
 
 You can split a transaction while adding or editing it, or select several transactions and add them to a group in bulk. See the [Groups](/docs/features/groups) guide for the full workflow.
 
+## Flagging for Later
+
+**Flag** a transaction to come back to it: a refund you are waiting for, a charge to dispute, a receipt still to attach. Use the **Flag** button in the transaction dialog, the row's context menu, or the bulk bar for several rows at once.
+
+A flag can carry an optional **reminder** date (shortcuts for tomorrow, in a week or in a month, or a date you pick) and a short **note**. Flagged rows show a marker that turns red once the reminder date has passed, with the date and the note in its tooltip, and the sidebar shows how many flags are overdue. The **Flagged transactions** widget on the [dashboard](/docs/features/dashboard#customizing-the-dashboard) lists them too, overdue ones first.
+
+A flag is only a marker: totals, balances, budgets and reports ignore it. It belongs to the workspace that set it, so a transaction shared from another workspace shows neither the flag nor its note.
+
 ## Filtering and Search
 
 The filter bar at the top provides multiple ways to narrow down your transactions:
@@ -138,6 +146,7 @@ The filter bar at the top provides multiple ways to narrow down your transaction
 - **Date range**: Set start and end dates with the date picker
 - **Tags**: Filter by hashtags used in transaction notes
 - **Group**: Show transactions split through a specific group
+- **Flagged**: All flagged, **Overdue** or **Due this week**. These views open on the whole history instead of the current month
 
 All filters can be combined to create precise queries like "all uncategorized expenses from my credit card this month." Active filters are saved in the page URL, so you can reload, bookmark, or share a filtered view.
 
@@ -166,6 +175,7 @@ Select multiple transactions using the checkboxes to reveal the bulk action bar.
 - **Add tags** to the selection
 - **Add to a group** with a split rule
 - **Link** two transactions as a transfer pair
+- **Flag** or **unflag** the selection
 - **Delete** multiple transactions at once, behind a confirmation that names what is about to go. Transfer counterparts and attachments are cleaned up with them
 
 Right-clicking the selection opens a **context menu** with the same actions, closer to the rows you are working on.

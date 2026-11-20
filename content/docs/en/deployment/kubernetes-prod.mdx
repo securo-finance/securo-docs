@@ -150,6 +150,10 @@ persistence:
 `ReadWriteOnce` (RWO) storage only works if all pods mounting the volume are scheduled onto the same single node.
 </Callout>
 
+### Managed Backups
+
+The in-app [managed backups](/docs/deployment/docker#managed-backups-in-the-app) need a volume of their own, and it is off by default. Turn it on with `persistence.backups.enabled: true` (5Gi, `ReadWriteOnce` unless you change `accessMode` and `storageClass`); the Backend, Celery Worker and Celery Beat pods then mount it at `/app/data/backups`, under the same RWX rule as above. Without it, backups run on the server live on pod-local storage and are lost when the pod is replaced, and scheduled backups are turned off because the API and the worker don't share a filesystem. Downloading a backup straight from the page works either way.
+
 ### S3-Compatible Object Storage
 
 Instead of an RWX volume for attachments, Securo can keep them in an S3-compatible bucket (AWS S3, MinIO, Garage and others). Create a private bucket, then:

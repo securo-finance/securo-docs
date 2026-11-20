@@ -53,6 +53,14 @@ Por exemplo, você pode ter:
 
 O painel e os relatórios mostram o saldo de cada conta na sua moeda nativa, junto com o valor convertido equivalente na sua moeda principal. Isso facilita ver seu patrimônio líquido total entre moedas.
 
+Quando você troca a moeda principal depois, o Securo converte de novo, no mesmo passo, os valores guardados das suas transações, recorrentes e preços de compra de ativos, pela cotação da data de cada linha, então receitas, despesas, orçamentos e relatórios passam a mostrar números na moeda nova. Uma linha em moeda estrangeira sem cotação para a data fica marcada como não convertida. Os saldos das contas não mudam, porque ficam na moeda de cada conta. Numa instalação própria atualizada de uma versão sem isso, rode uma vez para os dados convertidos antes:
+
+```bash
+docker compose -f docker-compose.prod.yml exec backend python -m app.cli restamp-primary-amounts
+```
+
+Coloque o e-mail de um usuário no final para corrigir só esse usuário. Pode rodar de novo sem problema.
+
 Quando não há taxa de câmbio disponível para a moeda de uma conta, o Securo mostra o saldo **na própria moeda e avisa que falta o câmbio**, em vez de passar um número não convertido como se estivesse, e os totais dizem quando estão incompletos.
 
 ## Criando uma Conta
