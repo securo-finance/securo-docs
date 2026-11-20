@@ -155,8 +155,45 @@ STORAGE_S3_SECRET_KEY=...
 - Deixe de fora as duas chaves para usar a cadeia de credenciais do próprio SDK (um papel IAM, por exemplo). `STORAGE_S3_SESSION_TOKEN` serve para credenciais temporárias
 - O bucket também guarda os anexos e logos de faturas. Os arquivos de conhecimento dos agentes de IA continuam no armazenamento local
 - A imagem normal do backend já tem suporte; não há nada extra para instalar
+- O Securo nunca cria o bucket nem muda as políticas dele. Os downloads continuam passando pelas rotas autorizadas do próprio Securo, então o bucket fica privado: sem acesso público, sem credenciais no navegador, sem política de CORS
+- Os certificados HTTPS são sempre verificados, e um endpoint `http://` é recusado, a menos que você defina `STORAGE_S3_ALLOW_INSECURE_HTTP=true`. Use isso só em desenvolvimento local: os arquivos trafegam sem criptografia
 
-Os arquivos que já estão no volume `attachments` não são movidos sozinhos: copie-os para o bucket antes de trocar, usando o caminho de cada arquivo dentro do volume como a chave do objeto.
+O backend, o worker do Celery e o servidor MCP leem e gravam anexos, então os três precisam das mesmas configurações de armazenamento. Os arquivos Compose do projeto já repassam essas variáveis do `.env` para os três; se você roda os processos de outro jeito (instalação direta, Kubernetes), defina-as em cada um. Depois de mudar o `.env`, rode `docker compose up -d` (ou `docker compose -f docker-compose.prod.yml up -d`) para recriar os containers com os valores novos.
+
+### Permissões do Bucket
+
+- **AWS S3**: conceda `s3:GetObject`, `s3:PutObject` e `s3:DeleteObject` nos objetos do bucket, mais `s3:ListBucket` no próprio bucket. Sem o `ListBucket`, um arquivo que não existe responde 403 em vez de 404
+- **Garage**: o Garage tem permissões de bucket próprias. Dê a uma chave dedicada da aplicação leitura e escrita no bucket; a permissão de dono não é necessária
+
+### Movendo Anexos Existentes
+
+Os arquivos que já estão no volume `attachments` não são movidos sozinhos, e a configuração vale para todos os anexos de uma vez (um arquivo não lembra onde foi guardado). Para movê-los:
+
+1. Pare o backend, o worker e o servidor MCP, para que nada grave arquivos novos durante a cópia
+2. Copie o **conteúdo** do diretório de anexos para o bucket, mantendo o caminho de cada arquivo dentro do volume como a chave do objeto. Os anexos e logos de faturas vão junto, porque ficam no mesmo diretório
+3. Confira se a quantidade de objetos e o conteúdo batem com o volume
+4. Defina `STORAGE_PROVIDER=s3` e as demais configurações, depois suba tudo de novo. Não é preciso nenhuma migration no banco
+
+Guarde o volume original até conferir os arquivos no app. Para voltar ao armazenamento local depois, copie também para o volume os objetos enviados desde a troca, senão esses arquivos se perdem.
+
+### Backup do Bucket
+
+No modo S3 os anexos não estão mais no volume `attachments`, então o [backup dos volumes](#anexos-e-outros-volumes) não os cobre: faça backup do bucket junto com o PostgreSQL, com as ferramentas de backup do seu provedor ou copiando-o para outro bucket ou disco. Replicação de bucket não é backup (uma exclusão também é replicada), e uma restauração só do banco traz os registros sem os arquivos.
+
+### Testando com um Servidor S3
+
+Os testes unitários do backend não precisam de servidor S3. Um teste de integração opcional faz uma ida e volta real (envio, tipo de conteúdo, download e exclusão) contra um servidor que você escolher. Aponte-o para um **bucket de teste dedicado**, porque ele grava e apaga objetos de teste sob um prefixo aleatório, e passe as variáveis só para o processo do teste. A partir de um checkout do [repositório do Securo](https://github.com/securo-finance/securo):
+
+```bash
+SECURO_S3_TEST_ENDPOINT=https://s3.example.com \
+SECURO_S3_TEST_REGION=garage \
+SECURO_S3_TEST_BUCKET=securo-storage-tests \
+SECURO_S3_TEST_ACCESS_KEY=test-key \
+SECURO_S3_TEST_SECRET_KEY=test-secret \
+uv run --directory backend --extra dev pytest tests/test_s3_storage_integration.py -v
+```
+
+O teste é pulado quando falta qualquer uma dessas variáveis. `SECURO_S3_TEST_SESSION_TOKEN` é opcional, para credenciais temporárias.
 
 ## Backups
 
@@ -193,6 +230,8 @@ Restaure extraindo para dentro do volume do mesmo jeito:
 docker run --rm -v securo_attachments:/data -v "$(pwd)":/backup alpine \
   tar xzf /backup/attachments-20260401.tar.gz -C /data
 ```
+
+Se você guarda os anexos no S3, eles ficam no bucket: veja [Backup do Bucket](#backup-do-bucket).
 
 ### Backups Automatizados
 

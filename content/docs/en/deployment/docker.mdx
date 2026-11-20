@@ -155,8 +155,45 @@ STORAGE_S3_SECRET_KEY=...
 - Leave out both keys to use the SDK's own credential chain (an IAM role, for example). `STORAGE_S3_SESSION_TOKEN` is there for temporary credentials
 - The bucket also holds invoice attachments and logos. Knowledge files of the AI agents stay on local storage
 - The regular backend image already supports it; nothing extra to install
+- Securo never creates the bucket or changes its policies. Downloads still go through Securo's own authorized routes, so the bucket stays private: no public access, no browser credentials, no CORS policy
+- HTTPS certificates are always verified, and an `http://` endpoint is refused unless you set `STORAGE_S3_ALLOW_INSECURE_HTTP=true`. Use that only for local development: the files travel unencrypted
 
-Files already in the `attachments` volume are not moved for you: copy them to the bucket before switching, using each file's path inside the volume as its object key.
+The backend, the Celery worker and the MCP server all read and write attachments, so they need the same storage settings. The bundled Compose files already pass them to all three from `.env`; if you run the processes another way (a direct install, Kubernetes), set them on each one. After changing `.env`, run `docker compose up -d` (or `docker compose -f docker-compose.prod.yml up -d`) so the containers are recreated with the new values.
+
+### Bucket Permissions
+
+- **AWS S3**: grant `s3:GetObject`, `s3:PutObject` and `s3:DeleteObject` on the bucket's objects, plus `s3:ListBucket` on the bucket itself. Without `ListBucket`, a missing file answers 403 instead of 404
+- **Garage**: Garage has its own bucket permissions. Give a dedicated application key read and write on the bucket; owner permission is not needed
+
+### Moving Existing Attachments
+
+Files already in the `attachments` volume are not moved for you, and the setting applies to every attachment at once (a file does not remember where it was stored). To move them:
+
+1. Stop the backend, the worker and the MCP server, so nothing writes new files during the copy
+2. Copy the **contents** of the attachments directory into the bucket, keeping each file's path inside the volume as its object key. Invoice attachments and logos come along, since they live in the same directory
+3. Check that the number of objects and their contents match the volume
+4. Set `STORAGE_PROVIDER=s3` and the other settings, then start everything again. No database migration is needed
+
+Keep the original volume until you have checked the files in the app. To go back to local storage later, copy the objects uploaded since the switch back into the volume as well, or those files are lost.
+
+### Backing Up the Bucket
+
+In S3 mode the attachments are no longer in the `attachments` volume, so the [volume backup](#attachments-and-other-volumes) does not cover them: back up the bucket alongside PostgreSQL, with your provider's backup tools or by copying it to another bucket or disk. Bucket replication is not a backup (a deletion is replicated too), and a database-only restore brings back the records without the files.
+
+### Testing Against an S3 Server
+
+The backend's unit tests do not need an S3 server. An optional integration test runs a real round trip (upload, content type, download and deletion) against a server you choose. Point it at a **dedicated test bucket**, since it writes and deletes test objects under a random prefix, and give the variables only to the test process. From a checkout of the [Securo repository](https://github.com/securo-finance/securo):
+
+```bash
+SECURO_S3_TEST_ENDPOINT=https://s3.example.com \
+SECURO_S3_TEST_REGION=garage \
+SECURO_S3_TEST_BUCKET=securo-storage-tests \
+SECURO_S3_TEST_ACCESS_KEY=test-key \
+SECURO_S3_TEST_SECRET_KEY=test-secret \
+uv run --directory backend --extra dev pytest tests/test_s3_storage_integration.py -v
+```
+
+The test is skipped when any of these variables is missing. `SECURO_S3_TEST_SESSION_TOKEN` is optional, for temporary credentials.
 
 ## Backups
 
@@ -193,6 +230,8 @@ Restore by extracting into the volume the same way:
 docker run --rm -v securo_attachments:/data -v "$(pwd)":/backup alpine \
   tar xzf /backup/attachments-20260401.tar.gz -C /data
 ```
+
+If you store attachments in S3, they are in the bucket instead: see [Backing Up the Bucket](#backing-up-the-bucket).
 
 ### Automated Backups
 
