@@ -133,6 +133,12 @@ Each Securo instance has its own return address, `https://<instance>/plugins/oau
 
 With `api_scopes`, send `context.securo["token"]` as a bearer token to `context.securo["api_url"]`, Securo's REST API (the same routes the app uses, under `/api`). It reaches Securo over the runner's internal network, not through the proxy. Requests outside the declared scopes are refused.
 
+### `report(params, context)`
+
+Called each time someone opens a tab for one of the plugin's [code reports](/docs/features/plugins/authoring#reports). `params` has `report` (the report's key), `start_date` and `end_date` (the period the viewer picked), `today`, `currency`, `lang`, `account_ids` (`None` for all accounts) and `data`: the `inputs` the report declared, read for that workspace, period and accounts. It gets at most 20,000 transactions a run.
+
+Return a view: a list of `blocks` laid on a 12-column grid by their `width`. Blocks are `kpi`, `chart`, `heatmap`, `treemap`, `sankey`, `waterfall`, `progress`, `table` and `text`. A view is data only (no HTML, script, style or URL, colors as `#RRGGBB`) and is checked against the [limits of a plugin report](/docs/features/plugins/authoring#limits-of-a-plugin-report) before anyone sees it. An exception or a view that doesn't pass shows on the tab as a failure (502).
+
 ## Testing Locally
 
 Build a catalog from your plugin folder as in [Testing locally](/docs/features/plugins/authoring#testing-locally). The catalog copies your code and records its checksum. Then start Securo with the runner:
