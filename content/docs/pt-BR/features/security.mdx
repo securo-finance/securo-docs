@@ -44,6 +44,8 @@ No provedor, registre `https://seu-host-securo/api/auth/oidc/callback` como redi
 
 A página de login ganha um botão "Continuar com ..." com o nome do seu provedor. Auto-registro de novos usuários, vínculo de contas existentes e sincronização de papéis do provedor estão cobertos nas seções abaixo; veja o `.env.example` no repositório para a lista completa de opções `OIDC_*`.
 
+Sair de uma sessão que entrou pelo SSO também encerra a sessão no provedor, então o próximo login pede as credenciais de novo em vez de entrar direto como o usuário anterior. O Securo manda o navegador para o `end_session_endpoint` do documento de discovery; defina `OIDC_LOGOUT_URL` quando o seu provedor não publicar um ou quando você quiser outro endereço (Keycloak: `https://id.example.com/realms/main/protocol/openid-connect/logout`). Um login com senha ou passkey nunca mexe no provedor, e um provedor sem nenhum dos dois continua saindo só do Securo.
+
 ### Vinculando contas existentes
 
 Uma conta que já existe no Securo, criada com senha, nunca é vinculada a uma identidade OIDC automaticamente. O primeiro login por SSO desse usuário é recusado até você escolher uma política de vínculo com `OIDC_EXISTING_USER_LINK_MODE`:

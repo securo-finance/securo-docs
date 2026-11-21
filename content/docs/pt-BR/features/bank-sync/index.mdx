@@ -86,6 +86,15 @@ Uma conexão desconectada continua na lista com o status, um botão para reconec
 - **Erro**: as credenciais que o provedor te deu falharam inesperadamente. Clique em **Reconectar** para tentar novamente.
 - **Expirada**: o consentimento que o usuário concedeu chegou ao fim (comum em provedores PSD2 como o Enable Banking, que limita o consentimento a cerca de 6 meses) ou o banco o encerrou antes. Clique em **Reconectar** para iniciar um novo fluxo de consentimento.
 
+Quando uma sincronização falha, o card da conexão diz quando e por quê, com a ação que resolve:
+
+- **O banco só libera esses dados enquanto você está usando o Securo**: alguns bancos PSD2 recusam sincronizações sem você presente. Clique em **Sincronizar agora** com o app aberto
+- **O banco precisa que você autorize o acesso de novo**: clique em **Reconectar**
+- **Autorize este banco de novo na sua conta do SimpleFIN Bridge**: faça isso no Bridge e sincronize outra vez
+- **O banco devolveu um erro**: tente mais tarde; se o limite diário do banco foi atingido, basta esperar
+
+A mensagem some na próxima sincronização que ler dados, ou ao reconectar. Se uma conexão nova é criada mas a primeira importação falha, a conexão continua lá e a página de Contas pede para repetir a sincronização e concluir.
+
 ### Transações Duplicadas
 
 O Securo rastreia cada transação sincronizada pelo ID externo. Se você ver duplicatas, pode ser porque você lançou uma transação manualmente antes dela ser sincronizada. O Securo tenta combiná-las automaticamente (em até 3 dias, mesmo valor, 60%+ de similaridade na descrição), mas alguns casos podem exigir limpeza manual.

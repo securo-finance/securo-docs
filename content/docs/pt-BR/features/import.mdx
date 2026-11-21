@@ -20,6 +20,8 @@ O Securo aceita quatro formatos de arquivo:
 | **QIF** | Quicken Interchange Format, usado pelo Quicken e por outras ferramentas |
 | **CAMT** | Formato de extrato bancário ISO 20022, usado por bancos europeus |
 
+Os arquivos não precisam estar em UTF-8: um CSV ou QIF salvo pelo Excel ou por um sistema bancário mais antigo em Windows-1252 ou Latin-1 é lido com os acentos certos.
+
 Arquivos QIF do Quicken leem as datas que ele grava para 2000 a 2009 com o ano preenchido por espaço (`3/ 1' 8` é 1º de março de 2008), então um histórico antigo entra sem um buraco de dez anos.
 
 ## Como Importar

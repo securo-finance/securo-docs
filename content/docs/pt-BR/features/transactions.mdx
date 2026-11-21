@@ -123,6 +123,14 @@ Quando uma despesa é compartilhada com outras pessoas — um jantar, uma viagem
 
 Você pode dividir uma transação ao adicionar ou editá-la, ou selecionar várias transações e adicioná-las a um grupo em lote. Veja o guia de [Grupos](/pt-BR/docs/features/groups) para o fluxo completo.
 
+## Marcando para Depois
+
+**Marque** uma transação para voltar a ela depois: um reembolso que você está esperando, uma cobrança para contestar, um comprovante que ainda falta anexar. Use o botão **Marcar** no diálogo da transação, o menu de contexto da linha ou a barra de ações em lote para várias linhas de uma vez.
+
+A marcação pode ter um **lembrete** opcional (atalhos para amanhã, em 1 semana ou em 1 mês, ou uma data que você escolhe) e uma **nota** curta. As linhas marcadas mostram um marcador que fica vermelho quando a data do lembrete passa, com a data e a nota no tooltip, e a barra lateral mostra quantas marcações estão vencidas. O widget **Transações marcadas** do [painel](/pt-BR/docs/features/dashboard#personalizando-o-painel) também lista essas transações, com as vencidas primeiro.
+
+A marcação é só um marcador: totais, saldos, orçamentos e relatórios não olham para ela. Ela pertence ao workspace que a criou, então uma transação compartilhada de outro workspace não mostra nem a marcação nem a nota.
+
 ## Filtros e Busca
 
 A barra de filtros no topo oferece várias formas de refinar suas transações:
@@ -138,6 +146,7 @@ A barra de filtros no topo oferece várias formas de refinar suas transações:
 - **Período**: defina datas inicial e final com o seletor
 - **Tags**: filtre por hashtags usadas nas notas
 - **Grupo**: mostre transações divididas em um grupo específico
+- **Marcadas**: todas marcadas, **Vencidas** ou **Vencendo esta semana**. Essas visões abrem no histórico inteiro em vez do mês atual
 
 Todos os filtros podem ser combinados para criar consultas precisas como "todas as despesas sem categoria do meu cartão de crédito neste mês". Filtros ativos ficam salvos na URL da página, então você pode recarregar, favoritar ou compartilhar uma visão filtrada.
 
@@ -149,6 +158,15 @@ Células de texto que começam com `=`, `+`, `-`, `@`, uma tabulação ou um ret
 
 Uma transação dividida por categoria sai como **uma linha por parte**, ligadas pelas colunas `split_group` e `split_index`, então o arquivo soma certo por categoria e pode ser [importado de volta](/pt-BR/docs/features/import#transações-divididas-num-csv) com a mesma divisão. O backup completo do workspace também guarda as partes das transações e dos recorrentes divididos.
 
+### Para o Seu Contador
+
+Um workspace de **Negócios** também tem o card **Exportação para o contador** nas configurações do workspace. Escolha a data inicial e a final (o padrão vai do primeiro dia do mês atual até hoje) e clique em **Baixar pacote** para receber um zip com dois arquivos:
+
+- `transactions.csv`: uma linha por parte de categoria, incluindo as partes divididas com outras pessoas e as duas pontas de cada transferência
+- `profit-and-loss.csv`: a DRE, com receitas e despesas por categoria e o resultado do período, na moeda principal do workspace, sem transferências nem categorias ignoradas
+
+Os dois arquivos usam ponto e vírgula, vírgula decimal, datas `DD/MM/AAAA` e UTF-8 com BOM, então planilhas e softwares contábeis abrem sem ajuste. Os valores são o valor cheio de cada transação, antes de dividir com outras pessoas, por isso o resultado pode diferir do relatório de receitas e despesas do app. Um leitor também pode baixar, e o período volta no máximo dez anos.
+
 ## Ações em Lote
 
 Selecione várias transações com os checkboxes para mostrar a barra de ações em lote. A partir dela você pode:
@@ -157,6 +175,7 @@ Selecione várias transações com os checkboxes para mostrar a barra de ações
 - **Adicionar tags** à seleção
 - **Adicionar a um grupo** com uma regra de divisão
 - **Vincular** duas transações como um par de transferência
+- **Marcar** ou **desmarcar** a seleção
 - **Excluir** várias transações de uma vez, atrás de uma confirmação que diz o que vai embora. As contrapartes de transferência e os anexos são limpos junto
 
 Clicar com o botão direito na seleção abre um **menu de contexto** com as mesmas ações, mais perto das linhas em que você está trabalhando.
