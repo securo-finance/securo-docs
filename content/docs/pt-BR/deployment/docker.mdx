@@ -240,6 +240,12 @@ As migrations do banco de dados rodam automaticamente na inicialização (`alemb
 - Tokens de MCP externo criados sem uma `AGENTS_MCP_JWT_SECRET` própria param de funcionar, porque foram assinados com uma chave pública. Crie um novo em **Agentes → Conexões → Acesso MCP externo**
 - Para voltar para a v0.19.x depois, defina antes a `SECRET_KEY` com o valor guardado na tabela `instance_secrets`, senão as credenciais salvas não abrem
 
+### Atualizando para a v0.21.0
+
+- Os backups gerenciados são gravados dentro dos containers em `/app/data/backups`, que o compose mapeia para `./data/backups` no host. Defina `BACKUP_HOST_PATH` para guardá-los em outro lugar (veja [Backups gerenciados no app](#backups-gerenciados-no-app))
+- O chat do assistente tem limite de requisições por IP com `AGENTS_CHAT_RATE_LIMIT_PER_MINUTE` (30 por padrão, `0` desliga). Os limites agora só confiam no `X-Forwarded-For` vindo de proxies dentro de `TRUSTED_PROXY_NETWORKS`, que por padrão são as faixas privadas, então as configurações de Compose e Traefik que vêm com o Securo não precisam mudar
+- Sair de um login OIDC agora também encerra a sessão no provedor. Defina `OIDC_LOGOUT_URL` se o seu provedor não publica um `end_session_endpoint` (veja [Segurança](/docs/features/security))
+
 ## Monitoramento
 
 Verifique os logs em busca de problemas:

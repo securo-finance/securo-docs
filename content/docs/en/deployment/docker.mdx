@@ -240,6 +240,12 @@ The database migrations run automatically on startup (`alembic upgrade head`), s
 - External MCP tokens created without your own `AGENTS_MCP_JWT_SECRET` stop working, because they were signed with a public key. Create a new one under **Agents → Connections → External MCP access**
 - To roll back to v0.19.x afterwards, first set `SECRET_KEY` to the value stored in the `instance_secrets` table, or saved credentials won't open
 
+### Updating to v0.21.0
+
+- Managed backups are written inside the containers to `/app/data/backups`, which the compose file maps to `./data/backups` on the host. Set `BACKUP_HOST_PATH` to keep them somewhere else (see [Managed Backups in the App](#managed-backups-in-the-app))
+- The assistant chat is rate limited per IP with `AGENTS_CHAT_RATE_LIMIT_PER_MINUTE` (30 by default, `0` turns it off). Rate limits now trust `X-Forwarded-For` only from proxies inside `TRUSTED_PROXY_NETWORKS`, which defaults to the private ranges, so the shipped Compose and Traefik setups need no change
+- Signing out of an OIDC sign-in now also ends the provider session. Set `OIDC_LOGOUT_URL` if your provider does not publish an `end_session_endpoint` (see [Security](/docs/features/security))
+
 ## Monitoring
 
 Check logs for any issues:
