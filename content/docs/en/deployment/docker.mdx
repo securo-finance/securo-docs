@@ -52,6 +52,14 @@ echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
 
 Setting `SECRET_KEY` yourself is recommended, so you can keep it with your backups. If you leave it out, Securo generates a unique key on the first start and keeps it in the database.
 
+On a new install, also set your own database password before the first start. Postgres only reads it when the data volume is created, and it goes into a connection URL, so use URL-safe characters:
+
+```bash
+echo "POSTGRES_PASSWORD=$(openssl rand -hex 24)" >> .env
+```
+
+Left unset, the database keeps the default password `postgres`. To change it on an install that already has data, see [Updating from v0.21.x](#updating-from-v021x).
+
 If you want bank sync or exchange rates, add those keys too:
 
 ```ini
@@ -83,7 +91,7 @@ FRONTEND_URL=http://192.168.1.50:3000
 
 This one variable drives CORS, bank-sync OAuth callbacks, OIDC redirect defaults, and passkey origins. Skipping it is the most common cause of "login works on the server but not from my laptop" reports. Restart after changing it: `docker compose -f docker-compose.prod.yml up -d`
 
-To change the published ports, set `FRONTEND_PORT` and `BACKEND_PORT` in `.env`. On a hardened server you can keep the backend off the public interface entirely with `BACKEND_PORT=127.0.0.1:8000`; the frontend proxies `/api` to the backend internally, so nothing outside needs port 8000.
+To change the published ports, set `FRONTEND_PORT` and `BACKEND_PORT` in `.env`. In `docker-compose.prod.yml` the backend port listens on loopback (`127.0.0.1`) by default: the frontend proxies `/api` to the backend over the Compose network, so nothing outside the host needs port 8000. Set `BACKEND_BIND_ADDRESS=0.0.0.0` only if something off the host must call the backend directly. Keep `BACKEND_PORT` a plain port number there: a value with an address, such as `BACKEND_PORT=127.0.0.1:8000`, stops the stack from starting. `FRONTEND_PORT` still takes an address, for example `FRONTEND_PORT=127.0.0.1:3000` when a reverse proxy on the same host is the only way in.
 
 ## Setting Up HTTPS
 
@@ -284,6 +292,22 @@ The database migrations run automatically on startup (`alembic upgrade head`), s
 - Managed backups are written inside the containers to `/app/data/backups`, which the compose file maps to `./data/backups` on the host. Set `BACKUP_HOST_PATH` to keep them somewhere else (see [Managed Backups in the App](#managed-backups-in-the-app))
 - The assistant chat is rate limited per IP with `AGENTS_CHAT_RATE_LIMIT_PER_MINUTE` (30 by default, `0` turns it off). Rate limits now trust `X-Forwarded-For` only from proxies inside `TRUSTED_PROXY_NETWORKS`, which defaults to the private ranges, so the shipped Compose and Traefik setups need no change
 - Signing out of an OIDC sign-in now also ends the provider session. Set `OIDC_LOGOUT_URL` if your provider does not publish an `end_session_endpoint` (see [Security](/docs/features/security))
+
+### Updating from v0.21.x
+
+These apply to the first release after v0.21.0, which hardens `docker-compose.prod.yml`. Check your `.env` **before** you run `git pull`:
+
+- **If `.env` has `BACKEND_PORT=127.0.0.1:8000`** (the loopback setting this guide used to suggest), change it before updating, or the stack won't start: the new compose file builds the mapping as `127.0.0.1:127.0.0.1:8000:8000`, which is invalid. Delete the line, since loopback is now the default, or replace it with `BACKEND_BIND_ADDRESS=127.0.0.1`. If you used another port, keep only the number: `BACKEND_PORT=8182`
+- **The backend port now listens on loopback only.** The app keeps working through the frontend, which proxies `/api` internally. If something on another machine called port 8000 directly (a reverse proxy on a different host, a monitoring check), set `BACKEND_BIND_ADDRESS=0.0.0.0` to keep it reachable
+- **The database password can now be set with `POSTGRES_PASSWORD`.** Left unset, it stays `postgres` and nothing changes. Postgres only reads the variable when the data volume is first created, so on an existing install change the password in the database first, then set it in `.env`:
+
+  ```bash
+  docker compose -f docker-compose.prod.yml exec db \
+    psql -U postgres -c "ALTER USER postgres PASSWORD 'new-password'"
+  ```
+
+  Then add `POSTGRES_PASSWORD=new-password` to `.env` and run `docker compose -f docker-compose.prod.yml up -d`. A plain restart does not load the new value. Setting `POSTGRES_PASSWORD` without the `ALTER USER` step leaves the backend unable to connect. The password goes into a URL, so use URL-safe characters (`openssl rand -hex 24`)
+- On SELinux hosts (Fedora, RHEL), the `secrets` folder and the backups folder are now relabelled for container use. Point `BACKUP_HOST_PATH` at a folder kept only for backups, never a home or system folder
 
 ## Monitoring
 
