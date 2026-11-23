@@ -9,6 +9,11 @@ export default async function LangLayout({
   return <RootProvider i18n={i18n.provider(lang)}>{children}</RootProvider>;
 }
 
+// Only the configured languages are valid first segments. Anything else
+// (e.g. /robots.txt, /favicon.ico) must 404 instead of being treated as a
+// language and redirected to /<segment>/docs.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return i18n.languages.map((lang) => ({ lang }));
 }

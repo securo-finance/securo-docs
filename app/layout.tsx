@@ -1,12 +1,14 @@
 import './global.css';
 import { Inter } from 'next/font/google';
 import type { Metadata } from 'next';
+import { siteUrl } from '@/lib/site';
 
 const inter = Inter({
   subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: 'Securo Docs',
     template: '%s | Securo Docs',
