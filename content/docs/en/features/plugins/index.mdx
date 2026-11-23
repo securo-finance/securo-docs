@@ -113,7 +113,7 @@ Viewers see the connections and their status, never their keys.
 
 ### Bank Provider Plugins
 
-A plugin with code can also bring a bank Securo doesn't ship. Its connections aren't added in the plugin's page: go to **Accounts → Connect Bank**, where it shows up next to the built-in providers. They are listed under Bank Connections with the plugin's badge and sync like any [bank connection](/docs/features/bank-sync); removing one disconnects it like a built-in bank. Removing the plugin keeps the accounts it brought in as manual accounts. To write one, see the [bank provider plugin guide](https://github.com/securo-finance/securo/blob/main/docs/plugins/bank-provider-plugins.md) and the demo in `examples/plugins/demo-bank`.
+A plugin with code can also bring a bank Securo doesn't ship. Its connections aren't added in the plugin's page: go to **Accounts → Connect Bank**, where it shows up next to the built-in providers. They are listed under Bank Connections with the plugin's badge and sync like any [bank connection](/docs/features/bank-sync); removing one disconnects it like a built-in bank. Removing the plugin keeps the accounts it brought in as manual accounts. A plugin that declares it returns the whole window on every sync has its cancelled pending transactions removed, as Enable Banking does; with any other plugin, a pending row that stops coming stays until you delete it. To write one, see the [bank provider plugin guide](https://github.com/securo-finance/securo/blob/main/docs/plugins/bank-provider-plugins.md) and the demo in `examples/plugins/demo-bank`.
 
 ### What the Code Can and Can't Do
 

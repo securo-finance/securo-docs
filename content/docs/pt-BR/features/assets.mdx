@@ -77,6 +77,7 @@ Se você conectar uma corretora ou conta de investimentos por meio da [Sincroniz
 - Têm seus valores atualizados automaticamente em cada sincronização
 - São somente leitura — são gerenciados pela conexão, então a edição fica desativada
 - Mostram **sem atualização desde** uma data quando o provedor ainda informa a posição, mas não atualiza o valor há mais de uma semana. Ela pode ter sido resgatada, ou a conexão pode estar falhando ao atualizar investimentos: confira com o seu banco. Nada é encerrado ou escondido por você. Hoje o Pluggy informa essa data
+- Desenham o gráfico a partir das operações do provedor quando ele as informa. O Pluggy envia cada compra e venda de ações, units, FIIs, BDRs e ETFs, então o gráfico volta até a primeira operação em vez de começar na primeira sincronização, e o ponto de cada sincronização mantém o valor que o provedor informou. Renda fixa, fundos e previdência continuam com um ponto por sincronização. Operações lançadas por você não mudam o gráfico de um ativo para esse modo, e se as operações do provedor deixam de somar a quantidade que ele informa, o gráfico volta a usar os valores sincronizados
 
 Você ainda pode renomear uma carteira sincronizada, mover ativos sincronizados entre carteiras e excluir um ativo sincronizado. Se a importação de ativos estiver ligada nessa conexão, a próxima sincronização traz o ativo de volta; desligue a importação de ativos nas configurações da conexão para que ele continue excluído.
 

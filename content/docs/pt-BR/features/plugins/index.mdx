@@ -113,7 +113,7 @@ Quem só visualiza vê as conexões e o estado delas, nunca as chaves.
 
 ### Plugins de Provedor Bancário
 
-Um plugin com código também pode trazer um banco que o Securo não tem de fábrica. As conexões dele não são adicionadas na página do plugin: vá em **Contas → Conectar Banco**, onde ele aparece ao lado dos provedores nativos. Elas ficam listadas em Conexões Bancárias com o selo do plugin e sincronizam como qualquer [conexão bancária](/pt-BR/docs/features/bank-sync); remover uma delas a desconecta como num banco nativo. Remover o plugin mantém as contas que ele trouxe como contas manuais. Para escrever um, veja o [guia de plugins de provedor bancário](https://github.com/securo-finance/securo/blob/main/docs/plugins/bank-provider-plugins.md) e o exemplo em `examples/plugins/demo-bank`.
+Um plugin com código também pode trazer um banco que o Securo não tem de fábrica. As conexões dele não são adicionadas na página do plugin: vá em **Contas → Conectar Banco**, onde ele aparece ao lado dos provedores nativos. Elas ficam listadas em Conexões Bancárias com o selo do plugin e sincronizam como qualquer [conexão bancária](/pt-BR/docs/features/bank-sync); remover uma delas a desconecta como num banco nativo. Remover o plugin mantém as contas que ele trouxe como contas manuais. Um plugin que declara devolver a janela inteira a cada sincronização tem as transações pendentes canceladas removidas, como no Enable Banking; com qualquer outro plugin, uma pendente que deixa de vir fica até você excluí-la. Para escrever um, veja o [guia de plugins de provedor bancário](https://github.com/securo-finance/securo/blob/main/docs/plugins/bank-provider-plugins.md) e o exemplo em `examples/plugins/demo-bank`.
 
 ### O que o Código Pode e Não Pode Fazer
 

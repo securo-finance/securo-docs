@@ -40,6 +40,7 @@ Persistence is enabled by default for the database, attachments, and the agents 
 | `frontend.backendUrl` | derived | Where the frontend's nginx proxies `/api`. Defaults to the backend service's fully qualified name (`<release>-backend.<namespace>.svc.cluster.local`); override for a non-standard cluster domain |
 | `persistence.*` | `enabled` | PVCs for database, attachments, agents knowledge |
 | `config.storageProvider` | `"local"` | `s3` keeps attachments in an S3-compatible bucket instead of the attachments PVC; see [Kubernetes (Helm) Production](/docs/deployment/kubernetes-prod#s3-compatible-object-storage) |
+| `config.trustedProxyHops` | `"1"` | Proxies whose `X-Forwarded-For` the backend trusts to find the visitor's address for rate limits. The Ingress controller or gateway is the one hop; add one per layer in front of it that appends to the header, such as a cloud load balancer. At `0` every visitor shares one login and register limit. Charts before this default left it at `0` |
 | `config.agentsEnabled` | `"false"` | Optional AI agents feature |
 | `mcpServer.publicRoute` | `false` | Adds `/mcp` to the Ingress or HTTPRoute so external MCP clients can reach the agents' MCP server. Set `config.agentsExternalMcpUrl` to the public URL with it |
 | `postgresql.enabled` / `redis.enabled` | `true` | Disable to bring your own database or Redis |

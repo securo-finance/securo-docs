@@ -40,6 +40,7 @@ A persistência vem habilitada por padrão para o banco, os anexos e a base de c
 | `frontend.backendUrl` | derivado | Para onde o nginx do frontend encaminha `/api`. O padrão é o nome completo do serviço do backend (`<release>-backend.<namespace>.svc.cluster.local`); sobrescreva num cluster com domínio fora do padrão |
 | `persistence.*` | habilitada | PVCs para banco, anexos e conhecimento dos agentes |
 | `config.storageProvider` | `"local"` | `s3` guarda os anexos num bucket compatível com S3 em vez do PVC de anexos; veja [Kubernetes (Helm) em Produção](/pt-BR/docs/deployment/kubernetes-prod) |
+| `config.trustedProxyHops` | `"1"` | Quantos proxies têm o `X-Forwarded-For` aceito pelo backend para achar o endereço do visitante nos limites de requisição. O controller do Ingress ou o gateway é um salto; some um para cada camada na frente dele que acrescenta ao cabeçalho, como um load balancer da nuvem. Em `0`, todos os visitantes dividem o mesmo limite de login e cadastro. Charts anteriores a esse padrão deixavam em `0` |
 | `config.agentsEnabled` | `"false"` | Recurso opcional de agentes de IA |
 | `mcpServer.publicRoute` | `false` | Adiciona `/mcp` ao Ingress ou ao HTTPRoute para que clientes MCP externos alcancem o servidor MCP dos agentes. Junto com ele, defina `config.agentsExternalMcpUrl` com a URL pública |
 | `postgresql.enabled` / `redis.enabled` | `true` | Desabilite para usar seu próprio banco ou Redis |

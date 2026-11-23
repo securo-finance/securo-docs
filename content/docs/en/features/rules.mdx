@@ -22,7 +22,7 @@ When a transaction is added (manually, via import, or through bank sync), Securo
 A condition targets a transaction field and compares it with an operator:
 
 - **Fields**: Description, Imported payee (the counterparty exactly as the bank sent it), Notes, Amount, Type (income/expense), Status (posted or pending), Account, Payee, Date, Provider category
-- **Provider category** is the category the bank sync provider attached to the transaction, read from what it sent. Only providers that report one fill it (Pluggy today, not plugin connections), so it never matches manual or imported rows. It takes the text operators only
+- **Provider category** is the category the bank sync provider attached to the transaction, read from what it sent. Only providers that report one fill it (Pluggy today, not plugin connections), so it never matches manual or imported rows. It takes the text operators only. The provider sends its own label, untranslated, so the rule editor suggests the labels your workspace has already received, and the transaction dialog shows the one each synced row carries
 - **Text operators**: contains, does not contain, starts with, ends with, equals, does not equal, and regex for complex patterns (e.g., `description regex "SALARY|PAYROLL|DIRECT DEPOSIT"`). Text matching is case-insensitive and accent-insensitive.
 - **Amount and date operators**: equals, greater than, greater or equal, less than, less or equal
 

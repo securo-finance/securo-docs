@@ -77,6 +77,7 @@ If you connect a brokerage or investment account through [Bank Sync](/docs/featu
 - Update their values automatically on each sync
 - Are read-only — they're managed by the connection, so editing is disabled
 - Show **not updated since** a date when the provider still reports the position but has not refreshed its value for more than a week. It may have been redeemed, or the connection may be failing to refresh investments: check it with your bank. Nothing is closed or hidden for you. Pluggy reports this date today
+- Draw their chart from the provider's trades when it reports them. Pluggy sends each buy and sale of stocks, units, REITs (FIIs), BDRs and ETFs, so the chart goes back to the first trade instead of starting at the first sync, with each sync's point keeping the value the provider reported. Fixed income, funds and pensions still chart one point per sync. Trades you add by hand don't switch a holding to this chart, and if the provider's trades stop adding up to the units it reports, the chart falls back to the synced values
 
 You can still rename a synced wallet, move synced assets between wallets, and delete a synced asset. If asset import is on for that connection, the next sync brings it back; turn asset import off in the connection settings to keep it deleted.
 
