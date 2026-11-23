@@ -21,7 +21,8 @@ Quando uma transação é adicionada (manualmente, via importação ou pela sinc
 
 Uma condição mira um campo da transação e o compara com um operador:
 
-- **Campos**: Descrição, Pessoa importada (a contraparte exatamente como o banco enviou), Notas, Valor, Tipo (receita/despesa), Status (lançada ou pendente), Conta, Pessoa, Data
+- **Campos**: Descrição, Pessoa importada (a contraparte exatamente como o banco enviou), Notas, Valor, Tipo (receita/despesa), Status (lançada ou pendente), Conta, Pessoa, Data, Categoria do provedor
+- **Categoria do provedor** é a categoria que o provedor de sincronização bancária anexou à transação, lida do que ele enviou. Só os provedores que informam uma preenchem esse campo (hoje o Pluggy, não as conexões por plugin), então ele nunca casa com transações manuais ou importadas. Aceita só os operadores de texto
 - **Operadores de texto**: contém, não contém, começa com, termina com, é igual a, é diferente de, e regex para padrões complexos (ex.: `descrição regex "SALARIO|PAGAMENTO|FOLHA"`). A correspondência de texto ignora maiúsculas/minúsculas e acentos.
 - **Operadores de valor e data**: igual, maior que, maior ou igual, menor que, menor ou igual
 

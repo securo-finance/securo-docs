@@ -44,6 +44,8 @@ In your provider, register `https://your-securo-host/api/auth/oidc/callback` as 
 
 The login page gains a "Continue with ..." button named after your provider. Auto-registration of new users, linking existing accounts, and provider role sync are covered in the sections below; see `.env.example` in the repository for the full list of `OIDC_*` options.
 
+Signing out of a session that came through SSO also ends the session at the provider, so the next sign-in asks for credentials again instead of going straight back in as the previous user. Securo sends the browser to the provider's `end_session_endpoint` from the discovery document; set `OIDC_LOGOUT_URL` when your provider doesn't publish one or you want another address (Keycloak: `https://id.example.com/realms/main/protocol/openid-connect/logout`). A password or passkey sign-in never touches the provider, and a provider with neither keeps signing out of Securo only.
+
 ### Linking existing accounts
 
 An account that already exists in Securo, created with a password, is never linked to an OIDC identity automatically. The first SSO login of such a user is rejected until you choose a linking policy with `OIDC_EXISTING_USER_LINK_MODE`:

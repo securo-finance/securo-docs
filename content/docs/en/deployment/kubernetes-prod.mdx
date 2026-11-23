@@ -83,6 +83,42 @@ CREATE EXTENSION IF NOT EXISTS vector;
 Securo connects to a single Redis endpoint for caching, rate limiting, and Celery task brokering. Standalone Redis instances or setups exposed through a single endpoint/proxy (such as AWS ElastiCache with Cluster Mode disabled) are supported. **Redis Sentinel and Redis Cluster (multi-shard mode) are not supported.**
 </Callout>
 
+### Client Certificates, Private CAs and Extra Settings
+
+`backend`, `celeryWorker`, `celeryBeat` and `migration` each take `extraEnv`, `extraEnvFrom`, `extraVolumes` and `extraVolumeMounts`, empty by default and written in the usual Kubernetes shapes. `extraEnv` is read after the chart's ConfigMap and Secret, so it wins over both. Give the migration Job the same extras as the pods: it reaches the database first.
+
+For example, a PostgreSQL that authenticates with a TLS client certificate:
+
+```yaml
+# values-production.yaml
+backend:
+  extraEnv:
+    - name: PGSSLMODE
+      value: verify-full
+    - name: PGSSLCERT
+      value: /etc/pg-tls/tls.crt
+    - name: PGSSLKEY
+      value: /etc/pg-tls/tls.key
+    - name: PGSSLROOTCERT
+      value: /etc/pg-tls/ca.crt
+  extraVolumes:
+    - name: pg-client-tls
+      secret:
+        secretName: pg-client-tls
+  extraVolumeMounts:
+    - name: pg-client-tls
+      mountPath: /etc/pg-tls
+      readOnly: true
+```
+
+Repeat the block under `celeryWorker`, `celeryBeat` and `migration`, since they connect to the same database.
+
+To mount a PersistentVolumeClaim you already have for attachments, set `persistence.attachments.existingClaim` to its name and keep `persistence.attachments.enabled: true`; the chart then creates no claim of its own and leaves yours alone on uninstall.
+
+<Callout type="warn">
+On a release that is already running, don't switch to `existingClaim` in a single upgrade: the chart's own claim leaves the release, Helm deletes it, and with a `Delete` reclaim policy your attachments go with it. Do it in two steps: annotate the chart's PVC with `helm.sh/resource-policy: keep` and upgrade, then set `existingClaim` and upgrade again. A claim you created yourself, outside the release, needs no handoff.
+</Callout>
+
 ---
 
 ## 3. High Availability and Storage
@@ -113,6 +149,10 @@ persistence:
 <Callout type="warn">
 `ReadWriteOnce` (RWO) storage only works if all pods mounting the volume are scheduled onto the same single node.
 </Callout>
+
+### Managed Backups
+
+The in-app [managed backups](/docs/deployment/docker#managed-backups-in-the-app) need a volume of their own, and it is off by default. Turn it on with `persistence.backups.enabled: true` (5Gi, `ReadWriteOnce` unless you change `accessMode` and `storageClass`); the Backend, Celery Worker and Celery Beat pods then mount it at `/app/data/backups`, under the same RWX rule as above. Without it, backups run on the server live on pod-local storage and are lost when the pod is replaced, and scheduled backups are turned off because the API and the worker don't share a filesystem. Downloading a backup straight from the page works either way.
 
 ### S3-Compatible Object Storage
 

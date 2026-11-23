@@ -36,6 +36,12 @@ Disconnecting a bank keeps these accounts and their history unless you choose to
 
 Credit card accounts carry extra fields that model how a card actually works: **credit limit**, **statement close day**, and **payment due day**. Securo uses them to compute billing cycles and group each purchase into the right statement, so a purchase made after the close date lands on next month's bill, exactly like your card does it.
 
+A card account synced through Pluggy often holds purchases from more than one physical card, like a main card, an additional card and a virtual one. Securo reads the card's last four digits from each purchase and lists the cards it has seen under **Linked cards** in the card's settings, where you can give each one a **label** ("Ana's card", "Virtual"). The transaction list and the transaction dialog then show which card made each purchase, and the **Card** filter on Transactions narrows the list to one or more of them. On a row shared with another member, the owner's card ending stays hidden.
+
+<Callout type="info">
+Purchases synced before this feature have no card ending. A self-hosted install can fill them from the data the provider already sent with `backend/scripts/backfill_transaction_card_numbers.py`: run it once without arguments for a dry run that only prints counts, then again with `--apply`, with the Celery worker stopped while it runs.
+</Callout>
+
 ## Multi-Currency Support
 
 One of Securo's standout features is **native multi-currency support**. Each account has its own currency, and Securo handles conversion automatically.
@@ -46,6 +52,14 @@ For example, you might have:
 - An investment account in **USD** (US Dollar)
 
 The dashboard and reports will show each account's balance in its native currency, plus the converted equivalent in your primary currency. This makes it easy to see your total net worth across currencies.
+
+When you change your primary currency later, Securo converts the stored values of your transactions, recurring bills and asset purchase prices again in the same step, at the rate of each row's own date, so income, expenses, budgets and reports show numbers in the new currency. A foreign-currency row with no rate for its date is marked as not converted. Account balances don't move, since they are kept in each account's own currency. On a self-hosted install upgraded from a version without this, run it once for data converted before:
+
+```bash
+docker compose -f docker-compose.prod.yml exec backend python -m app.cli restamp-primary-amounts
+```
+
+Add a user's email at the end to fix only that user. It is safe to run again.
 
 When no exchange rate is available for an account's currency, Securo shows the balance **in its own currency and says the rate is missing**, rather than passing an unconverted number off as converted, and the totals say when they are incomplete.
 

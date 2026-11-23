@@ -36,9 +36,20 @@ Click a category's name to open the side panel with **the transactions** behind 
 
 **Suggest from history** proposes limits based on your average monthly spending over the last **3, 6 or 12 months**. Each suggestion shows what was spent in the period; tick the ones you want, adjust the amounts, choose whether they **repeat every month**, and click **Create budgets**.
 
+## Copy a Previous Month
+
+**Copy previous month**, in the page header (and in an empty month), starts the month from the budgets of another one:
+
+1. Pick the **Source month**
+2. Under **Existing budgets**, choose whether to **replace** the ones this month already has with the source amounts, or **keep** them and copy only the categories that are missing
+3. Optionally set an **Adjustment (%)**, between -100 and 1000: 5 adds 5%, -10 takes 10% off
+4. Check the preview, which shows how many categories and what total will be copied, and click **Copy budgets**
+
+The copy takes what the source month actually had, including the limits that repeat every month.
+
 ## Rollover, Surplus and Forecasting
 
-Through the API, budgets can also be **copied** from one month to the next, read as a **surplus or overspend** per category at the end of a month, and **forecast** across the coming months. The built-in [MCP server](/docs/features/agents) can propose updates to budgets and delete one.
+Through the API, budgets can also be read as a **surplus or overspend** per category at the end of a month, and **forecast** across the coming months. The built-in [MCP server](/docs/features/agents) can propose updates to budgets and delete one.
 
 ## Tips for Effective Budgeting
 

@@ -36,6 +36,12 @@ Desconectar um banco mantém essas contas e o histórico delas, a menos que voc�
 
 Contas de cartão de crédito carregam campos extras que modelam como um cartão funciona de verdade: **limite de crédito**, **dia de fechamento da fatura** e **dia de vencimento**. O Securo os usa para calcular os ciclos de cobrança e agrupar cada compra na fatura certa, então uma compra feita depois do fechamento cai na fatura do mês seguinte, exatamente como o seu cartão faz.
 
+Um cartão sincronizado pelo Pluggy muitas vezes reúne compras de mais de um cartão físico, como o titular, um adicional e um virtual. O Securo lê os quatro últimos dígitos do cartão em cada compra e lista os cartões que encontrou em **Cartões vinculados**, nas configurações do cartão, onde você dá um **apelido** a cada um ("Cartão da Ana", "Virtual"). A lista e o diálogo da transação passam a mostrar qual cartão fez cada compra, e o filtro **Cartão** em Transações mostra só as compras de um ou mais deles. Numa transação compartilhada com outro membro, o final do cartão do dono fica oculto.
+
+<Callout type="info">
+Compras sincronizadas antes desse recurso não têm o final do cartão. Numa instalação própria, dá para preenchê-las com os dados que o provedor já enviou usando `backend/scripts/backfill_transaction_card_numbers.py`: rode uma vez sem argumentos, para uma simulação que só mostra contagens, e de novo com `--apply`, com o worker do Celery parado enquanto ele roda.
+</Callout>
+
 ## Suporte a Múltiplas Moedas
 
 Um dos diferenciais do Securo é o **suporte nativo a múltiplas moedas**. Cada conta tem a sua própria moeda, e o Securo cuida da conversão automaticamente.
@@ -46,6 +52,14 @@ Por exemplo, você pode ter:
 - Uma conta de investimento em **USD** (Dólar Americano)
 
 O painel e os relatórios mostram o saldo de cada conta na sua moeda nativa, junto com o valor convertido equivalente na sua moeda principal. Isso facilita ver seu patrimônio líquido total entre moedas.
+
+Quando você troca a moeda principal depois, o Securo converte de novo, no mesmo passo, os valores guardados das suas transações, recorrentes e preços de compra de ativos, pela cotação da data de cada linha, então receitas, despesas, orçamentos e relatórios passam a mostrar números na moeda nova. Uma linha em moeda estrangeira sem cotação para a data fica marcada como não convertida. Os saldos das contas não mudam, porque ficam na moeda de cada conta. Numa instalação própria atualizada de uma versão sem isso, rode uma vez para os dados convertidos antes:
+
+```bash
+docker compose -f docker-compose.prod.yml exec backend python -m app.cli restamp-primary-amounts
+```
+
+Coloque o e-mail de um usuário no final para corrigir só esse usuário. Pode rodar de novo sem problema.
 
 Quando não há taxa de câmbio disponível para a moeda de uma conta, o Securo mostra o saldo **na própria moeda e avisa que falta o câmbio**, em vez de passar um número não convertido como se estivesse, e os totais dizem quando estão incompletos.
 
