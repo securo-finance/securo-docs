@@ -85,7 +85,7 @@ O Securo se conecta a um único endpoint Redis para cache, rate limiting e broke
 
 ### Certificados de Cliente, CAs Privadas e Configurações Extras
 
-`backend`, `celeryWorker`, `celeryBeat` e `migration` aceitam `extraEnv`, `extraEnvFrom`, `extraVolumes` e `extraVolumeMounts`, vazios por padrão e escritos nos formatos de sempre do Kubernetes. O `extraEnv` é lido depois do ConfigMap e do Secret do chart, então prevalece sobre os dois. Dê ao Job de migração os mesmos extras dos pods: ele chega ao banco primeiro.
+`backend`, `celeryWorker`, `celeryBeat`, `migration` e `mcpServer` aceitam `extraEnv`, `extraEnvFrom`, `extraVolumes` e `extraVolumeMounts`, vazios por padrão e escritos nos formatos de sempre do Kubernetes. O `extraEnv` é lido depois do ConfigMap e do Secret do chart, então prevalece sobre os dois. Dê ao Job de migração os mesmos extras dos pods: ele chega ao banco primeiro. O init container `wait-for-schema` de cada pod usa os extras do próprio pod, então chega ao banco do mesmo jeito.
 
 Por exemplo, um PostgreSQL que autentica com certificado de cliente TLS:
 
@@ -111,7 +111,7 @@ backend:
       readOnly: true
 ```
 
-Repita o bloco em `celeryWorker`, `celeryBeat` e `migration`, que se conectam ao mesmo banco.
+Repita o bloco em `celeryWorker`, `celeryBeat` e `migration`, que se conectam ao mesmo banco, e em `mcpServer` quando os agentes de IA e o servidor MCP estão ligados: ele abre as próprias sessões no banco para as ferramentas dos agentes.
 
 Para montar um PersistentVolumeClaim que você já tem para os anexos, informe o nome dele em `persistence.attachments.existingClaim` e mantenha `persistence.attachments.enabled: true`; o chart deixa de criar o próprio claim e não mexe no seu ao desinstalar.
 
@@ -180,6 +180,29 @@ Copie para o bucket os arquivos que já estão no volume de anexos antes de desa
 ### Celery Beat como Instância Única
 
 Enquanto os pods de Backend e de Celery Worker escalam horizontalmente, o **Celery Beat precisa rodar como instância única** (exatamente 1 réplica) para evitar agendamentos duplicados em segundo plano, como jobs repetidos de sincronização bancária. O Helm chart aplica essa restrição automaticamente.
+
+### Plugins com Código
+
+Plugins de dados (categorias, regras, temas) só precisam de `config.pluginsEnabled: "true"`. [Plugins com código](/pt-BR/docs/features/plugins#plugins-com-código) também precisam do runner de plugins e do proxy de saída dele, que o chart cria:
+
+```yaml
+# values-production.yaml
+config:
+  pluginsEnabled: "true"
+
+plugins:
+  runner:
+    enabled: true
+```
+
+- **Credenciais**: o chart gera um Secret com um token do runner e um segredo de saída aleatórios, mantidos entre atualizações. Para usar os seus, aponte `plugins.runner.existingSecret` para um Secret com `PLUGINS_RUNNER_TOKEN` e `PLUGINS_EGRESS_SECRET`, cada um com pelo menos 32 caracteres, ou defina `plugins.runner.token` e `plugins.runner.egressSecret`. Para trocar, defina valores novos para esses dois: os pods reiniciam juntos. Com um Secret seu, reinicie o StatefulSet do runner e os Deployments do proxy de saída, do backend, do worker e do beat depois de mudá-lo
+- **GitOps**: no Argo CD, no Flux ou com `helm template` puro, o chart não consegue ler o Secret que já existe, então cada sync geraria um par novo. Nesses casos, gerencie o Secret você mesmo (`existingSecret`) ou defina valores fixos
+- **Releases que já existem**: ligue o runner com `helm upgrade --reset-then-reuse-values` (Helm 3.14+). `--reuse-values --set plugins.runner.enabled=true` deixa o resto de `plugins.runner` sem valor e a renderização para; em versões mais antigas do Helm, passe um arquivo de values com todas as sobrescritas que a release já tem
+- **Pod Security**: o runner roda como root para dar a cada plugin um usuário próprio, então o namespace dele precisa do Pod Security Standard `baseline` ou mais permissivo
+- **Uma réplica**: o runner é um StatefulSet de uma réplica, e o chart recusa mais que isso. O volume dele guarda o código dos plugins instalados e sobrevive a desligar o runner
+- **Rede**: uma NetworkPolicy, ligada por padrão, deixa o runner falar só com o backend, o worker, o beat, o DNS e o proxy de saída. Mantenha ligada, a não ser que o seu CNI não aplique `NetworkPolicy`. Se o cluster resolve nomes por um endereço que a política não alcança (um NodeLocal DNSCache em `169.254.20.10`, por exemplo), liste-o em `plugins.networkPolicy.dnsCIDRs`
+
+O código dos plugins só chega à internet pelo proxy de saída, que libera os hosts que cada plugin declarou e recusa endereços privados. O DNS é a exceção: o código pode mandar consultas ao resolvedor do cluster.
 
 ---
 
@@ -307,18 +330,17 @@ helm install securo oci://ghcr.io/securo-finance/charts/securo \
 
 ---
 
-## 7. Migrations Automatizadas do Banco
+## 7. Migrações do Banco
 
-O Helm chart inclui um `Job` de migration do banco já configurado, anotado com hooks de `post-install` e `post-upgrade`:
+Cada instalação e atualização cria um Job de migração que roda o `alembic upgrade head` com a imagem e a configuração novas da release. Os pods do backend, do Celery worker, do Celery beat e do servidor MCP começam com um init container `wait-for-schema`, que consulta o banco a cada 5 segundos e só deixa o pod subir quando ele está no head de migração da imagem do pod.
 
-```yaml
-annotations:
-  "helm.sh/hook": post-install,post-upgrade
-  "helm.sh/hook-weight": "5"
-  "helm.sh/hook-delete-policy": hook-succeeded
-```
+- **Primeira instalação**: o Job tenta de novo até o banco aceitar conexões, então o PostgreSQL embutido pode subir junto. Os outros pods ficam em `Init` até o Job terminar
+- **Atualização**: os pods novos ficam em `Init` até o banco chegar ao head da imagem nova, e os Deployments mantêm os pods antigos atendendo até lá. Uma migração que reescreve uma tabela grande segura os pods ali pelo tempo que levar, então dê ao `helm upgrade --wait` um `--timeout` acima disso
+- **Acompanhando**: cada atualização ganha um Job novo, com nome derivado do template do pod e da revisão da release, e o Helm apaga o anterior. Leia a saída com `kubectl logs job/<nome>`
+- **Quando falha**: os pods novos ficam em `Init` e os antigos continuam atendendo. Corrija a causa e rode `helm upgrade` de novo
+- **Voltando de versão**: uma imagem mais antiga não faz downgrade do banco, então os pods dela ficam em `Init`. Restaure o backup feito antes da atualização, ou fique na versão nova
 
-Como esse job é configurado como hook de `post-install` e `post-upgrade`, ele roda o `alembic upgrade head` com lógica de retry embutida depois que os novos pods sobem, tanto na instalação quanto nas atualizações.
+Antes dessa mudança o Job era um hook de `post-install` e `post-upgrade`, que o Helm só roda depois que os pods novos ficam prontos: toda atualização com mudança de schema servia o código novo contra o schema antigo até o Job terminar.
 
 ---
 

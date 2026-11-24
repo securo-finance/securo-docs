@@ -20,11 +20,12 @@ Confira [a página de releases](https://github.com/securo-finance/securo/release
 
 ## O Que o Chart Implanta
 
-- **Backend** (FastAPI) e um Job automatizado de migração do banco
+- **Backend** (FastAPI) e um Job de migração do banco que os outros pods esperam
 - **Frontend** (nginx servindo o app compilado, com proxy de `/api` para o backend)
 - **Celery worker e beat** para os jobs em background
 - **PostgreSQL** e **Redis**, embutidos e habilitados por padrão
 - **Servidor MCP** opcional para o recurso de agentes de IA, desabilitado por padrão
+- **Runner de plugins** e **proxy de saída** opcionais, para [plugins com código](/pt-BR/docs/features/plugins#plugins-com-código), desligados por padrão
 
 A persistência vem habilitada por padrão para o banco, os anexos e a base de conhecimento dos agentes.
 
@@ -43,6 +44,7 @@ A persistência vem habilitada por padrão para o banco, os anexos e a base de c
 | `config.trustedProxyHops` | `"1"` | Quantos proxies têm o `X-Forwarded-For` aceito pelo backend para achar o endereço do visitante nos limites de requisição. O controller do Ingress ou o gateway é um salto; some um para cada camada na frente dele que acrescenta ao cabeçalho, como um load balancer da nuvem. Em `0`, todos os visitantes dividem o mesmo limite de login e cadastro. Charts anteriores a esse padrão deixavam em `0` |
 | `config.agentsEnabled` | `"false"` | Recurso opcional de agentes de IA |
 | `mcpServer.publicRoute` | `false` | Adiciona `/mcp` ao Ingress ou ao HTTPRoute para que clientes MCP externos alcancem o servidor MCP dos agentes. Junto com ele, defina `config.agentsExternalMcpUrl` com a URL pública |
+| `plugins.runner.enabled` | `false` | Roda plugins com código: cria o runner de plugins, o proxy de saída, uma NetworkPolicy e um Secret com um token do runner e um segredo de saída aleatórios. Liga o `PLUGINS_ENABLED`. Veja [Plugins com Código](/pt-BR/docs/deployment/kubernetes-prod#plugins-com-código) |
 | `postgresql.enabled` / `redis.enabled` | `true` | Desabilite para usar seu próprio banco ou Redis |
 
 As integrações opcionais (sincronização bancária, taxas de câmbio, OIDC) usam as mesmas configurações documentadas no [guia de Docker](/pt-BR/docs/deployment/docker), expostas como valores `secret.*` e `config.*`. Inspecione a lista completa e comentada da sua versão com:
@@ -57,7 +59,7 @@ helm show values oci://ghcr.io/securo-finance/charts/securo --version 0.14.0
 helm upgrade securo oci://ghcr.io/securo-finance/charts/securo --version <NOVA_VERSAO>
 ```
 
-As migrações do banco rodam automaticamente por um hook do Helm na instalação e na atualização. Faça backup do banco antes de atualizar, como em qualquer método de deploy.
+Cada instalação e atualização roda um Job de migração com a imagem nova, e os pods do backend, do worker, do beat e do servidor MCP esperam em `Init` até o banco chegar ao schema dessa imagem, enquanto os pods antigos continuam atendendo. Dê ao `helm upgrade --wait` um `--timeout` maior do que a migração leva. Faça backup do banco antes de atualizar, como em qualquer método de deploy. Detalhes em [Migrações do Banco](/pt-BR/docs/deployment/kubernetes-prod#7-migrações-do-banco).
 
 Atualizando para a 0.20.0 com `mcpServer.enabled: true`: essa opção sozinha não roteia mais o `/mcp`. Defina `mcpServer.publicRoute: true` e aponte `config.agentsExternalMcpUrl` para a URL pública, senão os clientes MCP externos recebem 404 depois da atualização. O [guia de Docker](/pt-BR/docs/deployment/docker) lista as outras mudanças dessa versão (a `SECRET_KEY` gerada e os tokens MCP que precisam ser criados de novo).
 

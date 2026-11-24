@@ -69,10 +69,26 @@ Além dos [campos de sempre](/pt-BR/docs/features/plugins/authoring#o-manifesto)
 | `key` | Obrigatório, estável entre versões |
 | `name`, `description` | Mostrados ao configurar uma conexão |
 | `auth` | `credentials` (um formulário), `oauth` (login no serviço) ou `none` |
-| `fields` | O formulário: cada campo tem `key`, `label`, `secret` (padrão `false`) e `required` (padrão `true`) |
+| `fields` | O formulário: cada campo tem `key`, `label`, `secret` (padrão `false`), `required` (padrão `true`) e `type` (`text`, o padrão, ou `file`) |
 | `sync_minutes` | Opcional, de 15 a 10080. O Securo chama `sync` nesse intervalo |
+| `routines` | Opcional, até 10. Trabalhos que rodam no próprio agendamento, à parte do `sync` (veja [Rotinas](#rotinas)) |
 
 Campos secretos ficam criptografados e só são passados para o seu plugin. Os outros campos são configurações que a pessoa consegue ver.
+
+#### Campos de arquivo
+
+Um campo com `"type": "file"` pede um arquivo na hora de configurar a conexão: um pacote de chaves, um certificado de cliente, um mapeamento que a pessoa preparou. `accept` lista as extensões aceitas (como `[".pem", ".pdf"]`, até 10) e `max_kb` limita o tamanho (512 por padrão, até 2048). O seu plugin recebe o arquivo em `context.secrets` (quando o campo é `secret`) ou em `context.config` como `{"name": ..., "content": ...}`, com o conteúdo em base64. O Securo nunca mostra o conteúdo de novo: um arquivo num campo de configuração aparece com nome e tamanho, e um secreto só como definido. Salvar o formulário de novo sem escolher arquivo mantém o que já estava lá.
+
+#### Rotinas
+
+Cada rotina tem `key`, `name`, `every_minutes` (de 15 a 10080) e, se quiser, `timeout_seconds` (de 5 a 600, ainda limitado pelo tempo máximo de chamada do runner). O Securo chama [`routine`](#routineparams-context) para cada uma no agendamento dela. Uma rotina guarda o próprio estado, a última execução e as falhas, e uma rotina com falha espaça as tentativas sozinha, sem mudar o status da conexão. Uma integração com rotinas e sem `sync_minutes` nunca chama `sync`.
+
+```json
+"routines": [
+  { "key": "send", "name": "Enviar cobranças pendentes", "every_minutes": 60 },
+  { "key": "cleanup", "name": "Limpeza semanal", "every_minutes": 10080, "timeout_seconds": 300 }
+]
+```
 
 ### Escopos
 
@@ -121,6 +137,12 @@ Devolva um dict com:
 - `secrets` (opcional): valores para guardar com os segredos da conexão, como um token renovado
 
 Lance uma exceção para avisar de uma falha; a mensagem dela é mostrada para a pessoa, com qualquer valor secreto mascarado. Lance uma exceção chamada `NeedsAuth` quando a pessoa precisar fazer login de novo ou trocar uma chave.
+
+### `routine(params, context)`
+
+Chamado para cada rotina da integração quando ela vence, e quando alguém clica em **Rodar agora** ao lado dela. `params` tem `routine` (a chave da rotina), `state` (o que essa rotina devolveu da última vez) e `last_run_at`. Devolva `state` e, se quiser, `secrets`, como no `sync`; exceções e `NeedsAuth` funcionam do mesmo jeito, e `NeedsAuth` para o sync e todas as rotinas da conexão até alguém fazer login de novo.
+
+As rotinas e o `sync` de uma conexão nunca rodam ao mesmo tempo, então os segredos que uma chamada renova nunca são sobrescritos por outra. Uma rotina que encontra a conexão ocupada espera a próxima rodada. Quando alguém salva valores novos numa conexão que só roda rotinas, o Securo roda todas as rotinas uma vez na hora, para saber se as chaves novas funcionam.
 
 ### Login (`auth: "oauth"`)
 

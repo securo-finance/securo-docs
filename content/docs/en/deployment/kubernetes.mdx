@@ -20,11 +20,12 @@ Check [the releases page](https://github.com/securo-finance/securo/releases) for
 
 ## What the Chart Deploys
 
-- **Backend** (FastAPI) and automated database migration Job
+- **Backend** (FastAPI) and a database migration Job that the other pods wait for
 - **Frontend** (nginx serving the built app, proxying `/api` to the backend)
 - **Celery worker and beat** for background jobs
 - **PostgreSQL** and **Redis**, bundled and enabled by default
 - Optional **MCP server** for the AI agents feature, disabled by default
+- Optional **plugin runner** and **egress proxy** for [plugins with code](/docs/features/plugins#plugins-with-code), disabled by default
 
 Persistence is enabled by default for the database, attachments, and the agents knowledge base.
 
@@ -43,6 +44,7 @@ Persistence is enabled by default for the database, attachments, and the agents 
 | `config.trustedProxyHops` | `"1"` | Proxies whose `X-Forwarded-For` the backend trusts to find the visitor's address for rate limits. The Ingress controller or gateway is the one hop; add one per layer in front of it that appends to the header, such as a cloud load balancer. At `0` every visitor shares one login and register limit. Charts before this default left it at `0` |
 | `config.agentsEnabled` | `"false"` | Optional AI agents feature |
 | `mcpServer.publicRoute` | `false` | Adds `/mcp` to the Ingress or HTTPRoute so external MCP clients can reach the agents' MCP server. Set `config.agentsExternalMcpUrl` to the public URL with it |
+| `plugins.runner.enabled` | `false` | Runs plugins with code: creates the plugin runner, its egress proxy, a NetworkPolicy and a Secret with a random runner token and egress secret. Turns `PLUGINS_ENABLED` on. See [Plugins With Code](/docs/deployment/kubernetes-prod#plugins-with-code) |
 | `postgresql.enabled` / `redis.enabled` | `true` | Disable to bring your own database or Redis |
 
 Optional integrations (bank sync, exchange rates, OIDC) take the same settings documented in the [Docker guide](/docs/deployment/docker), exposed as `secret.*` and `config.*` values. Inspect the full annotated list for your version with:
@@ -57,7 +59,7 @@ helm show values oci://ghcr.io/securo-finance/charts/securo --version 0.14.0
 helm upgrade securo oci://ghcr.io/securo-finance/charts/securo --version <NEW_VERSION>
 ```
 
-Database migrations run automatically via a Helm hook on install and upgrade. Back up your database before upgrading, as with any deployment method.
+Every install and upgrade runs a migration Job with the new image, and the backend, worker, beat and MCP server pods wait in `Init` until the database reaches that image's schema, while the old pods keep serving. Give `helm upgrade --wait` a `--timeout` longer than the migration takes. Back up your database before upgrading, as with any deployment method. Details in [Database Migrations](/docs/deployment/kubernetes-prod#7-database-migrations).
 
 Upgrading to 0.20.0 with `mcpServer.enabled: true`: `/mcp` is no longer routed by that setting alone. Set `mcpServer.publicRoute: true` and point `config.agentsExternalMcpUrl` at the public URL, or external MCP clients get a 404 after the upgrade. The [Docker guide](/docs/deployment/docker#updating-to-v0200) lists the other changes of that version (the generated `SECRET_KEY` and the MCP tokens to create again).
 
