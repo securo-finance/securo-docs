@@ -58,7 +58,7 @@ On a new install, also set your own database password before the first start. Po
 echo "POSTGRES_PASSWORD=$(openssl rand -hex 24)" >> .env
 ```
 
-Left unset, the database keeps the default password `postgres`. To change it on an install that already has data, see [Updating from v0.21.x](#updating-from-v021x).
+Left unset, the database keeps the default password `postgres`. To change it on an install that already has data, see [Updating to v0.22.0](#updating-to-v0220).
 
 If you want bank sync or exchange rates, add those keys too:
 
@@ -293,9 +293,9 @@ The database migrations run automatically on startup (`alembic upgrade head`), s
 - The assistant chat is rate limited per IP with `AGENTS_CHAT_RATE_LIMIT_PER_MINUTE` (30 by default, `0` turns it off). Rate limits now trust `X-Forwarded-For` only from proxies inside `TRUSTED_PROXY_NETWORKS`, which defaults to the private ranges, so the shipped Compose and Traefik setups need no change
 - Signing out of an OIDC sign-in now also ends the provider session. Set `OIDC_LOGOUT_URL` if your provider does not publish an `end_session_endpoint` (see [Security](/docs/features/security))
 
-### Updating from v0.21.x
+### Updating to v0.22.0
 
-These apply to the first release after v0.21.0, which hardens `docker-compose.prod.yml`. Check your `.env` **before** you run `git pull`:
+v0.22.0 hardens `docker-compose.prod.yml`. Check your `.env` **before** you run `git pull`:
 
 - **If `.env` has `BACKEND_PORT=127.0.0.1:8000`** (the loopback setting this guide used to suggest), change it before updating, or the stack won't start: the new compose file builds the mapping as `127.0.0.1:127.0.0.1:8000:8000`, which is invalid. Delete the line, since loopback is now the default, or replace it with `BACKEND_BIND_ADDRESS=127.0.0.1`. If you used another port, keep only the number: `BACKEND_PORT=8182`
 - **The backend port now listens on loopback only.** The app keeps working through the frontend, which proxies `/api` internally. If something on another machine called port 8000 directly (a reverse proxy on a different host, a monitoring check), set `BACKEND_BIND_ADDRESS=0.0.0.0` to keep it reachable

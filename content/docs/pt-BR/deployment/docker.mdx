@@ -58,7 +58,7 @@ Numa instalação nova, defina também uma senha própria para o banco antes da 
 echo "POSTGRES_PASSWORD=$(openssl rand -hex 24)" >> .env
 ```
 
-Se ela ficar de fora, o banco mantém a senha padrão `postgres`. Para trocá-la numa instalação que já tem dados, veja [Atualizando a partir da v0.21.x](#atualizando-a-partir-da-v021x).
+Se ela ficar de fora, o banco mantém a senha padrão `postgres`. Para trocá-la numa instalação que já tem dados, veja [Atualizando para a v0.22.0](#atualizando-para-a-v0220).
 
 Se você quiser sincronização bancária ou taxas de câmbio, adicione essas chaves também:
 
@@ -293,9 +293,9 @@ As migrations do banco de dados rodam automaticamente na inicialização (`alemb
 - O chat do assistente tem limite de requisições por IP com `AGENTS_CHAT_RATE_LIMIT_PER_MINUTE` (30 por padrão, `0` desliga). Os limites agora só confiam no `X-Forwarded-For` vindo de proxies dentro de `TRUSTED_PROXY_NETWORKS`, que por padrão são as faixas privadas, então as configurações de Compose e Traefik que vêm com o Securo não precisam mudar
 - Sair de um login OIDC agora também encerra a sessão no provedor. Defina `OIDC_LOGOUT_URL` se o seu provedor não publica um `end_session_endpoint` (veja [Segurança](/docs/features/security))
 
-### Atualizando a partir da v0.21.x
+### Atualizando para a v0.22.0
 
-Isto vale para a primeira versão depois da v0.21.0, que reforça o `docker-compose.prod.yml`. Confira o seu `.env` **antes** de rodar o `git pull`:
+A v0.22.0 reforça o `docker-compose.prod.yml`. Confira o seu `.env` **antes** de rodar o `git pull`:
 
 - **Se o `.env` tem `BACKEND_PORT=127.0.0.1:8000`** (a configuração de loopback que este guia sugeria), troque antes de atualizar, senão a stack não sobe: o compose novo monta o mapeamento como `127.0.0.1:127.0.0.1:8000:8000`, que é inválido. Apague a linha, já que o loopback agora é o padrão, ou troque por `BACKEND_BIND_ADDRESS=127.0.0.1`. Se você usava outra porta, deixe só o número: `BACKEND_PORT=8182`
 - **A porta do backend agora escuta só no loopback.** O app continua funcionando pelo frontend, que faz proxy de `/api` internamente. Se algo em outra máquina chamava a porta 8000 diretamente (um proxy reverso em outro host, uma checagem de monitoramento), defina `BACKEND_BIND_ADDRESS=0.0.0.0` para continuar acessível
