@@ -161,6 +161,10 @@ Called each time someone opens a tab for one of the plugin's [code reports](/doc
 
 Return a view: a list of `blocks` laid on a 12-column grid by their `width`. Blocks are `kpi`, `chart`, `heatmap`, `treemap`, `sankey`, `waterfall`, `progress`, `table` and `text`. A view is data only (no HTML, script, style or URL, colors as `#RRGGBB`) and is checked against the [limits of a plugin report](/docs/features/plugins/authoring#limits-of-a-plugin-report) before anyone sees it. An exception or a view that doesn't pass shows on the tab as a failure (502).
 
+### `widget(params, context)`
+
+Called each time the dashboard loads one of the plugin's [code widgets](/docs/features/plugins/authoring#widgets), or its data changes. `params` is the same as for `report`, with `widget` (the widget's key) in place of `report`, and `start_date` and `end_date` set by the widget's `period` from the month on screen. Return a view, with the same blocks and limits; it's drawn inside the widget's card, where the blocks lose their own frame and stack when the card is narrow. A failure shows in the card with a retry.
+
 ## Testing Locally
 
 Build a catalog from your plugin folder as in [Testing locally](/docs/features/plugins/authoring#testing-locally). The catalog copies your code and records its checksum. Then start Securo with the runner:

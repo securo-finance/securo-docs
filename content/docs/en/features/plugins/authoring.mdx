@@ -12,8 +12,9 @@ A plugin is a public GitHub repository with a `securo-plugin.json` file at its r
 - **Rules** that categorize, rename, annotate or ignore transactions
 - **Themes** that give Securo a new look
 - **Reports** for the reports page, from a query Securo runs or from the plugin's own code
+- **Widgets** for the dashboard: a report sized for a card, from a query or from code
 
-Apart from code reports, these are data plugins: nothing in them runs. To connect a workspace to an outside service, see [Writing a plugin with code](/docs/features/plugins/code).
+Apart from code reports and widgets, these are data plugins: nothing in them runs. To connect a workspace to an outside service, see [Writing a plugin with code](/docs/features/plugins/code).
 
 ## Quick Start
 
@@ -240,9 +241,35 @@ A **query report** is data only: Securo adds up the figures with the same rules 
 
 A **code report** (`"code": true`) is computed by the plugin itself, so it needs a [`runtime`](/docs/features/plugins/code). Leave out `group_by` and `categories`, and list in `inputs` the data it gets: `transactions`, `accounts` and `categories`, each with its read scope (`transactions:read`, `accounts:read`, `categories:read`) in `api_scopes`. The person installing sees and agrees to that. See [Reports](/docs/features/plugins/code#reportparams-context) for the method it implements.
 
+### Widgets
+
+A plugin's widgets show in the dashboard **Library** next to Securo's own. Each person places the ones they want, moves them and resizes them like any other widget. A widget is a report sized for a card: it has every field of a [report](#reports), query or code, and follows the same rules, plus two of its own. A plugin can declare up to 20, with keys apart from its reports.
+
+```json
+"widgets": [
+  {
+    "key": "streaming-this-year",
+    "name": { "en": "Streaming, last 12 months", "pt-BR": "Streaming, últimos 12 meses" },
+    "measure": "expenses",
+    "group_by": "month",
+    "categories": ["streaming"],
+    "chart": "bar",
+    "width": "third",
+    "period": "last_12_months"
+  }
+]
+```
+
+| Field | Description |
+|-------|-------------|
+| `width` | `third`, `half` (default), `two_thirds` or `full`: the width it starts at, until the person resizes it. A `table` starts at half the row at least |
+| `period` | `month` (default), `year_to_date` or `last_12_months`, counted back from the month the dashboard shows. A widget split by month needs more than one month |
+
+A widget reads the accounts in view on the dashboard. A query widget shows its total and its chart (its table only when `chart` is `table`). A code widget runs the plugin's [`widget` method](/docs/features/plugins/code#widgetparams-context) and its view is drawn inside the card.
+
 ### Limits of a plugin report
 
-A plugin report reads at most 731 days (about two years) of data; ask for more and the API answers 422. The reports page trims a longer range to the last 731 days and says on the tab which span it read.
+A plugin report or widget reads at most 731 days (about two years) of data; ask for more and the API answers 422. The reports page trims a longer range to the last 731 days and says on the tab which span it read.
 
 A view a plugin's code returns is checked before it is drawn: at most 24 blocks, 12 series in a chart, 1,000 points in a series, and 12,000 chart points across the whole view (`len(x) * number of series`, added up over the charts). One chart at the per-chart limits (12 series of 1,000 points) fits the total exactly. A view over any of those is refused with a 502 whose message gives the reason ("the report returned an invalid view: ..."). Nothing is downsampled for you, so a plugin that needs to show more should aggregate: fewer points per series, or fewer charts.
 
