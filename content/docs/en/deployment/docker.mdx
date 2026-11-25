@@ -150,7 +150,7 @@ Set these in `.env` when the defaults do not fit your setup:
 
 `DB_JIT` reaches the bundled `db` service through its startup command, so it also applies when the container is recreated for an upgrade. If your PostgreSQL runs outside this Compose file, set it there instead: `ALTER DATABASE securo SET jit = off;` (new connections pick it up straight away) or `jit = off` in `postgresql.conf`. Leave it on for a dedicated database that mostly runs analytical queries.
 
-`DB_POOL_SIZE` and `DB_MAX_OVERFLOW` are read by the backend only. The worker and the MCP server keep SQLAlchemy's defaults; count their connections against `max_connections` before raising the API's.
+`DB_POOL_SIZE` and `DB_MAX_OVERFLOW` reach the backend and the MCP server, which share one engine. The Celery worker opens its own engine inside each task and keeps SQLAlchemy's defaults of 5 and 10; count those connections against `max_connections` too.
 
 The application **timezone** (the one that decides which day "today" is for balances, budgets, due dates and scheduled work) is set in the admin settings and follows an IANA name like `America/Sao_Paulo`; individual workspaces can override it, see [Workspaces](/docs/features/workspaces).
 
