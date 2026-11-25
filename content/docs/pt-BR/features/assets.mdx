@@ -57,7 +57,7 @@ Editar um lançamento antigo (inclusive a data) recalcula tudo na nova ordem, en
 
 ### Desdobramentos
 
-Quando uma ação passa por desdobramento (ou grupamento), registre um **desdobramento** no mesmo livro em vez de editar as ordens antigas. Ele é escrito como cotas antigas → cotas novas: um desdobramento de 1 para 100 é 1 → 100, um grupamento de 10 para 1 é 10 → 1. Use como data o primeiro dia em que o papel negocia no novo preço. O Securo reajusta a quantidade em carteira e o preço médio a partir dessa data, então o custo de aquisição não muda. Desdobramentos estão disponíveis para posições com preço de mercado sem conexão bancária, não podem ter data no futuro, e um desdobramento do qual uma venda posterior depende não pode ser excluído.
+Quando uma ação passa por desdobramento (ou grupamento), registre um **desdobramento** no mesmo livro em vez de editar as ordens antigas. Ele é escrito como cotas antigas → cotas novas: um desdobramento de 1 para 100 é 1 → 100, um grupamento de 10 para 1 é 10 → 1. Use como data o primeiro dia em que o papel negocia no novo preço. O Securo reajusta a quantidade em carteira e o preço médio a partir dessa data, então o custo de aquisição não muda. Desdobramentos estão disponíveis para posições com preço de mercado sem conexão bancária, não podem ter data no futuro, e um desdobramento ou uma compra de que uma venda posterior depende não pode ser excluído.
 
 ### Importando Ordens da Corretora
 
@@ -94,5 +94,9 @@ Os ativos com preço de mercado são cotados de novo periodicamente. Para fazer 
 ## Patrimônio e Patrimônio Líquido
 
 O valor combinado de todos os seus ativos é convertido para sua moeda principal e somado ao seu [Patrimônio Líquido](/pt-BR/docs/features/net-worth), junto com os saldos das suas contas. Um ativo em moeda sem câmbio disponível fica **fora dos totais na moeda principal** em vez de ser somado como se tivesse convertido, e posições de valor baixo mantêm a precisão completa em vez de arredondar para zero. Vender um ativo — registrando uma **data de venda** e um **preço de venda** — move-o para uma seção de **Ativos Vendidos**, mantendo o histórico para os relatórios.
+
+A seção **Vendidos** começa recolhida e lembra naquele navegador se você a abriu. O cabeçalho mostra quantos ativos foram vendidos e o resultado realizado a preço médio, somado por moeda sem converter. Cada linha mostra a posição encerrada: **Período**, **Preço méd. compra**, **Preço méd. venda**, **Investido**, **Recebido** e **Resultado**.
+
+Cada ativo tem um menu de ações no fim da linha, que também abre com o botão direito: adicionar uma transação, atualizar só aquele preço e as demais ações.
 
 Um ativo **arquivado** fica escondido da página por padrão. Marque **Mostrar arquivados** para listar os arquivados numa seção própria, esmaecida; eles ficam fora das carteiras, do total do portfólio e da coluna de % do portfólio, e a escolha fica lembrada naquele navegador.

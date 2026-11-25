@@ -57,7 +57,7 @@ Editing a past entry (including its date) recomputes everything in the new order
 
 ### Stock Splits
 
-When a stock splits, record a **split** in the same ledger instead of editing past orders. A split is written as old units → new units: a 100-for-1 split is 1 → 100, a 1-for-10 reverse split is 10 → 1. Date it on the first day the holding trades at the new price. Securo rescales the units held and the average price from that date on, so the cost basis stays the same. Splits are available for market-priced holdings without a bank connection, can't be dated in the future, and a split that a later sale depends on can't be deleted.
+When a stock splits, record a **split** in the same ledger instead of editing past orders. A split is written as old units → new units: a 100-for-1 split is 1 → 100, a 1-for-10 reverse split is 10 → 1. Date it on the first day the holding trades at the new price. Securo rescales the units held and the average price from that date on, so the cost basis stays the same. Splits are available for market-priced holdings without a bank connection, can't be dated in the future, and a split or a buy that a later sale depends on can't be deleted.
 
 ### Importing Orders From a Broker
 
@@ -94,5 +94,9 @@ Market-priced assets are re-quoted on a schedule. To do it now, click **Refresh 
 ## Assets and Net Worth
 
 The combined value of all your assets is converted to your primary currency and added to your [Net Worth](/docs/features/net-worth), alongside your account balances. An asset in a currency with no exchange rate is left **out of the primary-currency totals** rather than summed as if it converted, and low-priced holdings keep their full precision instead of rounding to zero. Selling an asset — by recording a **sell date** and **sell price** — moves it into a **Sold Assets** section while keeping its history for reporting.
+
+The **Sold Assets** section starts collapsed and remembers in that browser whether you opened it. Its header shows how many holdings were sold and their realized result at average cost, added up per currency without converting. Each row shows the closed position: **Period**, **Avg buy**, **Avg sell**, **Invested**, **Proceeds** and **Result**.
+
+Each holding has an actions menu at the end of its row, also opened with a right-click: add a transaction, refresh that one price, and the rest of its actions.
 
 An **archived** holding is hidden from the page by default. Tick **Show archived** to list archived holdings in their own dimmed section; they stay out of the wallets, the portfolio total and the % of portfolio column, and the choice is remembered in that browser.
