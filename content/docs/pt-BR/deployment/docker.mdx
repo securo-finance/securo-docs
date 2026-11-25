@@ -52,6 +52,14 @@ echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
 
 Definir a `SECRET_KEY` você mesmo é o recomendado, para guardá-la junto com os seus backups. Se ela ficar de fora, o Securo gera uma chave única na primeira inicialização e a guarda no banco de dados.
 
+Numa instalação nova, defina também uma senha própria para o banco antes da primeira inicialização. O Postgres só lê essa senha quando o volume de dados é criado, e ela entra numa URL de conexão, então use caracteres seguros para URL:
+
+```bash
+echo "POSTGRES_PASSWORD=$(openssl rand -hex 24)" >> .env
+```
+
+Se ela ficar de fora, o banco mantém a senha padrão `postgres`. Para trocá-la numa instalação que já tem dados, veja [Atualizando para a v0.22.0](#atualizando-para-a-v0220).
+
 Se você quiser sincronização bancária ou taxas de câmbio, adicione essas chaves também:
 
 ```ini
@@ -83,7 +91,7 @@ FRONTEND_URL=http://192.168.1.50:3000
 
 Essa única variável comanda o CORS, os callbacks OAuth da sincronização bancária, os redirects padrão do OIDC e as origens das passkeys. Pular esse passo é a causa mais comum dos relatos de "o login funciona no servidor mas não no meu notebook". Reinicie depois de mudar: `docker compose -f docker-compose.prod.yml up -d`
 
-Para mudar as portas publicadas, defina `FRONTEND_PORT` e `BACKEND_PORT` no `.env`. Num servidor mais protegido, você pode tirar o backend da interface pública com `BACKEND_PORT=127.0.0.1:8000`; o frontend faz proxy de `/api` para o backend internamente, então nada de fora precisa da porta 8000.
+Para mudar as portas publicadas, defina `FRONTEND_PORT` e `BACKEND_PORT` no `.env`. No `docker-compose.prod.yml`, a porta do backend escuta só no loopback (`127.0.0.1`) por padrão: o frontend faz proxy de `/api` para o backend pela rede do Compose, então nada fora do host precisa da porta 8000. Defina `BACKEND_BIND_ADDRESS=0.0.0.0` só se algo fora do host precisar chamar o backend diretamente. Lá, mantenha o `BACKEND_PORT` só com o número da porta: um valor com endereço, como `BACKEND_PORT=127.0.0.1:8000`, impede a stack de subir. O `FRONTEND_PORT` continua aceitando endereço, por exemplo `FRONTEND_PORT=127.0.0.1:3000` quando um proxy reverso no mesmo host é a única entrada.
 
 ## Configurando HTTPS
 
@@ -302,6 +310,22 @@ As migrations do banco de dados rodam automaticamente na inicialização (`alemb
 - Os backups gerenciados são gravados dentro dos containers em `/app/data/backups`, que o compose mapeia para `./data/backups` no host. Defina `BACKUP_HOST_PATH` para guardá-los em outro lugar (veja [Backups gerenciados no app](#backups-gerenciados-no-app))
 - O chat do assistente tem limite de requisições por IP com `AGENTS_CHAT_RATE_LIMIT_PER_MINUTE` (30 por padrão, `0` desliga). Os limites agora só confiam no `X-Forwarded-For` vindo de proxies dentro de `TRUSTED_PROXY_NETWORKS`, que por padrão são as faixas privadas, então as configurações de Compose e Traefik que vêm com o Securo não precisam mudar
 - Sair de um login OIDC agora também encerra a sessão no provedor. Defina `OIDC_LOGOUT_URL` se o seu provedor não publica um `end_session_endpoint` (veja [Segurança](/docs/features/security))
+
+### Atualizando para a v0.22.0
+
+A v0.22.0 reforça o `docker-compose.prod.yml`. Confira o seu `.env` **antes** de rodar o `git pull`:
+
+- **Se o `.env` tem `BACKEND_PORT=127.0.0.1:8000`** (a configuração de loopback que este guia sugeria), troque antes de atualizar, senão a stack não sobe: o compose novo monta o mapeamento como `127.0.0.1:127.0.0.1:8000:8000`, que é inválido. Apague a linha, já que o loopback agora é o padrão, ou troque por `BACKEND_BIND_ADDRESS=127.0.0.1`. Se você usava outra porta, deixe só o número: `BACKEND_PORT=8182`
+- **A porta do backend agora escuta só no loopback.** O app continua funcionando pelo frontend, que faz proxy de `/api` internamente. Se algo em outra máquina chamava a porta 8000 diretamente (um proxy reverso em outro host, uma checagem de monitoramento), defina `BACKEND_BIND_ADDRESS=0.0.0.0` para continuar acessível
+- **A senha do banco agora pode ser definida com `POSTGRES_PASSWORD`.** Se ela ficar de fora, continua `postgres` e nada muda. O Postgres só lê a variável quando o volume de dados é criado, então numa instalação existente troque a senha no banco primeiro e depois defina no `.env`:
+
+  ```bash
+  docker compose -f docker-compose.prod.yml exec db \
+    psql -U postgres -c "ALTER USER postgres PASSWORD 'nova-senha'"
+  ```
+
+  Depois adicione `POSTGRES_PASSWORD=nova-senha` ao `.env` e rode `docker compose -f docker-compose.prod.yml up -d`. Um restart simples não carrega o valor novo. Definir `POSTGRES_PASSWORD` sem o passo do `ALTER USER` deixa o backend sem conseguir conectar. A senha entra numa URL, então use caracteres seguros para URL (`openssl rand -hex 24`)
+- Em hosts com SELinux (Fedora, RHEL), as pastas `secrets` e de backups agora são reetiquetadas para uso pelos containers. Aponte o `BACKUP_HOST_PATH` para uma pasta só de backups, nunca uma pasta pessoal ou do sistema
 
 ## Monitoramento
 

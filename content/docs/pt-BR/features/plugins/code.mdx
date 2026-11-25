@@ -161,6 +161,10 @@ Chamado toda vez que alguém abre a aba de um dos [relatórios com código](/pt-
 
 Devolva uma view: uma lista de `blocks` dispostos numa grade de 12 colunas pela `width` de cada um. Os blocos são `kpi`, `chart`, `heatmap`, `treemap`, `sankey`, `waterfall`, `progress`, `table` e `text`. Uma view é só dados (sem HTML, script, estilo ou URL, cores em `#RRGGBB`) e é checada contra os [limites de um relatório de plugin](/pt-BR/docs/features/plugins/authoring#limites-de-um-relatório-de-plugin) antes de alguém vê-la. Uma exceção ou uma view que não passa aparece na aba como falha (502).
 
+### `widget(params, context)`
+
+Chamado toda vez que o dashboard carrega um dos [widgets com código](/pt-BR/docs/features/plugins/authoring#widgets) do plugin, ou quando os dados dele mudam. `params` é o mesmo de `report`, com `widget` (a chave do widget) no lugar de `report`, e `start_date` e `end_date` definidos pelo `period` do widget a partir do mês na tela. Devolva uma view, com os mesmos blocos e limites; ela é desenhada dentro do card do widget, onde os blocos perdem a moldura própria e se empilham quando o card é estreito. Uma falha aparece no card com a opção de tentar de novo.
+
 ## Testando Localmente
 
 Monte um catálogo a partir da pasta do seu plugin como em [Testando localmente](/pt-BR/docs/features/plugins/authoring#testando-localmente). O catálogo copia o seu código e registra o checksum dele. Depois inicie o Securo com o runner:

@@ -1,4 +1,5 @@
 import { source } from '@/lib/source';
+import { i18n } from '@/lib/i18n';
 import {
   DocsBody,
   DocsDescription,
@@ -45,8 +46,21 @@ export async function generateMetadata(
   const page = source.getPage(params.slug, params.lang);
   if (!page) notFound();
 
+  const languages: Record<string, string> = {};
+  for (const lang of i18n.languages) {
+    const translated = source.getPage(params.slug, lang);
+    if (translated) languages[lang] = translated.url;
+  }
+  if (languages[i18n.defaultLanguage]) {
+    languages['x-default'] = languages[i18n.defaultLanguage];
+  }
+
   return {
     title: page.data.title,
     description: page.data.description,
+    alternates: {
+      canonical: page.url,
+      languages,
+    },
   };
 }

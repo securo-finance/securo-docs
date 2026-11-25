@@ -12,8 +12,9 @@ Um plugin é um repositório público no GitHub com um arquivo `securo-plugin.js
 - **Regras** que categorizam, renomeiam, anotam ou ignoram transações
 - **Temas** que dão um visual novo ao Securo
 - **Relatórios** para a página de relatórios, a partir de uma consulta que o Securo roda ou do código do próprio plugin
+- **Widgets** para o dashboard: um relatório do tamanho de um card, a partir de uma consulta ou de código
 
-Fora os relatórios com código, estes são plugins de dados: nada neles roda. Para ligar um workspace a um serviço de fora, veja [Criando um plugin com código](/pt-BR/docs/features/plugins/code).
+Fora os relatórios e widgets com código, estes são plugins de dados: nada neles roda. Para ligar um workspace a um serviço de fora, veja [Criando um plugin com código](/pt-BR/docs/features/plugins/code).
 
 ## Começo Rápido
 
@@ -240,9 +241,35 @@ Um **relatório de consulta** é só dados: o Securo soma os valores com as mesm
 
 Um **relatório com código** (`"code": true`) é calculado pelo próprio plugin, então precisa de um [`runtime`](/pt-BR/docs/features/plugins/code). Deixe de fora `group_by` e `categories` e liste em `inputs` os dados que ele recebe: `transactions`, `accounts` e `categories`, cada um com seu escopo de leitura (`transactions:read`, `accounts:read`, `categories:read`) em `api_scopes`. Quem instala vê isso e concorda. Veja [Relatórios](/pt-BR/docs/features/plugins/code#reportparams-context) para o método que ele implementa.
 
+### Widgets
+
+Os widgets de um plugin aparecem na **Biblioteca** do dashboard ao lado dos do Securo. Cada pessoa coloca os que quiser, move e redimensiona como qualquer outro widget. Um widget é um relatório do tamanho de um card: tem todos os campos de um [relatório](#relatórios), de consulta ou com código, segue as mesmas regras e tem mais dois campos próprios. Um plugin pode declarar até 20, com chaves separadas das dos relatórios.
+
+```json
+"widgets": [
+  {
+    "key": "streaming-this-year",
+    "name": { "en": "Streaming, last 12 months", "pt-BR": "Streaming, últimos 12 meses" },
+    "measure": "expenses",
+    "group_by": "month",
+    "categories": ["streaming"],
+    "chart": "bar",
+    "width": "third",
+    "period": "last_12_months"
+  }
+]
+```
+
+| Campo | Descrição |
+|-------|-----------|
+| `width` | `third`, `half` (padrão), `two_thirds` ou `full`: a largura inicial, até a pessoa redimensionar. Uma `table` começa com pelo menos metade da linha |
+| `period` | `month` (padrão), `year_to_date` ou `last_12_months`, contado a partir do mês que o dashboard mostra. Um widget dividido por mês precisa de mais de um mês |
+
+Um widget lê as contas em vista no dashboard. Um widget de consulta mostra o total e o gráfico (a tabela só quando `chart` é `table`). Um widget com código roda o [método `widget`](/pt-BR/docs/features/plugins/code#widgetparams-context) do plugin, e a view dele é desenhada dentro do card.
+
 ### Limites de um relatório de plugin
 
-Um relatório de plugin lê no máximo 731 dias (cerca de dois anos) de dados; pedir mais faz a API responder 422. A página de relatórios corta um período maior para os últimos 731 dias e diz na aba qual intervalo leu.
+Um relatório ou widget de plugin lê no máximo 731 dias (cerca de dois anos) de dados; pedir mais faz a API responder 422. A página de relatórios corta um período maior para os últimos 731 dias e diz na aba qual intervalo leu.
 
 A view que o código de um plugin devolve é checada antes de ser desenhada: no máximo 24 blocos, 12 séries num gráfico, 1.000 pontos numa série e 12.000 pontos de gráfico na view inteira (`len(x) * número de séries`, somado entre os gráficos). Um gráfico no limite por gráfico (12 séries de 1.000 pontos) cabe exatamente no total. Uma view acima de qualquer um desses é recusada com 502, e a mensagem diz o motivo ("the report returned an invalid view: ..."). O Securo não reduz os pontos por conta própria, então um plugin que precisa mostrar mais deve agregar: menos pontos por série, ou menos gráficos.
 
