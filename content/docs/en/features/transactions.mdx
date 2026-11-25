@@ -90,6 +90,13 @@ While filling the form, three helpers speed things up:
 
 Individual transactions can be marked as **ignored**: they stay in the list with a greyed amount and an "Ignored" badge but are left out of totals and reports, useful for reimbursements or corrections you want to keep visible. A gentler option is **Exclude from reports**: the row still counts toward the account balance, it just stops being income or expense in the dashboard and reports, for a work expense put on a personal card or anything else that is not really your spending.
 
+### Reading Receipts
+
+When the workspace has [document reading](/docs/features/agents#document-reading) turned on, a receipt (PDF, PNG, JPEG or WebP) can do the typing:
+
+- **Read receipt** on the Transactions page reads a file or a photo and lists the transactions it may belong to: same amount, dated from 3 days before to 10 days after the receipt. **Attach** files it on one of them, or **Create transaction** makes a new one with the receipt attached
+- **In a new transaction**, attaching a file to an untouched form fills in the empty fields (description, amount, date and category). Once you have started typing, **Fill in from this file** does it on request and leaves what you typed alone
+
 ### Installments
 
 A purchase paid in installments can be recorded as one: enter the total, set the **number of installments** (2 to 360) and the **frequency** (weekly, monthly, quarterly or yearly), and Securo creates the series with each charge on its date and the `3/12` counter in the list. Editing or deleting one of them asks how far the change should go: **this one**, **this and future**, or **all installments**.

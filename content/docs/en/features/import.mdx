@@ -53,6 +53,19 @@ A CSV exported from Securo writes a transaction [split across categories](/docs/
 - **More than one category is named**: two of your categories share the name, so Securo won't guess
 - **Each category can appear only once**: two parts point at the same category
 
+## Reading PDF and Photo Statements
+
+When the workspace has [document reading](/docs/features/agents#document-reading) turned on, the Import page also takes a bank statement or card bill as a **PDF or a photo** (PNG, JPEG or WebP, up to 10 MB). A language model reads it in the background, and the lines open in the same review as any other file, with the same rules, duplicate check and import history.
+
+Check these before confirming:
+
+- **The balance**: when the statement states its opening and closing balances, Securo adds up the rows and says whether they match, or by how much they are off
+- **What was left out**: lines the model could not read are counted, scanned pages a text-only model can't read are listed, and only the first 20 pages of a long document are read
+- **The account**: preselected from the last statement with the same layout
+- **Categories**: the model suggests one of your own categories per line, and a [rule](/docs/features/rules) that matches the line wins over it
+
+A password-protected PDF is refused: save a copy without the password first. A read that fails can be tried again.
+
 ## Import History
 
 Below the upload area, the **Import History** section shows all previous imports with their date, file name, and number of transactions imported. An import can also be **undone**: deleting it from the history removes the transactions it created, so a botched file is one click away from never having happened.
