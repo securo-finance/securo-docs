@@ -150,7 +150,7 @@ Defina no `.env` quando os padrões não servirem para o seu ambiente:
 
 O `DB_JIT` chega ao serviço `db` embutido pelo comando de inicialização dele, então também vale quando o container é recriado numa atualização. Se o seu PostgreSQL roda fora deste Compose, defina lá: `ALTER DATABASE securo SET jit = off;` (as conexões novas já pegam) ou `jit = off` no `postgresql.conf`. Deixe ligado num banco dedicado que roda sobretudo consultas analíticas.
 
-O `DB_POOL_SIZE` e o `DB_MAX_OVERFLOW` são lidos só pelo backend. O worker e o servidor MCP ficam com os padrões do SQLAlchemy; conte as conexões deles no `max_connections` antes de aumentar as da API.
+O `DB_POOL_SIZE` e o `DB_MAX_OVERFLOW` chegam ao backend e ao servidor MCP, que compartilham um engine. O worker do Celery abre um engine próprio dentro de cada tarefa e fica com os padrões do SQLAlchemy, 5 e 10; conte essas conexões no `max_connections` também.
 
 O **fuso horário** da aplicação (o que decide qual dia é o "hoje" para saldos, orçamentos, vencimentos e trabalhos agendados) é definido nas configurações de administração e segue um nome IANA como `America/Sao_Paulo`; workspaces individuais podem sobrescrevê-lo, veja [Workspaces](/pt-BR/docs/features/workspaces).
 
