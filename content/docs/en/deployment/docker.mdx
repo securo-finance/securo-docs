@@ -144,6 +144,13 @@ Set these in `.env` when the defaults do not fit your setup:
 | `OPENEXCHANGERATES_APP_ID` | none | Enables automatic currency conversion with a free [Open Exchange Rates](https://openexchangerates.org/) key. Rates are fetched on demand when foreign-currency transactions are created; without a key, cross-currency amounts fall back to a 1:1 rate with a visual warning |
 | `TZ` | host timezone | The startup default for the application timezone when no value has been saved in Admin Settings: Securo follows `TZ`, then the host timezone, then UTC, so an existing installation keeps behaving as before until someone picks a timezone in **Admin Settings → Date and time** |
 | `FRONTEND_DIST_PATH` | none | Off by default. Point it at a built frontend (the `dist` folder from `npm run build`) and the backend serves the app itself on its own port, without the frontend container. Health checks should then use `/api/health` |
+| `DB_JIT` | `off` | PostgreSQL's JIT compiler. Securo's queries are short and indexed, and compiling them costs more than it saves: on a hosted instance a plain transaction list took 1222 ms with it on and 229 ms with it off. Set `DB_JIT=on` to keep PostgreSQL's default, which pays off on a database that also runs long analytical queries |
+| `DB_POOL_SIZE` | `5` | Connections the API keeps open to the database. Raise it, together with `DB_MAX_OVERFLOW`, when many people share one instance: the ceiling is the database's `max_connections` (100 by default), and every worker and every Celery process takes its connections from it too |
+| `DB_MAX_OVERFLOW` | `10` | Extra connections a burst may open before a request waits for a free one. A request that still finds none answers 503 with `Retry-After`, saying the instance is at its connection limit, instead of failing as a server error |
+
+`DB_JIT` reaches the bundled `db` service through its startup command, so it also applies when the container is recreated for an upgrade. If your PostgreSQL runs outside this Compose file, set it there instead: `ALTER DATABASE securo SET jit = off;` (new connections pick it up straight away) or `jit = off` in `postgresql.conf`. Leave it on for a dedicated database that mostly runs analytical queries.
+
+`DB_POOL_SIZE` and `DB_MAX_OVERFLOW` are read by the backend only. The worker and the MCP server keep SQLAlchemy's defaults; count their connections against `max_connections` before raising the API's.
 
 The application **timezone** (the one that decides which day "today" is for balances, budgets, due dates and scheduled work) is set in the admin settings and follows an IANA name like `America/Sao_Paulo`; individual workspaces can override it, see [Workspaces](/docs/features/workspaces).
 
