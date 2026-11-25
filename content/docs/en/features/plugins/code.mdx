@@ -69,10 +69,26 @@ On top of the [usual fields](/docs/features/plugins/authoring#the-manifest):
 | `key` | Required, stable across versions |
 | `name`, `description` | Shown when setting up a connection |
 | `auth` | `credentials` (a form), `oauth` (sign in at the service) or `none` |
-| `fields` | The form: each field has `key`, `label`, `secret` (default `false`) and `required` (default `true`) |
+| `fields` | The form: each field has `key`, `label`, `secret` (default `false`), `required` (default `true`) and `type` (`text`, the default, or `file`) |
 | `sync_minutes` | Optional, 15 to 10080. Securo calls `sync` this often |
+| `routines` | Optional, up to 10. Work that runs on its own schedule, apart from `sync` (see [Routines](#routines)) |
 
 Secret fields are stored encrypted and passed only to your plugin. Other fields are settings the person can see.
+
+#### File fields
+
+A field with `"type": "file"` asks for a file when the connection is set up: a key bundle, a client certificate, a mapping the person prepared. `accept` lists the extensions it takes (such as `[".pem", ".pdf"]`, up to 10) and `max_kb` caps its size (512 by default, up to 2048). Your plugin gets it in `context.secrets` (when the field is `secret`) or `context.config` as `{"name": ..., "content": ...}`, with the content in base64. Securo never shows the content again: a file in a settings field shows as its name and size, a secret one only as set. Saving the form again without picking a file keeps the one already there.
+
+#### Routines
+
+Each routine has a `key`, a `name`, `every_minutes` (15 to 10080) and, optionally, `timeout_seconds` (5 to 600, still capped by the runner's own call limit). Securo calls [`routine`](#routineparams-context) for each one on its schedule. A routine keeps its own state, last run and failures, and a failing routine backs off on its own without changing the connection's status. An integration with routines and no `sync_minutes` never calls `sync`.
+
+```json
+"routines": [
+  { "key": "send", "name": "Send pending invoices", "every_minutes": 60 },
+  { "key": "cleanup", "name": "Weekly cleanup", "every_minutes": 10080, "timeout_seconds": 300 }
+]
+```
 
 ### Scopes
 
@@ -121,6 +137,12 @@ Return a dict with:
 - `secrets` (optional): values to store with the connection's secrets, such as a refreshed token
 
 Raise an exception to report a failure; its message is shown to the person, with any secret value masked. Raise an exception named `NeedsAuth` when the person has to sign in again or replace a key.
+
+### `routine(params, context)`
+
+Called for each of the integration's routines when it is due, and when someone clicks **Run now** next to it. `params` has `routine` (the routine's key), `state` (what that routine returned last time) and `last_run_at`. Return `state` and, optionally, `secrets`, as `sync` does; exceptions and `NeedsAuth` work the same way, and `NeedsAuth` stops the connection's sync and every routine until someone signs in again.
+
+Routines and `sync` of one connection never run at the same time, so secrets one call refreshes are never overwritten by another. A routine that finds its connection busy waits for the next round. When someone saves new values on a connection that only runs routines, Securo runs every routine once right away, to tell whether the new keys work.
 
 ### Signing in (`auth: "oauth"`)
 

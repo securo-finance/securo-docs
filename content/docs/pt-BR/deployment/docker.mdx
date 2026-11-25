@@ -139,6 +139,24 @@ Defina no `.env` quando os padrões não servirem para o seu ambiente:
 
 O **fuso horário** da aplicação (o que decide qual dia é o "hoje" para saldos, orçamentos, vencimentos e trabalhos agendados) é definido nas configurações de administração e segue um nome IANA como `America/Sao_Paulo`; workspaces individuais podem sobrescrevê-lo, veja [Workspaces](/pt-BR/docs/features/workspaces).
 
+## Tipos de Anexo Aceitos
+
+Os anexos de transações e de cobranças aceitam `jpg, jpeg, png, webp, gif, heic, pdf, xml` por padrão. Imagens e PDFs abrem na prévia do app; qualquer outro tipo, XML incluído, é sempre entregue como download, então um arquivo nunca é exibido no próprio endereço do app. Quando alguém escolhe um arquivo de outro tipo, o erro lista os tipos que o seu servidor aceita.
+
+Para mudar a lista, defina `STORAGE_ALLOWED_EXTENSIONS` com as extensões que você quer, separadas por vírgula. O backend lê a variável do próprio ambiente, e o `.env` sozinho não chega até ele: adicione a chave, sem valor, ao bloco compartilhado `x-backend-env` no topo do `docker-compose.prod.yml` (e do `docker-compose.yml`, se você usa), e defina o valor no `.env`:
+
+```yaml
+x-backend-env: &backend-env
+  # ...
+  STORAGE_ALLOWED_EXTENSIONS:
+```
+
+```bash
+STORAGE_ALLOWED_EXTENSIONS=jpg,jpeg,png,pdf,xml,csv
+```
+
+Não coloque a chave no `environment:` do próprio serviço backend: esse bloco substitui o compartilhado em vez de somar a ele, e o backend perde o `DATABASE_URL` e o resto das configurações.
+
 ## Guardando Anexos no S3
 
 Por padrão, os anexos são arquivos no volume `attachments`. Para guardá-los num bucket compatível com S3 (AWS S3, MinIO, Garage e outros), crie um bucket privado e defina no `.env`:

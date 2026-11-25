@@ -19,6 +19,23 @@ Transactions tagged as **transfers** between your own accounts are marked with a
 
 The **description** of a synced transaction is editable too: rename it, and the bank's own text stays underneath with a **Restore original** link. The amount, date and account stay exactly as the bank sent them; editing the manual side of a transfer never changes the amount or date of a synced counterpart either.
 
+### Paid or Unpaid
+
+The pending or posted status says whether the **bank** settled a row. The **paid** mark says whether **you** did: a bill typed in for next week is posted by the bank's clock and still unpaid, and a statement row can be something you still have to settle. Unpaid rows carry an **Unpaid** badge, and one click on the row (or **Mark as paid** / **Mark as unpaid** in the edit dialog) flips it.
+
+- Rows that come from a statement, through bank sync or a file import, start **paid**, since that money already moved. So do group settle-ups and an account's opening balance
+- Rows you type, transfers you record and the placeholders a [recurring bill](/docs/features/recurring) creates for a date ahead start **unpaid**. When the bank sync takes over one of them, or a synced or imported charge fulfils a recurring placeholder, it becomes paid
+- After that the mark is yours: later syncs never change it
+- Transactions that already existed on the update are taken as paid, except those dated in the future, such as installments still to come
+
+The mark doesn't change any total, balance or report yet. Use the **Only unpaid** filter to list what is still to settle; the CSV export follows it too.
+
+### New Transactions to Review
+
+Every transaction that arrives by bank sync or file import starts as **new**, with a **New** badge, until someone opens it. Rows you create in the app, transfers, settle-ups and opening balances start as already read.
+
+The **New only** filter is the review queue. It opens on the whole history, not on the current month, so an import that brought in last month's rows doesn't show "nothing to review"; turning it off puts your date range back. A banner counts the new rows the other filters leave out, and **Mark all as read in this workspace** clears every new row at once, with the count on the button.
+
 ### Reporting Date
 
 Sometimes a synced charge lands in the wrong period for your books: the rent debited on the 31st that belongs to next month, a salary paid a day early. Instead of changing the bank's date, set a **Reporting date** in its edit dialog (on a credit card, the effective bill date does this job). Reports, budgets, the dashboard and the transaction list then count the row in the reporting date's period, while the **Bank date** stays as the bank sent it; a moved row shows a badge with its reporting date and keeps its bank date in the list. **Reset reporting date** goes back to the automatic period, and later syncs keep the date you set.
@@ -63,14 +80,22 @@ There are three ways in: the **+ Add Transaction** button in the top right, a **
 7. **Status**: **Posted** for money that already moved, **Pending** for a bill you know is coming. Pending transactions are excluded from the dashboard's period totals until they post
 8. **Notes** (optional): Any additional context
 
-Transactions also support **file attachments**: you can attach receipts or invoices to any transaction for record keeping. Attached transactions show a paperclip icon in the list. The dialog can also **make the transaction recurring** on the spot, creating a schedule from what you just entered.
+Transactions also support **file attachments**: you can attach receipts or invoices to any transaction for record keeping. Attached transactions show a paperclip icon in the list. Images, PDFs and XML files are accepted by default (an electronic invoice in XML, for example); images and PDFs open in a preview, and any other file is offered as a download. The server's administrator can change the accepted types (see [Accepted Attachment Types](/docs/deployment/docker#accepted-attachment-types)). The dialog can also **make the transaction recurring** on the spot, creating a schedule from what you just entered.
 
-While filling the form, two helpers speed things up:
+While filling the form, three helpers speed things up:
 
 - **Description suggestions**: the description field offers descriptions you have used before. Picking one also fills in the category and payee it was last filed under, leaving anything you already chose alone
 - **Create on the spot**: when a category or payee search matches nothing, the picker offers to **create it** and selects it in place, in the transaction dialog, the rule dialog and the import review
+- **Add or edit the payee in place**: next to the payee field, the transaction dialog has a button that adds a new payee and, once one is picked, another that edits it. Both open the same form as the Payees page (name, type, tax ids, email, phone, website, address and notes), and the payee you save is selected in the transaction. They show only to members who can edit the workspace
 
 Individual transactions can be marked as **ignored**: they stay in the list with a greyed amount and an "Ignored" badge but are left out of totals and reports, useful for reimbursements or corrections you want to keep visible. A gentler option is **Exclude from reports**: the row still counts toward the account balance, it just stops being income or expense in the dashboard and reports, for a work expense put on a personal card or anything else that is not really your spending.
+
+### Reading Receipts
+
+When the workspace has [document reading](/docs/features/agents#document-reading) turned on, a receipt (PDF, PNG, JPEG or WebP) can do the typing:
+
+- **Read receipt** on the Transactions page reads a file or a photo and lists the transactions it may belong to: same amount, dated from 3 days before to 10 days after the receipt. **Attach** files it on one of them, or **Create transaction** makes a new one with the receipt attached
+- **In a new transaction**, attaching a file to an untouched form fills in the empty fields (description, amount, date and category). Once you have started typing, **Fill in from this file** does it on request and leaves what you typed alone
 
 ### Installments
 
@@ -93,7 +118,7 @@ For **cross-currency transfers** (e.g., BRL to USD), Securo asks for both amount
 
 ### Linking and Unlinking Transfers
 
-If a transfer was imported or entered as two separate transactions, select both and **link them as a transfer pair**. Securo then treats them as a single transfer. You can **unlink** a pair at any time to turn them back into independent transactions; unlinking asks for confirmation first, since the freed leg starts counting as income or expense again. [Transfer pairing rules](/docs/features/rules) do most of this linking for you as transactions arrive.
+If a transfer was imported or entered as two separate transactions, select both and **link them as a transfer pair**. Securo then treats them as a single transfer. You can **unlink** a pair at any time to turn them back into independent transactions; unlinking asks for confirmation first, since the freed leg starts counting as income or expense again. [Transfer pairing rules](/docs/features/rules#transfer-pairing-rules) do most of this linking for you: they run on rows from bank sync and file imports, on rows you add by hand, and on a row whose amount, date or account you edit.
 
 ## Splitting Across Categories
 
@@ -141,6 +166,8 @@ The filter bar at the top provides multiple ways to narrow down your transaction
 - **Payee**: Filter by merchant or person
 - **Type**: Show only income, only expenses, or **transfers** (both linked pairs and transactions in a category marked as a transfer, including split transactions with a part in one; the totals then count only the transfer parts)
 - **Status**: All, posted only, or pending only
+- **Only unpaid**: rows still [marked as unpaid](#paid-or-unpaid)
+- **New only**: the [review queue](#new-transactions-to-review) of rows nobody opened yet
 - **Hide ignored**: drop ignored rows from the list
 - **Amount**: Set a minimum and/or maximum value
 - **Date range**: Set start and end dates with the date picker

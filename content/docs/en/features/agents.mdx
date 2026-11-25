@@ -62,6 +62,21 @@ Once the server is running, add a connection in Securo. For Ollama, choose the *
 If Securo runs in Docker, `localhost` inside the container is not your host machine. On macOS and Windows, point the connection at `http://host.docker.internal:11434` for Ollama or `http://host.docker.internal:1234` for LM Studio; on Linux, use your host's LAN IP address.
 </Callout>
 
+## Document Reading
+
+A connection can also read documents: [PDF and photo statements](/docs/features/import#reading-pdf-and-photo-statements) and [receipts](/docs/features/transactions#reading-receipts). It is off until a workspace owner turns it on. It needs `AGENTS_ENABLED=true` and nothing else: the reads run on the regular Celery worker, so the extra agents containers are not required for it.
+
+A workspace owner picks one of their own connections in the workspace settings, under **Document reading**, or with **Use for document reading** on the connection itself. Two settings are optional:
+
+- **Model**: a different model from the connection's default
+- **Reads images**: **Detect automatically**, **Yes** or **No, text only**. Detection asks Ollama or recognizes the model's name; set it by hand when it gets a model wrong
+
+PDFs that contain text work with any model. Photos and scanned PDFs need a model that reads images, such as `qwen2.5vl`, `llama3.2-vision`, `gpt-4o-mini` or Claude. If the connection is deleted, or its owner leaves the workspace, document reading turns off.
+
+<Callout>
+Documents are sent to the connection's provider. With Ollama on your own server, they never leave it.
+</Callout>
+
 ## Creating an Agent
 
 Click **New agent** and configure:

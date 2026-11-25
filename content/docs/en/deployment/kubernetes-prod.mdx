@@ -85,7 +85,7 @@ Securo connects to a single Redis endpoint for caching, rate limiting, and Celer
 
 ### Client Certificates, Private CAs and Extra Settings
 
-`backend`, `celeryWorker`, `celeryBeat` and `migration` each take `extraEnv`, `extraEnvFrom`, `extraVolumes` and `extraVolumeMounts`, empty by default and written in the usual Kubernetes shapes. `extraEnv` is read after the chart's ConfigMap and Secret, so it wins over both. Give the migration Job the same extras as the pods: it reaches the database first.
+`backend`, `celeryWorker`, `celeryBeat`, `migration` and `mcpServer` each take `extraEnv`, `extraEnvFrom`, `extraVolumes` and `extraVolumeMounts`, empty by default and written in the usual Kubernetes shapes. `extraEnv` is read after the chart's ConfigMap and Secret, so it wins over both. Give the migration Job the same extras as the pods: it reaches the database first. Each pod's `wait-for-schema` init container takes that pod's own extras, so it reaches the database the same way.
 
 For example, a PostgreSQL that authenticates with a TLS client certificate:
 
@@ -111,7 +111,7 @@ backend:
       readOnly: true
 ```
 
-Repeat the block under `celeryWorker`, `celeryBeat` and `migration`, since they connect to the same database.
+Repeat the block under `celeryWorker`, `celeryBeat` and `migration`, since they connect to the same database, and under `mcpServer` when the AI agents and the MCP server are on: it opens its own database sessions for the agents' tools.
 
 To mount a PersistentVolumeClaim you already have for attachments, set `persistence.attachments.existingClaim` to its name and keep `persistence.attachments.enabled: true`; the chart then creates no claim of its own and leaves yours alone on uninstall.
 
@@ -180,6 +180,29 @@ Copy the files already in the attachments volume to the bucket before you disabl
 ### Singleton Celery Beat Scheduler
 
 While Backend and Celery Worker pods scale horizontally, **Celery Beat must run as a strict singleton** (exactly 1 replica) to prevent duplicate background scheduling (such as duplicate bank sync jobs). The Helm chart automatically enforces this constraint.
+
+### Plugins With Code
+
+Data plugins (categories, rules, themes) only need `config.pluginsEnabled: "true"`. [Plugins with code](/docs/features/plugins#plugins-with-code) also need the plugin runner and its egress proxy, which the chart creates:
+
+```yaml
+# values-production.yaml
+config:
+  pluginsEnabled: "true"
+
+plugins:
+  runner:
+    enabled: true
+```
+
+- **Credentials**: the chart generates a Secret with a random runner token and egress secret, kept across upgrades. To bring your own, set `plugins.runner.existingSecret` to a Secret with `PLUGINS_RUNNER_TOKEN` and `PLUGINS_EGRESS_SECRET`, each at least 32 characters, or set `plugins.runner.token` and `plugins.runner.egressSecret`. To rotate, set new values for those two: the pods roll together. With a Secret of your own, restart the runner StatefulSet and the egress, backend, worker and beat Deployments after changing it
+- **GitOps**: under Argo CD, Flux or plain `helm template`, the chart can't read the existing Secret, so every sync would generate a new pair. Manage the Secret yourself there (`existingSecret`) or set fixed values
+- **Existing releases**: turn the runner on with `helm upgrade --reset-then-reuse-values` (Helm 3.14+). `--reuse-values --set plugins.runner.enabled=true` leaves the rest of `plugins.runner` unset and the render stops; on older Helm, pass a values file with every override the release already has
+- **Pod Security**: the runner runs as root so it can give each plugin its own user, so its namespace needs the `baseline` Pod Security Standard or looser
+- **One replica**: the runner is a one-replica StatefulSet, and the chart refuses more. Its volume keeps the installed plugin code and survives turning the runner off
+- **Network**: a NetworkPolicy, on by default, lets the runner reach only the backend, the worker, beat, DNS and the egress proxy. Keep it on unless your CNI doesn't enforce `NetworkPolicy`. If your cluster resolves through an address the policy can't match (a NodeLocal DNSCache at `169.254.20.10`, say), list it in `plugins.networkPolicy.dnsCIDRs`
+
+Plugin code reaches the internet only through the egress proxy, which allows the hosts each plugin declared and refuses private addresses. DNS is the exception: plugin code can send queries to the cluster resolver.
 
 ---
 
@@ -307,18 +330,17 @@ helm install securo oci://ghcr.io/securo-finance/charts/securo \
 
 ---
 
-## 7. Automated Database Migrations
+## 7. Database Migrations
 
-The Helm chart includes a pre-configured database migration `Job` annotated with `post-install` and `post-upgrade` hooks:
+Every install and upgrade creates a migration Job that runs `alembic upgrade head` with the release's new image and configuration. The backend, Celery worker, Celery beat and MCP server pods start with a `wait-for-schema` init container that checks the database every 5 seconds and lets the pod start only once it is at the migration head of the pod's image.
 
-```yaml
-annotations:
-  "helm.sh/hook": post-install,post-upgrade
-  "helm.sh/hook-weight": "5"
-  "helm.sh/hook-delete-policy": hook-succeeded
-```
+- **First install**: the Job retries until the database accepts connections, so the bundled PostgreSQL can come up next to it. The other pods stay in `Init` until the Job finishes
+- **Upgrade**: the new pods stay in `Init` until the database reaches the new image's head, and the Deployments keep the old pods serving until then. A migration that rewrites a large table keeps them there for as long as it takes, so give `helm upgrade --wait` a `--timeout` above that
+- **Following it**: each upgrade gets a fresh Job, named after its pod template and the release revision, and Helm deletes the previous one. Read its output with `kubectl logs job/<name>`
+- **When it fails**: the new pods stay in `Init` and the old ones keep serving. Fix the cause and run `helm upgrade` again
+- **Going back**: an older image does not downgrade the database, so its pods stay in `Init`. Restore the backup you took before the upgrade, or stay on the newer version
 
-Because this job is configured as a `post-install` and `post-upgrade` hook, it runs `alembic upgrade head` with built-in retry logic after the new pods roll out during installation and upgrades.
+Before this change the Job was a `post-install` and `post-upgrade` hook, which Helm runs only after the new pods are ready: each upgrade with a schema change served the new code against the old schema until the Job finished.
 
 ---
 

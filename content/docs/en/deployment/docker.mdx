@@ -139,6 +139,24 @@ Set these in `.env` when the defaults do not fit your setup:
 
 The application **timezone** (the one that decides which day "today" is for balances, budgets, due dates and scheduled work) is set in the admin settings and follows an IANA name like `America/Sao_Paulo`; individual workspaces can override it, see [Workspaces](/docs/features/workspaces).
 
+## Accepted Attachment Types
+
+Transaction and invoice attachments accept `jpg, jpeg, png, webp, gif, heic, pdf, xml` by default. Images and PDFs open in the app's preview; any other type, XML included, is always served as a download, so a file is never rendered on the app's own address. When someone picks a file of another type, the error lists the types your server accepts.
+
+To change the list, set `STORAGE_ALLOWED_EXTENSIONS` to the extensions you want, comma separated. The backend reads it from its own environment, and `.env` does not reach it on its own: add the key, with no value, to the shared `x-backend-env` block at the top of `docker-compose.prod.yml` (and `docker-compose.yml`, if you use it), then set the value in `.env`:
+
+```yaml
+x-backend-env: &backend-env
+  # ...
+  STORAGE_ALLOWED_EXTENSIONS:
+```
+
+```bash
+STORAGE_ALLOWED_EXTENSIONS=jpg,jpeg,png,pdf,xml,csv
+```
+
+Don't add it under the backend service's own `environment:`: that block replaces the shared one instead of adding to it, and the backend loses `DATABASE_URL` and the rest of its settings.
+
 ## Storing Attachments in S3
 
 By default, attachments are files in the `attachments` volume. To keep them in an S3-compatible bucket instead (AWS S3, MinIO, Garage and others), create a private bucket and set in `.env`:

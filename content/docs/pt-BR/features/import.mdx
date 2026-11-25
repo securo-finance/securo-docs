@@ -53,6 +53,19 @@ Um CSV exportado pelo Securo escreve uma transação [dividida por categoria](/p
 - **Mais de uma categoria se chama**: duas das suas categorias têm o mesmo nome, e o Securo não tenta adivinhar
 - **Cada categoria só pode aparecer uma vez**: duas partes apontam para a mesma categoria
 
+## Lendo Extratos em PDF e Foto
+
+Quando o workspace tem a [leitura de documentos](/pt-BR/docs/features/agents#leitura-de-documentos) ligada, a página de Importar também aceita um extrato bancário ou fatura de cartão em **PDF ou foto** (PNG, JPEG ou WebP, até 10 MB). Um modelo de linguagem lê o arquivo em segundo plano, e as linhas abrem na mesma revisão de qualquer outro arquivo, com as mesmas regras, checagem de duplicatas e histórico de importação.
+
+Confira antes de confirmar:
+
+- **O saldo**: quando o extrato informa os saldos inicial e final, o Securo soma os lançamentos e diz se eles fecham, ou qual é a diferença
+- **O que ficou de fora**: as linhas que o modelo não conseguiu ler são contadas, as páginas escaneadas que um modelo só de texto não lê são listadas, e só as primeiras 20 páginas de um documento longo são lidas
+- **A conta**: já vem escolhida pelo último extrato com o mesmo layout
+- **As categorias**: o modelo sugere uma das suas próprias categorias por linha, e uma [regra](/pt-BR/docs/features/rules) que case com a linha tem precedência
+
+Um PDF com senha é recusado: salve antes uma cópia sem a senha. Uma leitura que falhou pode ser tentada de novo.
+
 ## Histórico de Importação
 
 Abaixo da área de upload, a seção **Histórico de Importação** mostra todas as importações anteriores, com data, nome do arquivo e quantidade de transações importadas. Uma importação também pode ser **desfeita**: excluí-la do histórico remove as transações que ela criou, então um arquivo errado fica a um clique de nunca ter acontecido.

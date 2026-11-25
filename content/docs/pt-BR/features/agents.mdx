@@ -62,6 +62,21 @@ Com o servidor rodando, adicione uma conexão no Securo. Para Ollama, escolha o 
 Se o Securo roda em Docker, `localhost` dentro do container não é a sua máquina host. No macOS e no Windows, aponte a conexão para `http://host.docker.internal:11434` (Ollama) ou `http://host.docker.internal:1234` (LM Studio); no Linux, use o IP de LAN da sua máquina host.
 </Callout>
 
+## Leitura de Documentos
+
+Uma conexão também pode ler documentos: [extratos em PDF e foto](/pt-BR/docs/features/import#lendo-extratos-em-pdf-e-foto) e [recibos](/pt-BR/docs/features/transactions#lendo-recibos). Fica desligada até um dono do workspace ligar. Precisa de `AGENTS_ENABLED=true` e mais nada: as leituras rodam no worker normal do Celery, então os containers extras dos agentes não são necessários para ela.
+
+Um dono do workspace escolhe uma das próprias conexões nas configurações do workspace, em **Leitura de documentos**, ou com **Usar para ler documentos** na própria conexão. Dois ajustes são opcionais:
+
+- **Modelo**: um modelo diferente do padrão da conexão
+- **Lê imagens**: **Detectar automaticamente**, **Sim** ou **Não, só texto**. A detecção pergunta ao Ollama ou reconhece o nome do modelo; defina à mão quando ela errar
+
+PDFs com texto funcionam com qualquer modelo. Fotos e PDFs escaneados precisam de um modelo que leia imagens, como `qwen2.5vl`, `llama3.2-vision`, `gpt-4o-mini` ou Claude. Se a conexão for excluída, ou se o dono dela sair do workspace, a leitura de documentos é desligada.
+
+<Callout>
+Os documentos são enviados ao provedor da conexão. Com o Ollama no seu próprio servidor, eles nunca saem dele.
+</Callout>
+
 ## Criando um Agente
 
 Clique em **Novo agente** e configure:

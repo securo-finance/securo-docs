@@ -19,6 +19,23 @@ Transações marcadas como **transferências** entre suas próprias contas receb
 
 A **descrição** de uma transação sincronizada também é editável: renomeie, e o texto original do banco fica embaixo com um link **Restaurar original**. Valor, data e conta continuam exatamente como o banco enviou; editar o lado manual de uma transferência também nunca muda o valor ou a data da contraparte sincronizada.
 
+### Pago ou Não Pago
+
+O status pendente ou lançada diz se o **banco** liquidou a linha. A marca de **pago** diz se **você** liquidou: uma conta digitada para a semana que vem já está lançada pelo relógio do banco e continua não paga, e uma linha do extrato pode ser algo que você ainda precisa acertar. Linhas não pagas levam o selo **Não pago**, e um clique na linha (ou **Marcar como pago** / **Marcar como não pago** no diálogo de edição) troca a marca.
+
+- Linhas que vêm de um extrato, pela sincronização bancária ou por importação de arquivo, nascem **pagas**, porque esse dinheiro já se moveu. O mesmo vale para acertos de grupo e para o saldo inicial de uma conta
+- Linhas que você digita, transferências que você registra e os lançamentos que uma [recorrente](/pt-BR/docs/features/recurring) cria para uma data futura nascem **não pagas**. Quando a sincronização bancária assume uma delas, ou quando uma cobrança sincronizada ou importada cumpre um lançamento recorrente, ela passa a paga
+- Daí em diante a marca é sua: as próximas sincronizações nunca mudam ela
+- As transações que já existiam na atualização são tratadas como pagas, menos as com data futura, como parcelas que ainda vão vencer
+
+Por enquanto a marca não muda nenhum total, saldo ou relatório. Use o filtro **Só não pagos** para listar o que falta acertar; a exportação em CSV também segue esse filtro.
+
+### Transações Novas para Revisar
+
+Toda transação que chega pela sincronização bancária ou por importação de arquivo começa como **nova**, com o selo **Nova**, até alguém abri-la. Linhas criadas no app, transferências, acertos e saldos iniciais já começam como lidas.
+
+O filtro **Somente novas** é a fila de revisão. Ele abre no histórico inteiro, e não no mês atual, para que uma importação que trouxe linhas do mês passado não mostre "nada para revisar"; ao desligar, o seu período volta. Um aviso conta as linhas novas que os outros filtros deixam de fora, e **Marcar todas como lidas neste workspace** limpa todas as novas de uma vez, com a contagem no botão.
+
 ### Data de Competência
 
 Às vezes uma cobrança sincronizada cai no período errado para as suas contas: o aluguel debitado no dia 31 que pertence ao mês seguinte, um salário pago um dia antes. Em vez de mudar a data do banco, defina uma **Data de competência** no diálogo de edição (no cartão de crédito, a data efetiva da fatura faz esse papel). Relatórios, orçamentos, o painel e a lista de transações passam a contar a linha no período da data de competência, enquanto a **Data do banco** fica como o banco enviou; uma linha movida mostra um selo com a data de competência e mantém a data do banco na lista. **Redefinir data de competência** volta ao período automático, e as próximas sincronizações mantêm a data que você definiu.
@@ -63,14 +80,22 @@ Há três entradas: o botão **+ Adicionar Transação** no canto superior direi
 7. **Status**: **Lançada** para dinheiro que já se moveu, **Pendente** para uma conta que você sabe que vem. Transações pendentes ficam fora dos totais do período no dashboard até serem lançadas
 8. **Notas** (opcional): qualquer contexto adicional
 
-As transações também suportam **anexos**: você pode anexar recibos ou notas fiscais a qualquer transação para fins de registro. Transações com anexo mostram um ícone de clipe na lista. O diálogo também pode **tornar a transação recorrente** na hora, criando uma agenda a partir do que você acabou de preencher.
+As transações também suportam **anexos**: você pode anexar recibos ou notas fiscais a qualquer transação para fins de registro. Transações com anexo mostram um ícone de clipe na lista. Por padrão são aceitos imagens, PDFs e arquivos XML (o XML de uma nota fiscal eletrônica, por exemplo); imagens e PDFs abrem numa prévia, e qualquer outro arquivo é oferecido para download. O administrador do servidor pode mudar os tipos aceitos (veja [Tipos de Anexo Aceitos](/pt-BR/docs/deployment/docker#tipos-de-anexo-aceitos)). O diálogo também pode **tornar a transação recorrente** na hora, criando uma agenda a partir do que você acabou de preencher.
 
-Enquanto você preenche o formulário, dois ajudantes aceleram:
+Enquanto você preenche o formulário, três ajudantes aceleram:
 
 - **Sugestões de descrição**: o campo de descrição oferece descrições que você já usou. Escolher uma também preenche a categoria e o beneficiário sob os quais ela foi arquivada da última vez, deixando intacto o que você já escolheu
 - **Criar na hora**: quando a busca de categoria ou beneficiário não encontra nada, o seletor oferece **criar** o que você digitou e já seleciona no lugar, no diálogo de transação, no diálogo de regra e na revisão da importação
+- **Adicionar ou editar o beneficiário no lugar**: ao lado do campo de beneficiário, o diálogo de transação tem um botão que adiciona um beneficiário novo e, depois que um é escolhido, outro que o edita. Os dois abrem o mesmo formulário da página de Beneficiários (nome, tipo, documentos, e-mail, telefone, site, endereço e notas), e o beneficiário salvo fica selecionado na transação. Eles só aparecem para quem pode editar o workspace
 
 Transações individuais podem ser marcadas como **ignoradas**: elas continuam na lista com o valor acinzentado e um selo "Ignorada", mas ficam fora dos totais e relatórios, útil para reembolsos ou correções que você quer manter visíveis. Uma opção mais leve é **Excluir dos relatórios**: a linha continua contando no saldo da conta, só deixa de ser receita ou despesa no dashboard e nos relatórios, para uma despesa do trabalho paga no cartão pessoal ou qualquer outra coisa que não é de fato um gasto seu.
+
+### Lendo Recibos
+
+Quando o workspace tem a [leitura de documentos](/pt-BR/docs/features/agents#leitura-de-documentos) ligada, um recibo (PDF, PNG, JPEG ou WebP) pode digitar por você:
+
+- **Ler recibo**, na página de Transações, lê um arquivo ou uma foto e lista as transações a que ele pode pertencer: mesmo valor, com data de 3 dias antes a 10 dias depois do recibo. **Anexar** guarda o recibo em uma delas, ou **Criar transação** faz uma nova com o recibo anexado
+- **Numa transação nova**, anexar um arquivo a um formulário ainda intocado preenche os campos vazios (descrição, valor, data e categoria). Se você já começou a digitar, **Preencher com este arquivo** faz isso a pedido e não mexe no que você digitou
 
 ### Parcelas
 
@@ -93,7 +118,7 @@ Para **transferências entre moedas** (ex.: BRL para USD), o Securo pede os dois
 
 ### Vinculando e Desvinculando Transferências
 
-Se uma transferência foi importada ou lançada como duas transações separadas, selecione as duas e **vincule como par de transferência**. O Securo passa a tratá-las como uma única transferência. Você pode **desvincular** o par a qualquer momento para voltar a ter transações independentes; desvincular pede confirmação primeiro, já que a perna liberada volta a contar como receita ou despesa. As [regras de pareamento de transferências](/pt-BR/docs/features/rules) fazem a maior parte desses vínculos sozinha quando as transações chegam.
+Se uma transferência foi importada ou lançada como duas transações separadas, selecione as duas e **vincule como par de transferência**. O Securo passa a tratá-las como uma única transferência. Você pode **desvincular** o par a qualquer momento para voltar a ter transações independentes; desvincular pede confirmação primeiro, já que a perna liberada volta a contar como receita ou despesa. As [regras de pareamento de transferências](/pt-BR/docs/features/rules#regras-de-pareamento-de-transferências) fazem a maior parte desses vínculos sozinhas: elas rodam nas linhas da sincronização bancária e das importações de arquivo, nas linhas que você adiciona à mão e numa linha cujo valor, data ou conta você edita.
 
 ## Dividindo por Categoria
 
@@ -141,6 +166,8 @@ A barra de filtros no topo oferece várias formas de refinar suas transações:
 - **Beneficiário**: filtre por estabelecimento ou pessoa
 - **Tipo**: mostre só entradas, só despesas ou **transferências** (pares vinculados e transações em categoria marcada como transferência, incluindo transações divididas com uma parte numa delas; os totais contam então só as partes de transferência)
 - **Status**: todas, só lançadas ou só pendentes
+- **Só não pagos**: linhas ainda [marcadas como não pagas](#pago-ou-não-pago)
+- **Somente novas**: a [fila de revisão](#transações-novas-para-revisar) das linhas que ninguém abriu ainda
 - **Ocultar ignoradas**: tira as linhas ignoradas da lista
 - **Valor**: defina um valor mínimo e/ou máximo
 - **Período**: defina datas inicial e final com o seletor
