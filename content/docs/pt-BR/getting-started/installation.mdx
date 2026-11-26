@@ -103,7 +103,7 @@ A `SECRET_KEY` assina os tokens de login e criptografa as credenciais salvas (co
 openssl rand -hex 32
 ```
 
-Os placeholders antigos (`change-me-in-production`, `dev-secret-change-in-production`) contam como vazios, então uma instalação que ainda usa um deles também ganha uma chave própria.
+Os placeholders antigos (`change-me-in-production`, `dev-secret-change-in-production`) contam como vazios, então uma instalação que ainda usa um deles também ganha uma chave própria. Se você prefere que a instância se recuse a iniciar sem uma chave sua, defina `REQUIRE_SECRET_KEY=true` (veja o [guia do Docker](/pt-BR/docs/deployment/docker#2-clone-e-configure)).
 
 ## Integrações Opcionais
 

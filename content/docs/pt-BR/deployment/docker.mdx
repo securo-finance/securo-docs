@@ -52,6 +52,8 @@ echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
 
 Definir a `SECRET_KEY` você mesmo é o recomendado, para guardá-la junto com os seus backups. Se ela ficar de fora, o Securo gera uma chave única na primeira inicialização e a guarda no banco de dados.
 
+Se você guarda a chave fora do banco, defina também `REQUIRE_SECRET_KEY=true`. Aí todo processo do Securo se recusa a iniciar quando a `SECRET_KEY` está ausente, vazia ou é um dos padrões públicos antigos, em vez de gerar uma chave em silêncio. Assim, uma variável perdida num deploy para a instância em vez de deslogar todo mundo. Uma chave já guardada no banco não satisfaz essa opção, e ela continua abrindo o que cifrou depois que você define a sua.
+
 Numa instalação nova, defina também uma senha própria para o banco antes da primeira inicialização. O Postgres só lê essa senha quando o volume de dados é criado, e ela entra numa URL de conexão, então use caracteres seguros para URL:
 
 ```bash
@@ -146,6 +148,37 @@ Defina no `.env` quando os padrões não servirem para o seu ambiente:
 | `FRONTEND_DIST_PATH` | nenhum | Desligado por padrão. Aponte para um frontend já compilado (a pasta `dist` do `npm run build`) e o próprio backend serve o app na porta dele, sem o container do frontend. Os health checks passam a usar `/api/health` |
 
 O **fuso horário** da aplicação (o que decide qual dia é o "hoje" para saldos, orçamentos, vencimentos e trabalhos agendados) é definido nas configurações de administração e segue um nome IANA como `America/Sao_Paulo`; workspaces individuais podem sobrescrevê-lo, veja [Workspaces](/pt-BR/docs/features/workspaces).
+
+## Recuperação de senha por e-mail
+
+Vem desligada. Desligada, nada é enviado e a tela de login esconde o **Esqueceu a senha?**. Para ligar, defina `EMAIL_ENABLED=true` e escolha por onde a mensagem sai: o seu próprio servidor SMTP ou a API hospedada da [Resend](https://resend.com).
+
+```ini
+EMAIL_ENABLED=true
+EMAIL_PROVIDER=smtp
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURITY=starttls
+SMTP_USERNAME=no-reply@example.com
+SMTP_PASSWORD=sua-senha-smtp
+EMAIL_FROM="Securo <no-reply@example.com>"
+```
+
+| Variável | Padrão | O que faz |
+| --- | --- | --- |
+| `EMAIL_ENABLED` | `false` | A única chave. Desligada, `/api/auth/forgot-password` responde 503, seja qual for o resto |
+| `EMAIL_PROVIDER` | `smtp` | `smtp` usa as variáveis `SMTP_*`, `resend` usa as `RESEND_*` |
+| `SMTP_HOST`, `SMTP_PORT` | nenhum, `587` | O seu relay. Obrigatório com `smtp` |
+| `SMTP_SECURITY` | `starttls` | `starttls` (porta 587), `ssl` (porta 465) ou `none`, só para um relay numa rede de confiança. O certificado do relay é sempre verificado |
+| `SMTP_USERNAME`, `SMTP_PASSWORD` | nenhum | O login do relay |
+| `EMAIL_FROM` | `SMTP_USERNAME` | O remetente. Obrigatório com `resend` |
+| `RESEND_API_KEY` | nenhum | Obrigatório com `resend` |
+| `RESEND_API_URL` | `https://api.resend.com` | Precisa começar com `https://` |
+| `PASSWORD_RESET_TOKEN_MINUTES` | `60` | Por quanto tempo um link de recuperação vale |
+
+O link da mensagem abre o `FRONTEND_URL`, então defina ali o endereço pelo qual as pessoas acessam o app. Um provedor configurado pela metade (sem host, sem remetente, sem chave) para o backend na inicialização com o nome do que falta, para não falhar depois, na primeira senha esquecida de alguém. Os dois arquivos do Compose repassam essas variáveis ao backend; o chart Helm ainda não tem valores para elas.
+
+Administradores veem o estado atual e podem reescrever o assunto e o corpo, em inglês e português, em **Configurações Admin → E-mail**; veja [Senha esquecida](/pt-BR/docs/features/security#senha-esquecida).
 
 ## Tipos de Anexo Aceitos
 

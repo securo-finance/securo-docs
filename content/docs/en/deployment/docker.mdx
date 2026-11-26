@@ -52,6 +52,8 @@ echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
 
 Setting `SECRET_KEY` yourself is recommended, so you can keep it with your backups. If you leave it out, Securo generates a unique key on the first start and keeps it in the database.
 
+If you keep the key outside the database, also set `REQUIRE_SECRET_KEY=true`. Every Securo process then refuses to start when `SECRET_KEY` is missing, blank or one of the old public defaults, instead of quietly generating a key, so a variable lost in a deploy stops the instance rather than signing everyone out. A key already stored in the database doesn't satisfy it, and it still opens what it encrypted once you set your own.
+
 On a new install, also set your own database password before the first start. Postgres only reads it when the data volume is created, and it goes into a connection URL, so use URL-safe characters:
 
 ```bash
@@ -146,6 +148,37 @@ Set these in `.env` when the defaults do not fit your setup:
 | `FRONTEND_DIST_PATH` | none | Off by default. Point it at a built frontend (the `dist` folder from `npm run build`) and the backend serves the app itself on its own port, without the frontend container. Health checks should then use `/api/health` |
 
 The application **timezone** (the one that decides which day "today" is for balances, budgets, due dates and scheduled work) is set in the admin settings and follows an IANA name like `America/Sao_Paulo`; individual workspaces can override it, see [Workspaces](/docs/features/workspaces).
+
+## Password Recovery by Email
+
+Off by default. With it off, nothing is sent and the sign-in page hides **Forgot password?**. To turn it on, set `EMAIL_ENABLED=true` and pick how the message goes out: your own SMTP server or the hosted [Resend](https://resend.com) API.
+
+```ini
+EMAIL_ENABLED=true
+EMAIL_PROVIDER=smtp
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURITY=starttls
+SMTP_USERNAME=no-reply@example.com
+SMTP_PASSWORD=your-smtp-password
+EMAIL_FROM="Securo <no-reply@example.com>"
+```
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `EMAIL_ENABLED` | `false` | The only switch. Off, `/api/auth/forgot-password` answers 503 whatever else is set |
+| `EMAIL_PROVIDER` | `smtp` | `smtp` uses the `SMTP_*` settings, `resend` the `RESEND_*` ones |
+| `SMTP_HOST`, `SMTP_PORT` | none, `587` | Your relay. Required with `smtp` |
+| `SMTP_SECURITY` | `starttls` | `starttls` (port 587), `ssl` (port 465) or `none`, only for a relay on a network you trust. The relay's certificate is always verified |
+| `SMTP_USERNAME`, `SMTP_PASSWORD` | none | The relay login |
+| `EMAIL_FROM` | `SMTP_USERNAME` | The sender. Required with `resend` |
+| `RESEND_API_KEY` | none | Required with `resend` |
+| `RESEND_API_URL` | `https://api.resend.com` | Must start with `https://` |
+| `PASSWORD_RESET_TOKEN_MINUTES` | `60` | How long a recovery link stays valid |
+
+The link in the message opens `FRONTEND_URL`, so set it to the address people reach the app on. A half-configured provider (no host, no sender, no key) stops the backend at startup with the name of what's missing, so it can't fail later at someone's first forgotten password. Both Compose files pass these variables to the backend; the Helm chart doesn't have values for them yet.
+
+Administrators see the current state and can rewrite the subject and body in English and Portuguese under **Admin Settings → Email**; see [Forgotten passwords](/docs/features/security#forgotten-passwords).
 
 ## Accepted Attachment Types
 

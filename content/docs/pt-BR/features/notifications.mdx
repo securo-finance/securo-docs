@@ -1,0 +1,30 @@
+---
+title: Notificações
+description: O sino e a página de notificações dizem o que precisa de você em cada workspace, com as suas próprias preferências.
+---
+
+O Securo avisa dentro do app quando algo precisa de você: um banco que parou de sincronizar, um orçamento acabando, uma conta recorrente que não foi gerada. Nada sai do app, nem por e-mail nem de outro jeito.
+
+## O sino e a página
+
+O sino fica na barra do topo, com o número de notificações não lidas. Ele abre as mais recentes; **Ver todas as notificações** abre a página de notificações, com as abas **Todas** e **Não lidas**, **Marcar todas como lidas** e as suas **Preferências**. Uma notificação some sozinha quando o que a causou é resolvido, e volta se acontecer de novo.
+
+## Do que você fica sabendo
+
+| Tipo | Quando |
+| --- | --- |
+| Conexões | Um banco ou plugin precisa de você, ou falhou três sincronizações agendadas seguidas |
+| Orçamentos | Um orçamento chegou a 80% ou 100% do que foi de fato gasto, nunca da projeção |
+| Recorrentes | Uma conta que venceu há dois dias ou mais não foi gerada |
+| Lembretes | Transações sinalizadas passaram da data do lembrete, numa notificação só para todas |
+| Correspondências para revisar | O Securo achou possíveis correspondências na [Conciliação](/pt-BR/docs/features/reconciliation) e precisa da sua resposta |
+| Cobranças | Uma [cobrança](/pt-BR/docs/features/invoices) emitida está vencida (só em workspaces de Negócios) |
+| Despesas compartilhadas | Alguém adiciona ou altera uma despesa que divide com você num [grupo](/pt-BR/docs/features/groups), ou muda a sua parte |
+| Pagamentos do grupo | Alguém registra um pagamento para você ou seu num grupo |
+| Backups | Um [backup](/pt-BR/docs/deployment/docker#backups) agendado falhou, até um dar certo |
+
+Cada tipo segue o seu módulo, então um workspace sem orçamentos nunca recebe aviso de orçamento. Os avisos de orçamentos e de grupos chegam também a quem só visualiza; os demais vão para quem pode agir (donos, editores e gestores). Os orçamentos são contados na sua moeda e com a sua parte. Orçamentos, contas recorrentes, lembretes, correspondências, cobranças e backups são verificados de hora em hora, então podem levar até uma hora para aparecer ou sumir.
+
+## Preferências
+
+Em **Preferências** você liga ou desliga cada tipo para o workspace atual. Elas são só suas: os outros membros mantêm as próprias escolhas.

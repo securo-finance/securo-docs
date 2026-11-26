@@ -103,7 +103,7 @@ The `SECRET_KEY` signs sign-in tokens and encrypts saved credentials (bank conne
 openssl rand -hex 32
 ```
 
-The old placeholders (`change-me-in-production`, `dev-secret-change-in-production`) are treated as empty, so an install that still carries one gets its own key too.
+The old placeholders (`change-me-in-production`, `dev-secret-change-in-production`) are treated as empty, so an install that still carries one gets its own key too. If you'd rather the instance refuse to start without a key of your own, set `REQUIRE_SECRET_KEY=true` (see the [Docker guide](/docs/deployment/docker#2-clone-and-configure)).
 
 ## Optional Integrations
 

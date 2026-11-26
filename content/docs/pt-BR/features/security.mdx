@@ -81,6 +81,18 @@ OIDC_WORKSPACE_ROLE_MAP={"securo-owners":"owner","securo-editors":"editor","secu
 
 O login com senha está disponível sempre que a autenticação local estiver ligada. Você pode trocar sua senha nas configurações da conta, e proprietários de workspace que criam contas para novos membros definem apenas uma senha inicial, que o membro pode trocar depois do primeiro login.
 
+### Senha esquecida
+
+Quando a instância pode enviar e-mail (veja [Recuperação de senha por e-mail](/pt-BR/docs/deployment/docker#recuperação-de-senha-por-e-mail)), a tela de login mostra **Esqueceu a senha?**. O Securo manda um link para o endereço digitado, e o link abre uma tela para escolher a senha nova. O link expira em 60 minutos por padrão e deixa de valer se o endereço da conta mudar nesse meio-tempo. A resposta é a mesma se o endereço tem conta ou não, então o formulário nunca revela quem está cadastrado.
+
+Com o e-mail desligado, o link não aparece e nada é enviado. Um administrador pode reescrever a mensagem, em inglês e português, em **Configurações Admin → E-mail**. O marcador `{link}` precisa ficar sozinho numa linha, e a mensagem não pode ter nenhum outro endereço.
+
+## Ações de administrador e o registro de acesso
+
+Um administrador pode editar ou excluir contas em **Configurações Admin**, mas não pode definir a senha de outra pessoa, e toda edição ou exclusão pede um motivo. Ele também pode pedir a troca do e-mail de alguém, mas a troca espera o dono da conta: o Securo pergunta se ele aceita o endereço novo ou mantém o atual, e até ele aceitar, o login e a recuperação continuam no endereço antigo.
+
+Toda ação administrativa fica registrada: quem fez, a conta afetada, cada campo antes e depois, o motivo, o endereço do cliente e o horário. Abra **Registro de acesso** no menu do usuário para ver o que diz respeito à sua conta e aos membros dos workspaces de que você é dono ou que gerencia. O registro continua mesmo depois que as contas citadas são excluídas. Só alterações são registradas, não leituras.
+
 ## Tokens de Acesso
 
 Scripts e integrações podem chamar a API REST sem sessão por meio de um **token de acesso**. Cada token pertence a **um workspace** e ao membro que o criou, e carrega escopos como `transactions:read` ou `accounts:write` (escrita inclui leitura). Os recursos são `accounts`, `connections`, `transactions`, `categories`, `payees`, `rules`, `budgets`, `goals`, `recurring`, `assets` e `invoices`, mais `reports:read`.
