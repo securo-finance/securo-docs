@@ -81,6 +81,20 @@ OIDC_WORKSPACE_ROLE_MAP={"securo-owners":"owner","securo-editors":"editor","secu
 
 Password login is available whenever local auth is on. You can change your password from account settings, and workspace owners who create accounts for new members set only an initial password, which the member can change after their first login.
 
+### Forgotten passwords
+
+When the instance can send email (see [Password Recovery by Email](/docs/deployment/docker#password-recovery-by-email)), the sign-in page shows **Forgot password?**. Securo sends a link to the address you type, and the link opens a screen where you choose a new password. The link expires after 60 minutes by default, and it stops working if the account's address changes in the meantime. The answer is the same whether or not the address has an account, so the form never tells anyone who is registered.
+
+With email off, the link doesn't show and nothing is sent. An administrator can rewrite the message, in English and Portuguese, under **Admin Settings → Email**. The `{link}` placeholder must sit alone on its own line, and the message can't carry any other address.
+
+## Administrator Actions and the Access Log
+
+An administrator can edit or delete accounts in **Admin Settings**, but can't set another person's password, and every edit or deletion asks for a reason. An administrator can also ask to change someone's email address, but the change waits for the account owner: Securo asks them to accept the new address or keep the current one, and until they accept, sign-in and recovery stay on the old address.
+
+Deleting an account removes the person and the workspaces only they have access to. What they added to workspaces they share with other people stays there. If a workspace has other members and the person being deleted is its only owner, make another member an owner, or remove the members, first: until then the deletion is refused.
+
+Every administrative action is recorded: who did it, the account it touched, each field before and after, the reason, the client address and the time. Open **Access log** from the user menu to see the entries about your own account and about members of the workspaces you own or manage. The record outlives the accounts it names. Only changes are recorded, not reads. A change to the recovery email templates is recorded too, with the text before and after for each language that changed.
+
 ## Access Tokens
 
 Scripts and integrations can call the REST API without a session through an **access token**. Each token belongs to **one workspace** and to the member who created it, and carries scopes such as `transactions:read` or `accounts:write` (write includes read). The resources are `accounts`, `connections`, `transactions`, `categories`, `payees`, `rules`, `budgets`, `goals`, `recurring`, `assets` and `invoices`, plus `reports:read`.

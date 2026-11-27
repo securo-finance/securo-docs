@@ -1,0 +1,30 @@
+---
+title: Notifications
+description: The bell and the notifications page tell you what needs you in each workspace, with your own preferences.
+---
+
+Securo tells you inside the app when something needs you: a bank that stopped syncing, a budget running out, a bill that wasn't generated. Nothing is sent outside the app, by email or otherwise.
+
+## The Bell and the Page
+
+The bell sits in the top bar, with the number of unread notifications. It opens the latest ones; **See all notifications** opens the notifications page, with the **All** and **Unread** tabs, **Mark all as read**, and your **Preferences**. A notification clears by itself once what caused it is fixed, and comes back if it happens again.
+
+## What You Hear About
+
+| Kind | When |
+| --- | --- |
+| Connections | A bank or plugin needs you, or failed three scheduled syncs in a row |
+| Budgets | A budget reached 80% or 100% of what was actually spent, never the forecast |
+| Recurring | A bill due two or more days ago wasn't generated |
+| Reminders | Flagged transactions are past their reminder date, in one notification for all |
+| Matches to review | Securo found possible matches in [Reconciliation](/docs/features/reconciliation) and needs your answer |
+| Invoices | An issued [invoice](/docs/features/invoices) is overdue (Business workspaces only) |
+| Shared expenses | Someone adds or changes an expense they share with you in a [group](/docs/features/groups), or changes your share |
+| Group payments | Someone records a payment to you or from you in a group |
+| Backups | A scheduled [backup](/docs/deployment/docker#backups) failed, until one works |
+
+Each kind follows its module, so a workspace without budgets never hears about budgets. Budgets and group notices reach viewers too; the rest goes to whoever can act on it (owners, editors and managers). Budgets are counted in your own currency and with your own share. Budgets, bills, reminders, matches, invoices and backups are checked every hour, so they can take up to an hour to show up or clear.
+
+## Preferences
+
+Under **Preferences** you switch each kind on or off for the current workspace. They are yours alone: the other members keep their own choices.

@@ -103,7 +103,7 @@ The `SECRET_KEY` signs sign-in tokens and encrypts saved credentials (bank conne
 openssl rand -hex 32
 ```
 
-The old placeholders (`change-me-in-production`, `dev-secret-change-in-production`) are treated as empty, so an install that still carries one gets its own key too.
+The old placeholders (`change-me-in-production`, `dev-secret-change-in-production`) are treated as empty, so an install that still carries one gets its own key too. If you'd rather the instance refuse to start without a key of your own, set `REQUIRE_SECRET_KEY=true` (see the [Docker guide](/docs/deployment/docker#2-clone-and-configure)).
 
 ## Optional Integrations
 
@@ -127,6 +127,8 @@ OPENEXCHANGERATES_APP_ID=your-app-id
 ```
 
 Rates are fetched on-demand when foreign-currency transactions are created. Without a key, cross-currency amounts default to a 1:1 fallback rate with a visual warning.
+
+The app id serves the whole instance, and a day already fetched is reused. The free plan (1,000 requests a month) fits a small instance; a public instance with open sign-up needs at least the Developer plan. Use a separate app id for each environment, so a test install never spends production's quota.
 
 ## Useful Commands
 

@@ -90,6 +90,8 @@ Pairing is conservative on purpose:
 - A card purchase **leaves the candidate pool before any rule runs**, so it can never be mistaken for the other side of a transfer
 - The **waiting queue** asks you when the answer is not clear, and the pairing tools are also exposed to the built-in [MCP server](/docs/features/agents): list counterpart candidates, propose a link, propose an unlink
 
+Pairing normally runs on rows as they arrive. To go back over what is already there, click **Scan for transfers** on the Rules page: after a confirmation it scans your **whole history** and pairs the transfer rows that sit in different accounts. Uncertain pairs go to the queue. Transfers you unlinked by hand can be paired again.
+
 ## Example Rules
 
 | Rule Name                    | Conditions                                                                      | Actions                 |

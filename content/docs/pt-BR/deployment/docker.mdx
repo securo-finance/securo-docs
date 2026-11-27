@@ -52,6 +52,8 @@ echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
 
 Definir a `SECRET_KEY` você mesmo é o recomendado, para guardá-la junto com os seus backups. Se ela ficar de fora, o Securo gera uma chave única na primeira inicialização e a guarda no banco de dados.
 
+Se você guarda a chave fora do banco, defina também `REQUIRE_SECRET_KEY=true`. Aí todo processo do Securo se recusa a iniciar quando a `SECRET_KEY` está ausente, vazia ou é um dos padrões públicos antigos, em vez de gerar uma chave em silêncio. Assim, uma variável perdida num deploy para a instância em vez de deslogar todo mundo. Uma chave já guardada no banco não satisfaz essa opção, e ela continua abrindo o que cifrou depois que você define a sua.
+
 Numa instalação nova, defina também uma senha própria para o banco antes da primeira inicialização. O Postgres só lê essa senha quando o volume de dados é criado, e ela entra numa URL de conexão, então use caracteres seguros para URL:
 
 ```bash
@@ -141,11 +143,43 @@ Defina no `.env` quando os padrões não servirem para o seu ambiente:
 | Variável | Padrão | O que faz |
 | --- | --- | --- |
 | `BANK_SYNC_MIN_INTERVAL_HOURS` | `4` | Horas mínimas entre sincronizações automáticas do bank sync por conexão. Aumente para bancos que limitam o acesso desacompanhado a quatro buscas por dia |
-| `OPENEXCHANGERATES_APP_ID` | nenhuma | Ativa a conversão automática de moedas com uma chave gratuita do [Open Exchange Rates](https://openexchangerates.org/). As taxas são buscadas sob demanda quando transações em moeda estrangeira são criadas; sem chave, valores entre moedas caem no fallback 1:1 com um aviso visual |
+| `OPENEXCHANGERATES_APP_ID` | nenhuma | Ativa a conversão automática de moedas com um app id do [Open Exchange Rates](https://openexchangerates.org/). As taxas são da instância: um app id serve todos os workspaces, as taxas são buscadas sob demanda, um dia já buscado é reaproveitado, e datas com mais de um mês são amostradas uma vez por mês. O plano gratuito (1.000 requisições por mês) atende uma instância pequena; uma instância pública com cadastro aberto precisa pelo menos do plano Developer. Use um app id separado por ambiente (local, staging, produção) para um nunca gastar a cota do outro. Sem app id, valores entre moedas caem no fallback 1:1 com um aviso visual |
+| `PERFORMANCE_BENCHMARKS_ENABLED` | `true` | Os índices de mercado da aba **Performance** de Ativos: Yahoo Finance, e o Índice DI da B3 pelo Banco Central do Brasil, com o Ipeadata como alternativa. Eles só são consultados quando alguém busca ou compara com um índice. Defina `false` para manter o Securo longe desses hosts; o retorno da carteira continua funcionando |
 | `TZ` | fuso do host | O padrão de inicialização do fuso da aplicação quando não há valor salvo em Admin Settings: o Securo segue `TZ`, depois o fuso do host, depois UTC, então uma instalação existente continua se comportando como antes até alguém escolher um fuso em **Admin Settings → Date and time** |
 | `FRONTEND_DIST_PATH` | nenhum | Desligado por padrão. Aponte para um frontend já compilado (a pasta `dist` do `npm run build`) e o próprio backend serve o app na porta dele, sem o container do frontend. Os health checks passam a usar `/api/health` |
 
 O **fuso horário** da aplicação (o que decide qual dia é o "hoje" para saldos, orçamentos, vencimentos e trabalhos agendados) é definido nas configurações de administração e segue um nome IANA como `America/Sao_Paulo`; workspaces individuais podem sobrescrevê-lo, veja [Workspaces](/pt-BR/docs/features/workspaces).
+
+## Recuperação de senha por e-mail
+
+Vem desligada. Desligada, nada é enviado e a tela de login esconde o **Esqueceu a senha?**. Para ligar, defina `EMAIL_ENABLED=true` e escolha por onde a mensagem sai: o seu próprio servidor SMTP ou a API hospedada da [Resend](https://resend.com).
+
+```ini
+EMAIL_ENABLED=true
+EMAIL_PROVIDER=smtp
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURITY=starttls
+SMTP_USERNAME=no-reply@example.com
+SMTP_PASSWORD=sua-senha-smtp
+EMAIL_FROM="Securo <no-reply@example.com>"
+```
+
+| Variável | Padrão | O que faz |
+| --- | --- | --- |
+| `EMAIL_ENABLED` | `false` | A única chave. Desligada, `/api/auth/forgot-password` responde 503, seja qual for o resto |
+| `EMAIL_PROVIDER` | `smtp` | `smtp` usa as variáveis `SMTP_*`, `resend` usa as `RESEND_*` |
+| `SMTP_HOST`, `SMTP_PORT` | nenhum, `587` | O seu relay. Obrigatório com `smtp` |
+| `SMTP_SECURITY` | `starttls` | `starttls` (porta 587), `ssl` (porta 465) ou `none`, só para um relay numa rede de confiança. O certificado do relay é sempre verificado |
+| `SMTP_USERNAME`, `SMTP_PASSWORD` | nenhum | O login do relay |
+| `EMAIL_FROM` | `SMTP_USERNAME` | O remetente. Obrigatório com `resend` |
+| `RESEND_API_KEY` | nenhum | Obrigatório com `resend` |
+| `RESEND_API_URL` | `https://api.resend.com` | Precisa começar com `https://` |
+| `PASSWORD_RESET_TOKEN_MINUTES` | `60` | Por quanto tempo um link de recuperação vale |
+
+O link da mensagem abre o `FRONTEND_URL`, então defina ali o endereço pelo qual as pessoas acessam o app. Um provedor configurado pela metade (sem host, sem remetente, sem chave) para o backend na inicialização com o nome do que falta, para não falhar depois, na primeira senha esquecida de alguém. Os dois arquivos do Compose repassam essas variáveis ao backend; o chart Helm ainda não tem valores para elas.
+
+Administradores veem o estado atual e podem reescrever o assunto e o corpo, em inglês e português, em **Configurações Admin → E-mail**; veja [Senha esquecida](/pt-BR/docs/features/security#senha-esquecida).
 
 ## Tipos de Anexo Aceitos
 
@@ -326,6 +360,15 @@ A v0.22.0 reforça o `docker-compose.prod.yml`. Confira o seu `.env` **antes** d
 
   Depois adicione `POSTGRES_PASSWORD=nova-senha` ao `.env` e rode `docker compose -f docker-compose.prod.yml up -d`. Um restart simples não carrega o valor novo. Definir `POSTGRES_PASSWORD` sem o passo do `ALTER USER` deixa o backend sem conseguir conectar. A senha entra numa URL, então use caracteres seguros para URL (`openssl rand -hex 24`)
 - Em hosts com SELinux (Fedora, RHEL), as pastas `secrets` e de backups agora são reetiquetadas para uso pelos containers. Aponte o `BACKUP_HOST_PATH` para uma pasta só de backups, nunca uma pasta pessoal ou do sistema
+
+### Atualizando para a v0.23.0
+
+- **O administrador não define mais a senha de outra pessoa.** Editar ou excluir uma conta pede um motivo, a troca de e-mail espera o dono da conta aceitar e toda ação administrativa vai para um registro de acesso que cada pessoa consulta sobre a própria conta. Scripts que chamavam `GET`, `PATCH` ou `DELETE /api/users/{id}` agora recebem 404: use `/api/admin/users/{id}`
+- **O PostgreSQL embutido roda com o JIT desligado,** o que deixou a lista de transações várias vezes mais rápida. Defina `DB_JIT=on` para voltar ao padrão do PostgreSQL
+- **As consultas são planejadas com os valores de cada chamada** (`plan_cache_mode=force_custom_plan`), o que corta mais ou menos pela metade o tempo dos relatórios num histórico grande. Precisa do PostgreSQL 12 ou mais novo. Atrás de um pooler de conexões que recusa o parâmetro, como o PgBouncer em modo transaction, a API conecta de novo sem ele e registra um aviso no log; defina `DB_FORCE_CUSTOM_PLANS=false` para parar de enviá-lo, ou libere o parâmetro no pooler (`ignore_startup_parameters` no PgBouncer)
+- **O pool de conexões é ajustável** com `DB_POOL_SIZE` e `DB_MAX_OVERFLOW` (5 e 10 por padrão). Uma requisição que não encontra conexão livre agora recebe um 503 dizendo que a instância está ocupada
+- **Atualizar o câmbio na mão virou ação de administrador,** e um dia que já está guardado é reaproveitado em vez de buscado de novo
+- **Excluir um usuário mantém o que ele lançou nos workspaces que não são dele**
 
 ## Monitoramento
 
