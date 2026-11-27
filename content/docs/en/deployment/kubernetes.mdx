@@ -46,6 +46,7 @@ Persistence is enabled by default for the database, attachments, and the agents 
 | `mcpServer.publicRoute` | `false` | Adds `/mcp` to the Ingress or HTTPRoute so external MCP clients can reach the agents' MCP server. Set `config.agentsExternalMcpUrl` to the public URL with it |
 | `plugins.runner.enabled` | `false` | Runs plugins with code: creates the plugin runner, its egress proxy, a NetworkPolicy and a Secret with a random runner token and egress secret. Turns `PLUGINS_ENABLED` on. See [Plugins With Code](/docs/deployment/kubernetes-prod#plugins-with-code) |
 | `postgresql.enabled` / `redis.enabled` | `true` | Disable to bring your own database or Redis |
+| `postgresql.jit` | `"off"` | JIT compilation in the bundled PostgreSQL. Off, a plain transaction list went from 1222 ms to 229 ms; set `"on"` for the PostgreSQL default. With your own database, set `jit = off` there instead |
 
 Optional integrations (bank sync, exchange rates, OIDC) take the same settings documented in the [Docker guide](/docs/deployment/docker), exposed as `secret.*` and `config.*` values. Inspect the full annotated list for your version with:
 

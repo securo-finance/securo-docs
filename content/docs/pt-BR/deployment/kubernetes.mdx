@@ -46,6 +46,7 @@ A persistência vem habilitada por padrão para o banco, os anexos e a base de c
 | `mcpServer.publicRoute` | `false` | Adiciona `/mcp` ao Ingress ou ao HTTPRoute para que clientes MCP externos alcancem o servidor MCP dos agentes. Junto com ele, defina `config.agentsExternalMcpUrl` com a URL pública |
 | `plugins.runner.enabled` | `false` | Roda plugins com código: cria o runner de plugins, o proxy de saída, uma NetworkPolicy e um Secret com um token do runner e um segredo de saída aleatórios. Liga o `PLUGINS_ENABLED`. Veja [Plugins com Código](/pt-BR/docs/deployment/kubernetes-prod#plugins-com-código) |
 | `postgresql.enabled` / `redis.enabled` | `true` | Desabilite para usar seu próprio banco ou Redis |
+| `postgresql.jit` | `"off"` | Compilação JIT no PostgreSQL embutido. Desligada, uma lista de transações simples caiu de 1222 ms para 229 ms; defina `"on"` para o padrão do PostgreSQL. Com banco próprio, defina `jit = off` lá |
 
 As integrações opcionais (sincronização bancária, taxas de câmbio, OIDC) usam as mesmas configurações documentadas no [guia de Docker](/pt-BR/docs/deployment/docker), expostas como valores `secret.*` e `config.*`. Inspecione a lista completa e comentada da sua versão com:
 

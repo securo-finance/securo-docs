@@ -361,6 +361,15 @@ A v0.22.0 reforça o `docker-compose.prod.yml`. Confira o seu `.env` **antes** d
   Depois adicione `POSTGRES_PASSWORD=nova-senha` ao `.env` e rode `docker compose -f docker-compose.prod.yml up -d`. Um restart simples não carrega o valor novo. Definir `POSTGRES_PASSWORD` sem o passo do `ALTER USER` deixa o backend sem conseguir conectar. A senha entra numa URL, então use caracteres seguros para URL (`openssl rand -hex 24`)
 - Em hosts com SELinux (Fedora, RHEL), as pastas `secrets` e de backups agora são reetiquetadas para uso pelos containers. Aponte o `BACKUP_HOST_PATH` para uma pasta só de backups, nunca uma pasta pessoal ou do sistema
 
+### Atualizando para a v0.23.0
+
+- **O administrador não define mais a senha de outra pessoa.** Editar ou excluir uma conta pede um motivo, a troca de e-mail espera o dono da conta aceitar e toda ação administrativa vai para um registro de acesso que cada pessoa consulta sobre a própria conta. Scripts que chamavam `GET`, `PATCH` ou `DELETE /api/users/{id}` agora recebem 404: use `/api/admin/users/{id}`
+- **O PostgreSQL embutido roda com o JIT desligado,** o que deixou a lista de transações várias vezes mais rápida. Defina `DB_JIT=on` para voltar ao padrão do PostgreSQL
+- **As consultas são planejadas com os valores de cada chamada** (`plan_cache_mode=force_custom_plan`), o que corta mais ou menos pela metade o tempo dos relatórios num histórico grande. Precisa do PostgreSQL 12 ou mais novo. Atrás de um pooler de conexões que recusa o parâmetro, como o PgBouncer em modo transaction, a API conecta de novo sem ele e registra um aviso no log; defina `DB_FORCE_CUSTOM_PLANS=false` para parar de enviá-lo, ou libere o parâmetro no pooler (`ignore_startup_parameters` no PgBouncer)
+- **O pool de conexões é ajustável** com `DB_POOL_SIZE` e `DB_MAX_OVERFLOW` (5 e 10 por padrão). Uma requisição que não encontra conexão livre agora recebe um 503 dizendo que a instância está ocupada
+- **Atualizar o câmbio na mão virou ação de administrador,** e um dia que já está guardado é reaproveitado em vez de buscado de novo
+- **Excluir um usuário mantém o que ele lançou nos workspaces que não são dele**
+
 ## Monitoramento
 
 Verifique os logs em busca de problemas:

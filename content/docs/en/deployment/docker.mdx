@@ -361,6 +361,15 @@ v0.22.0 hardens `docker-compose.prod.yml`. Check your `.env` **before** you run 
   Then add `POSTGRES_PASSWORD=new-password` to `.env` and run `docker compose -f docker-compose.prod.yml up -d`. A plain restart does not load the new value. Setting `POSTGRES_PASSWORD` without the `ALTER USER` step leaves the backend unable to connect. The password goes into a URL, so use URL-safe characters (`openssl rand -hex 24`)
 - On SELinux hosts (Fedora, RHEL), the `secrets` folder and the backups folder are now relabelled for container use. Point `BACKUP_HOST_PATH` at a folder kept only for backups, never a home or system folder
 
+### Updating to v0.23.0
+
+- **Administrators can no longer set someone else's password.** Editing or deleting an account asks for a reason, a change of email waits for the owner to accept it, and every administrative action goes to an access log people can read about their own account. Scripts that called `GET`, `PATCH` or `DELETE /api/users/{id}` get a 404 now: use `/api/admin/users/{id}`
+- **The bundled PostgreSQL runs with JIT off,** which made the transaction list several times faster. Set `DB_JIT=on` to get the PostgreSQL default back
+- **Queries are planned with the values of each call** (`plan_cache_mode=force_custom_plan`), which roughly halves report times on a large history. It needs PostgreSQL 12 or newer. Behind a connection pooler that refuses the parameter, such as PgBouncer in transaction mode, the API connects again without it and logs a warning; set `DB_FORCE_CUSTOM_PLANS=false` to stop sending it, or allow it in the pooler (`ignore_startup_parameters` in PgBouncer)
+- **The connection pool is adjustable** with `DB_POOL_SIZE` and `DB_MAX_OVERFLOW` (5 and 10 by default). A request that finds no free connection now gets a 503 saying the instance is busy
+- **Refreshing exchange rates by hand is an admin action,** and a day already stored is reused instead of fetched again
+- **Deleting a user keeps what they entered in workspaces they don't own**
+
 ## Monitoring
 
 Check logs for any issues:
