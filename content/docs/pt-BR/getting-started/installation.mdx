@@ -128,6 +128,8 @@ OPENEXCHANGERATES_APP_ID=seu-app-id
 
 As taxas são buscadas sob demanda quando transações em moeda estrangeira são criadas. Sem uma key, valores entre moedas usam por padrão uma taxa fallback de 1:1, com um aviso visual.
 
+O app id serve a instância inteira, e um dia já buscado é reaproveitado. O plano gratuito (1.000 requisições por mês) atende uma instância pequena; uma instância pública com cadastro aberto precisa pelo menos do plano Developer. Use um app id separado para cada ambiente, para uma instalação de teste nunca gastar a cota da produção.
+
 ## Comandos Úteis
 
 ```bash

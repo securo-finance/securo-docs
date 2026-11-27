@@ -128,6 +128,8 @@ OPENEXCHANGERATES_APP_ID=your-app-id
 
 Rates are fetched on-demand when foreign-currency transactions are created. Without a key, cross-currency amounts default to a 1:1 fallback rate with a visual warning.
 
+The app id serves the whole instance, and a day already fetched is reused. The free plan (1,000 requests a month) fits a small instance; a public instance with open sign-up needs at least the Developer plan. Use a separate app id for each environment, so a test install never spends production's quota.
+
 ## Useful Commands
 
 ```bash

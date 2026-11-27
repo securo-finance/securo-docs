@@ -53,6 +53,10 @@ Um empréstimo pode apontar o [ativo](/pt-BR/docs/features/assets) que serve de 
 - O painel de detalhes do imóvel lista os **empréstimos vinculados**, a dívida de cada um e o **patrimônio líquido restante**: o valor do imóvel menos a dívida que pesa sobre ele
 - Um pagamento de financiamento registrado pode ser **dividido entre juros e amortização** em relação ao imóvel, para aparecer onde importa o quanto do bem está sendo comprado de volta. Quando o empréstimo é sincronizado com o banco, o banco já reporta o saldo, então a divisão é salva sem lançar a amortização de novo
 
+## Dividindo um pagamento entre amortização e juros
+
+O pagamento de qualquer empréstimo, com ou sem imóvel por trás, pode ser dividido entre **amortização** e **juros**. Abra o pagamento (um débito já lançado na conta de onde você pagou, não no próprio empréstimo) e preencha o **Detalhamento do pagamento do empréstimo**: as partes precisam somar o valor do pagamento e estar na moeda do empréstimo. A parte de amortização é lançada no empréstimo como abatimento, então a dívida cai exatamente esse valor. Um pagamento com data anterior ao saldo registrado do empréstimo guarda a divisão sem reduzir a dívida de novo, e quando o banco informa o saldo do empréstimo, a divisão é salva sem lançar a amortização.
+
 ## Empréstimos vindos do bank sync
 
 Uma conta sincronizada do banco também pode carregar os dados do contrato: um **override de empréstimo** anexa o contrato à conta conectada, e a dívida mantém o sinal correto em cada sincronização. O card do contrato, o cronograma e a quitação funcionam exatamente como na conta manual.

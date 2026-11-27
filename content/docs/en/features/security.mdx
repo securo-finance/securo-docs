@@ -91,7 +91,9 @@ With email off, the link doesn't show and nothing is sent. An administrator can 
 
 An administrator can edit or delete accounts in **Admin Settings**, but can't set another person's password, and every edit or deletion asks for a reason. An administrator can also ask to change someone's email address, but the change waits for the account owner: Securo asks them to accept the new address or keep the current one, and until they accept, sign-in and recovery stay on the old address.
 
-Every administrative action is recorded: who did it, the account it touched, each field before and after, the reason, the client address and the time. Open **Access log** from the user menu to see the entries about your own account and about members of the workspaces you own or manage. The record outlives the accounts it names. Only changes are recorded, not reads.
+Deleting an account removes the person and the workspaces only they have access to. What they added to workspaces they share with other people stays there. If a workspace has other members and the person being deleted is its only owner, make another member an owner, or remove the members, first: until then the deletion is refused.
+
+Every administrative action is recorded: who did it, the account it touched, each field before and after, the reason, the client address and the time. Open **Access log** from the user menu to see the entries about your own account and about members of the workspaces you own or manage. The record outlives the accounts it names. Only changes are recorded, not reads. A change to the recovery email templates is recorded too, with the text before and after for each language that changed.
 
 ## Access Tokens
 

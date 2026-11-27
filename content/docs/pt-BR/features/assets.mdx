@@ -29,6 +29,8 @@ Os ativos são organizados em **carteiras** — agrupamentos como "Aposentadoria
 
 Para criar uma carteira, clique em **+ Nova Carteira**. Você também pode criar uma na hora enquanto adiciona um ativo.
 
+Para mudar a ordem das carteiras, arraste uma carteira pela alça (com o mouse, pelo toque ou pelo teclado), ou abra o menu da carteira e escolha **Mover para cima** ou **Mover para baixo**; o mesmo menu tem **Editar** e **Excluir**. A ordem fica salva para o workspace inteiro. Quando um filtro de coleção esconde algumas carteiras, reordenar as visíveis deixa as escondidas onde estavam. Uma carteira nova vai para o fim da lista.
+
 ## Adicionando um Ativo
 
 Clique em **+ Adicionar Ativo** e preencha **nome**, **tipo**, **moeda** e, opcionalmente, uma **carteira** do ativo. Você também pode registrar uma **data de compra** e um **preço de compra** para o Securo calcular seu ganho ou perda.
@@ -90,6 +92,20 @@ Um ativo imobiliário pode ter **empréstimos que usam ele como garantia**. Vinc
 No topo da página, o gráfico **Valor do Portfólio** mostra o valor total dos seus ativos ao longo do tempo, em um gráfico de área empilhada. Alterne entre **Por Carteira** e **Por Ativo** para mudar como o valor é detalhado.
 
 Os ativos com preço de mercado são cotados de novo periodicamente. Para fazer isso agora, clique em **Atualizar preços** no topo da página: todos os ativos com preço de mercado do workspace são cotados de novo, e uma mensagem diz quantos preços foram atualizados e quantos ficaram sem cotação nova. Se o provedor de cotações começar a limitar as requisições, os preços já atualizados ficam; tente de novo em um minuto.
+
+## Performance da Carteira
+
+A aba **Performance** da página de Ativos mostra como os seus investimentos foram em um período que você escolhe, como **retorno bruto ponderado pelo tempo**: a variação de cada trecho, descontado o dinheiro que entrou ou saiu, composta. Uma compra ou um resgate nunca conta como ganho ou perda, e as taxas contam contra o retorno.
+
+- **Escopo da carteira**: a **Carteira inteira**, ou as **Carteiras ou ativos** que você escolher. Uma seleção pode ser guardada com **Salvar visão** e aberta de novo depois
+- **Índices de comparação**: compare com até cinco ao mesmo tempo, como S&P 500, Ibovespa ou Bitcoin, qualquer índice, ETF, fundo, ação ou cripto com histórico de preço, ou o Índice DI da B3. Cada um mostra o próprio retorno, a data de onde parte e o **retorno excedente** da sua carteira sobre ele, em pontos percentuais. Um índice cotado em outra moeda é convertido para a moeda da carteira pela taxa de câmbio de cada dia, então o retorno dele inclui a variação da moeda, como os seus próprios ativos no exterior
+- **Qualquer trecho do período**: arraste sobre o gráfico para ler o retorno entre duas datas. Pelo teclado, foque o gráfico, ande com as setas, marque o início e o fim com Enter ou Espaço e limpe com Esc
+
+Os valores passados nessa aba podem ser diferentes dos do painel. Os ativos sincronizados são medidos pelo valor bruto que o provedor informa, antes do imposto de renda, e depois que as operações deles são importadas o histórico é refeito a partir delas; o painel mantém os saldos que o banco informou em cada data.
+
+Nos investimentos conectados, o dono do workspace pode ligar **Importar operações**. A partir da próxima sincronização, o Securo busca o histórico de compras e resgates dos ativos cujas operações guardadas não somam as cotas que o provedor informa, para o retorno acompanhar cada operação com exatidão. Isso acrescenta requisições às suas conexões bancárias. Os ativos cujas operações não puderam ser importadas aparecem listados com o motivo (**Histórico incompleto** ou **Sem histórico do banco**), o retorno deles é estimado pelos valores que o banco informa, e **Tentar novamente** pede essas operações outra vez. As operações que uma conexão importou são só leitura: a sincronização dela as mantém em dia.
+
+Os índices vêm do Yahoo Finance e, no caso do Índice DI, do Banco Central do Brasil, com o Ipeadata como alternativa. Esses serviços só são consultados quando alguém busca ou compara com um índice. Para manter o Securo longe deles, defina `PERFORMANCE_BENCHMARKS_ENABLED=false` (veja [Docker](/pt-BR/docs/deployment/docker)); o retorno da carteira continua funcionando sem eles.
 
 ## Patrimônio e Patrimônio Líquido
 

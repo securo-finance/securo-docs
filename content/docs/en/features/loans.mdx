@@ -53,6 +53,10 @@ A loan can name the [asset](/docs/features/assets) it is secured against, typica
 - The property's detail panel lists its **linked loans**, the debt on each, and the **equity left**: the property's value minus the debt secured against it
 - A recorded mortgage payment can be **split into principal and interest** against the property, so the money that buys back equity is visible where it matters. When the loan is bank-managed (synced), the bank already reports the balance, so the split is saved without posting the principal again
 
+## Splitting a Payment Into Principal and Interest
+
+A payment to any loan, with or without a property behind it, can be split into **principal** and **interest**. Open the payment (a posted debit from the account you paid from, not from the loan itself) and fill in the **Loan payment breakdown**: the parts must add up to the payment and be in the loan's currency. The principal part is posted to the loan as a repayment, so the debt falls by exactly that much. A payment dated before the loan's recorded balance keeps its split without reducing the debt again, and when the bank reports the loan's balance, the split is saved without posting the principal.
+
 ## Loans From a Bank Connection
 
 A bank-synced account can also carry loan terms: a **loan override** attaches the contract to the connected account, and the debt keeps the right sign through every sync. The contract card, the schedule and the payoff work exactly as they do on a manual loan account.
