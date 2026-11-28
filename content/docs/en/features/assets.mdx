@@ -31,6 +31,8 @@ To create a wallet, click **+ New Wallet**. You can also create one inline while
 
 To change the order of your wallets, drag a wallet by its handle (with the mouse, by touch or with the keyboard), or open the wallet's menu and pick **Move up** or **Move down**; the same menu holds **Edit** and **Delete**. The order is saved for the whole workspace. When a collection filter hides some wallets, reordering the visible ones leaves the hidden ones in their places. A new wallet goes to the end of the list.
 
+Holdings can be reordered the same way inside a wallet, or among the ungrouped ones: drag a row by its handle, or pick **Move up** or **Move down** in its menu. With the mouse you can also pick up a holding row or a wallet header from any empty part of it, not only the handle; the text stays selectable and a click still expands the row. Holdings the page doesn't show (sold or archived) keep their places, and a new holding, or one moved to another wallet, goes to the end of that wallet.
+
 ## Adding an Asset
 
 Click **+ Add Asset** and fill in the asset's **name**, **type**, **currency**, and optionally a **wallet**. You can also record a **purchase date** and **purchase price** so Securo can calculate your gain or loss.
@@ -46,6 +48,8 @@ The most important choice is the **valuation method**, which determines how the 
 | **Market Price** | You enter a **ticker** (e.g., `AAPL`, `BTC-USD`, `PETR4.SA`) and a **quantity**. Securo fetches the live price and keeps the value current. Best for stocks, ETFs, and crypto. |
 
 For market-price assets, Securo shows a live quote preview as you type the ticker, and refreshes prices automatically each day.
+
+The Assets page shows each asset's value as of today, like the dashboard, [Net Worth](/docs/features/net-worth) and [goals](/docs/features/goals): a valuation you enter with a future date stays out of the current value until that date.
 
 ## Buy and Sell Ledger
 
@@ -115,4 +119,4 @@ The **Sold Assets** section starts collapsed and remembers in that browser wheth
 
 Each holding has an actions menu at the end of its row, also opened with a right-click: add a transaction, refresh that one price, and the rest of its actions.
 
-An **archived** holding is hidden from the page by default. Tick **Show archived** to list archived holdings in their own dimmed section; they stay out of the wallets, the portfolio total and the % of portfolio column, and the choice is remembered in that browser.
+An **archived** holding is hidden from the page by default. Tick **Show archived** to list archived holdings in their own dimmed section; they stay out of the wallets, the portfolio total and the % of portfolio column, and the choice is remembered in that browser. The checkbox only appears when the wallets you can see (under the active collection filter) hold an archived holding, or while it is already ticked so you can untick it.
